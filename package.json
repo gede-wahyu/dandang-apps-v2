@@ -1,0 +1,23 @@
+{
+    "name": "dandang-apps-v2",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "pinia": "^2.1.7",
+        "vee-validate": "^4.12.2",
+        "vue": "^3.3.8",
+        "vue-router": "^4.2.5",
+        "yup": "^1.3.2"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^4.5.0",
+        "sass": "^1.69.5",
+        "vite": "^5.0.0"
+    }
+}

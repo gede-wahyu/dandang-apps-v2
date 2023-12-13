@@ -1,0 +1,25 @@
+:root {
+    --primary: #58e0a9;
+    --primary-a: rgba(87, 224, 169, 50%);
+
+    --primary-100: #58e0a9;
+    --primary-200: #4fca98;
+    --primary-300: #46b387;
+    --primary-400: #3e9d76;
+    --primary-500: #358665;
+    --primary-600: #2c7055;
+    --primary-700: #235a44;
+    --primary-800: #1a4333;
+    --primary-900: #122d22;
+
+    --primary-a0: rgba(87, 224, 169, 5%);
+    --primary-a1: rgba(87, 224, 169, 10%);
+    --primary-a2: rgba(87, 224, 169, 20%);
+    --primary-a3: rgba(87, 224, 169, 30%);
+    --primary-a4: rgba(87, 224, 169, 40%);
+
+    --primary-a6: rgba(87, 224, 169, 60%);
+    --primary-a7: rgba(87, 224, 169, 70%);
+    --primary-a8: rgba(87, 224, 169, 80%);
+    --primary-a9: rgba(87, 224, 169, 90%);
+}

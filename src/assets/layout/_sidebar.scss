@@ -1,0 +1,122 @@
+.layout-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 250px;
+    user-select: none;
+    overflow-y: auto;
+    transform: translateX(0);
+    transition: transform 0.2s ease;
+
+    background-color: var(--surface-a);
+    border: var(--surface-border);
+    box-shadow: var(--box-shadow-set);
+
+    &::-webkit-scrollbar {
+        width: 10px;
+    }
+    &::-webkit-scrollbar-track {
+        background-color: var(--surface-scrollbar);
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--surface-thumb);
+    }
+
+    .layout-comp-logo {
+        position: sticky;
+        top: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-color);
+        padding: 15px 10px 15px 10px;
+        margin-bottom: 15px;
+        background-color: var(--surface-a);
+        border-bottom: 1px solid var(--surface-border);
+
+        img {
+            aspect-ratio: 1 / 1;
+            height: 1.5rem;
+        }
+        span {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+    }
+}
+
+.layout-staticmenu-desktop-inactive,
+.layout-overlaymenu-active {
+    .layout-sidebar {
+        transform: translateX(-250px);
+    }
+
+    &.layout-staticmenu-mobile {
+        .layout-sidebar {
+            transform: translateX(0);
+        }
+    }
+}
+
+.layout-menu {
+    width: 100%;
+    padding-right: 1.5rem;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.layout-root-menuitem {
+    padding: 10px 0;
+
+    .layout-root-label {
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin: 0 0 8px 1rem;
+    }
+
+    .layout-submenu {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        .layout-submenu-item {
+            a.active-menuitem {
+                background-color: var(--primary);
+                color: var(--text-primary);
+
+                span:first-child {
+                    color: var(--text-primary);
+                }
+            }
+        }
+    }
+
+    .layout-submenu-item {
+        a {
+            display: flex;
+            gap: 8px;
+            padding: 8px 15px 8px calc(15px + 1rem);
+            text-transform: capitalize;
+            letter-spacing: 0.3px;
+            color: var(--text-color-secondary);
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            transition: all 0.2s ease;
+
+            span:first-child {
+                font-size: 20px;
+                color: var(--icon-color-secondary);
+            }
+
+            &:hover {
+                background-color: var(--primary-a1);
+                color: var(--primary);
+                span:first-child {
+                    color: var(--primary);
+                }
+            }
+        }
+    }
+}

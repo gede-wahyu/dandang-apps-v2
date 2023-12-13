@@ -1,0 +1,19 @@
+.layout-container {
+    margin-left: 270px;
+    margin-right: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: margin 0.2s ease;
+}
+
+.layout-staticmenu-desktop-inactive,
+.layout-overlaymenu-active {
+    .layout-container {
+        margin-left: 20px;
+    }
+}
+
+.layout-footer {
+    margin-top: auto;
+}

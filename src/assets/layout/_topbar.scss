@@ -1,0 +1,53 @@
+.layout-topbar {
+    padding: 15px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--icon-color-secondary);
+    user-select: none;
+
+    .layout-help-nav {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+
+        & > span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    }
+}
+
+.layout-nav-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 3rem;
+    width: 3rem;
+    aspect-ratio: 1 / 1;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.nav-button-labeled {
+        width: 100%;
+        padding: 0 5px;
+        border-radius: var(--border-radius);
+        aspect-ratio: unset;
+
+        & span:first-child {
+            text-transform: capitalize;
+            text-wrap: nowrap;
+        }
+    }
+
+    &:focus {
+        border: 2px solid var(--primary-a);
+        background-color: var(--primary-a0);
+    }
+    &:hover {
+        background-color: var(--primary-a0);
+    }
+}
