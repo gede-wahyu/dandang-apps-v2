@@ -15,4 +15,12 @@
             }
         }
     }
+
+    .layout-help-nav {
+        .nav-button-labeled {
+            span:first-child {
+                display: none;
+            }
+        }
+    }
 }
