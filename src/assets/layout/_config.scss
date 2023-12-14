@@ -1,13 +1,56 @@
-.layout-config {
+.layout-configmenu {
     position: fixed;
     right: 0;
     top: 0;
     z-index: 10;
 
-    width: 250px;
+    width: 270px;
     height: 100vh;
-    background-color: aqua;
+    background-color: var(--surface-a);
+    box-shadow: var(--box-shadow-set);
+
+    padding: 2rem 1.5rem;
 
     transition: transform 0.2s ease;
-    transform: translateX(250px);
+    transform: translateX(270px);
+}
+
+.layout-config {
+    & .layout-configmenu-active {
+        transform: translateX(0);
+    }
+}
+
+.layout-configmenu {
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+
+        h5 {
+            margin-bottom: 0;
+        }
+    }
+
+    & > span {
+        color: var(--text-color-secondary);
+    }
+}
+
+.layout-config-button {
+    position: fixed;
+    bottom: 30vh;
+    right: 5px;
+    z-index: 2;
+
+    background-color: var(--color-unknown-500);
+    color: var(--text-color);
+
+    &:hover {
+        background-color: var(--color-unknown-a3);
+    }
+    &:focus {
+        background-color: var(--color-unknown-a3);
+    }
 }

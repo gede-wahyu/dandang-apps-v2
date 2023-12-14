@@ -1,0 +1,44 @@
+.layout-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.footer-container {
+    width: 100%;
+    padding: 15px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+
+    user-select: none;
+
+    & > span {
+        text-transform: uppercase;
+        color: var(--text-color-secondary);
+    }
+
+    & > div {
+        display: flex;
+        gap: 10px;
+
+        a {
+            display: flex;
+            align-items: center;
+            color: var(--icon-color-secondary);
+            gap: 10px;
+
+            &:nth-child(2)::before,
+            &:nth-child(2)::after {
+                content: "|";
+            }
+
+            svg {
+                fill: var(--icon-color-secondary);
+            }
+        }
+    }
+}

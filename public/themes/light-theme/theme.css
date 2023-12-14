@@ -64,7 +64,6 @@
     --border-radius-2: 30px;
 
     --box-shadow: rgba(149, 157, 165, 0.2);
-    --box-shadow-a: rgba(100, 100, 111, 0.1);
     --box-shadow-set: var(--box-shadow) 0px 8px 24px;
     --box-shadow-set-reverse: var(--box-shadow) 0px -8px 24px;
     --box-shadow-set-hover: var(--box-shadow-a) 0px 7px 29px 0px;

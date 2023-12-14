@@ -8,6 +8,7 @@
     overflow-y: auto;
     transform: translateX(0);
     transition: transform 0.2s ease;
+    z-index: 2;
 
     background-color: var(--surface-a);
     border: var(--surface-border);
@@ -50,7 +51,7 @@
 .layout-staticmenu-desktop-inactive,
 .layout-overlaymenu-active {
     .layout-sidebar {
-        transform: translateX(-250px);
+        transform: translateX(-251px);
     }
 
     &.layout-staticmenu-mobile {

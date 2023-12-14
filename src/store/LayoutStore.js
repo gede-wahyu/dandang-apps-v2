@@ -11,10 +11,9 @@ export const useLayoutStore = defineStore("layoutStore", {
             menuMode: "static",
         },
         layoutState: {
-            overlayMenuActive: false,
             staticMenuDesktopInactive: false,
             staticMenuMobileActive: false,
-            configVisible: false,
+            configMenuActive: false,
         },
     }),
     getters: {

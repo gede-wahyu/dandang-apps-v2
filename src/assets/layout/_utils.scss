@@ -1,0 +1,37 @@
+.span-nav-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+
+    width: 3rem;
+    height: 3rem;
+    aspect-ratio: 1/1;
+
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    color: var(--icon-color-secondary);
+
+    border: 2px solid transparent;
+    border-radius: var(--border-radius);
+
+    transition: all 0.2s ease;
+
+    &.right-labeled,
+    &.left-labeled {
+        width: fit-content;
+        padding: 0 5px;
+        aspect-ratio: unset;
+        text-transform: capitalize;
+        text-wrap: nowrap;
+    }
+
+    &:focus {
+        border: 2px solid var(--primary-a);
+        background-color: var(--primary-a0);
+    }
+    &:hover {
+        background-color: var(--primary-a0);
+    }
+}
