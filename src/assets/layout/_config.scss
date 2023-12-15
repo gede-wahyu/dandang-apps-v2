@@ -44,13 +44,13 @@
     right: 5px;
     z-index: 2;
 
-    background-color: var(--color-unknown-500);
-    color: var(--text-color);
+    background-color: var(--color-unknown);
+    color: var(--text-light);
 
     &:hover {
-        background-color: var(--color-unknown-a3);
+        background-color: var(--color-unknown-a8);
     }
     &:focus {
-        background-color: var(--color-unknown-a3);
+        background-color: var(--color-unknown-a8);
     }
 }
