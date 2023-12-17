@@ -16,6 +16,7 @@ export const useLayoutStore = defineStore("layoutStore", {
             staticMenuDesktopInactive: false,
             staticMenuMobileActive: false,
             configMenuActive: false,
+            activeMenuTree: null,
         },
     }),
     getters: {

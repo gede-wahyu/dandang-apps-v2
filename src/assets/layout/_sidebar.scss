@@ -72,22 +72,28 @@
                     padding: 0 0 0 1.5rem;
                 }
 
+                > a {
+                    display: none;
+                }
+
                 .layout-submenu {
                     display: flex;
                     flex-direction: column;
                     gap: 5px;
 
-                    .layout-submenu-item,
-                    .layout-submenu-item a {
-                        width: 100%;
-                        display: flex;
-                        align-items: center;
-                    }
-
                     .layout-submenu-item {
                         transition: all 0.2s ease;
 
+                        .layout-submenu {
+                            .layout-submenu-item {
+                                padding: 0;
+                            }
+                        }
+
                         a {
+                            width: 100%;
+                            display: flex;
+                            align-items: center;
                             transition: all 0.2s ease;
 
                             &:hover {
@@ -119,6 +125,9 @@
                             span:nth-of-type(2) {
                                 text-transform: capitalize;
                                 color: var(--text-color-secondary);
+                            }
+                            span:last-of-type {
+                                margin-left: auto;
                             }
                         }
                     }
@@ -178,6 +187,26 @@
                         .layout-submenu-item {
                             padding: 0 1.5rem 0 0;
 
+                            .layout-submenu {
+                                .layout-submenu-item {
+                                    a {
+                                        padding-left: calc(
+                                            15px + 1.5rem + 2rem
+                                        );
+                                    }
+
+                                    .layout-submenu {
+                                        .layout-submenu-item {
+                                            a {
+                                                padding-left: calc(
+                                                    15px + 1.5rem + 2rem + 2rem
+                                                );
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             a {
                                 border-top-right-radius: var(--border-radius);
                                 border-bottom-right-radius: var(
@@ -202,26 +231,26 @@
                         .layout-submenu-item {
                             padding: 0 1.5rem 0 1.5rem;
 
+                            .layout-submenu {
+                                .layout-submenu-item {
+                                    a {
+                                        width: calc(100% - 2rem);
+                                        margin-left: 2rem;
+                                    }
+
+                                    .layout-submenu {
+                                        .layout-submenu-item {
+                                            a {
+                                                width: calc(100% - 4rem);
+                                                margin-left: 4rem;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             a {
                                 border-radius: var(--border-radius);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-.layout-activemenustyle-full-width {
-    .layout-sidebar {
-        .layout-sidebar-content {
-            .layout-menu {
-                .layout-root-menuitem {
-                    .layout-submenu {
-                        .layout-submenu-item {
-                            a {
-                                padding-left: calc(15px + 1.5rem);
                             }
                         }
                     }
@@ -239,6 +268,26 @@
                     .layout-submenu {
                         .layout-submenu-item {
                             padding: 0 1.5rem 0 0;
+
+                            .layout-submenu {
+                                .layout-submenu-item {
+                                    a {
+                                        padding-left: calc(
+                                            15px + 1.5rem + 2rem
+                                        );
+                                    }
+
+                                    .layout-submenu {
+                                        .layout-submenu-item {
+                                            a {
+                                                padding-left: calc(
+                                                    15px + 1.5rem + 2rem + 2rem
+                                                );
+                                            }
+                                        }
+                                    }
+                                }
+                            }
 
                             a {
                                 border-top-right-radius: 20px;
@@ -262,6 +311,24 @@
                         .layout-submenu-item {
                             padding: 0 1.5rem 0 1.5rem;
 
+                            .layout-submenu {
+                                .layout-submenu-item {
+                                    a {
+                                        width: calc(100% - 2rem);
+                                        margin-left: 2rem;
+                                    }
+
+                                    .layout-submenu {
+                                        .layout-submenu-item {
+                                            a {
+                                                width: calc(100% - 4rem);
+                                                margin-left: 4rem;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             a {
                                 border-radius: 17px;
                             }
@@ -271,4 +338,62 @@
             }
         }
     }
+}
+
+.layout-activemenustyle-full-width {
+    .layout-sidebar {
+        .layout-sidebar-content {
+            .layout-menu {
+                .layout-root-menuitem {
+                    .layout-submenu {
+                        .layout-submenu-item {
+                            .layout-submenu {
+                                .layout-submenu-item {
+                                    a {
+                                        padding-left: calc(
+                                            15px + 1.5rem + 2rem
+                                        );
+                                    }
+
+                                    .layout-submenu {
+                                        .layout-submenu-item {
+                                            a {
+                                                padding-left: calc(
+                                                    15px + 1.5rem + 2rem + 2rem
+                                                );
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            a {
+                                padding-left: calc(15px + 1.5rem);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.layout-submenu-enter-from,
+.layout-submenu-leave-to {
+    max-height: 0;
+}
+
+.layout-submenu-enter-to,
+.layout-submenu-leave-from {
+    max-height: 1000px;
+}
+
+.layout-submenu-leave-active {
+    overflow: hidden;
+    transition: max-height 0.45s cubic-bezier(0, 1, 0, 1);
+}
+
+.layout-submenu-enter-active {
+    overflow: hidden;
+    transition: max-height 1s ease-in-out;
 }
