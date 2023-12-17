@@ -1,8 +1,9 @@
+/** style for smaller than laptop */
 @media screen and (max-width: 991px) {
     .layout-staticmenu-active,
     .layout-overlaymenu-active {
         .layout-sidebar {
-            transform: translateX(-251px);
+            transform: translateX(-271px);
         }
 
         .layout-container {
@@ -21,6 +22,37 @@
             span:first-child {
                 display: none;
             }
+        }
+    }
+}
+
+/** style for laptop and larger device */
+@media screen and (min-width: 992px) {
+    .layout-sidebar {
+        .layout-sidebar-content {
+            .layout-menu {
+                &::-webkit-scrollbar {
+                    width: 10px;
+                }
+                &::-webkit-scrollbar-track {
+                    background-color: var(--surface-scrollbar);
+                }
+                &::-webkit-scrollbar-thumb {
+                    background-color: var(--surface-thumb);
+                }
+            }
+        }
+    }
+
+    .layout-configmenu {
+        &::-webkit-scrollbar {
+            width: 10px;
+        }
+        &::-webkit-scrollbar-track {
+            background-color: var(--surface-scrollbar);
+        }
+        &::-webkit-scrollbar-thumb {
+            background-color: var(--surface-thumb);
         }
     }
 }

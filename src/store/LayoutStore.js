@@ -9,6 +9,8 @@ export const useLayoutStore = defineStore("layoutStore", {
             activeMenuItem: "",
             activePageName: "",
             menuMode: "static",
+            menuStyle: "sticky",
+            activeMenuStyle: "rounded-right",
         },
         layoutState: {
             staticMenuDesktopInactive: false,
@@ -41,6 +43,44 @@ export const useLayoutStore = defineStore("layoutStore", {
                 this.layoutState.staticMenuMobileActive =
                     !this.layoutState.staticMenuMobileActive;
             }
+        },
+        onChangeTone(tone) {
+            const elementId = "tone-css";
+            const linkElement = document.getElementById(elementId);
+            const cloneLinkElement = linkElement.cloneNode(true);
+            const newToneUrl = linkElement
+                .getAttribute("href")
+                .replace(this.layoutConfig.tone, tone);
+            cloneLinkElement.setAttribute("id", elementId + "-clone");
+            cloneLinkElement.setAttribute("href", newToneUrl);
+            cloneLinkElement.addEventListener("load", () => {
+                linkElement.remove();
+                cloneLinkElement.setAttribute("id", elementId);
+                this.layoutConfig.tone = tone;
+            });
+            linkElement.parentNode.insertBefore(
+                cloneLinkElement,
+                linkElement.nextSibling
+            );
+        },
+        onChangeTheme(theme) {
+            const elementId = "theme-css";
+            const linkElement = document.getElementById(elementId);
+            const cloneLinkElement = linkElement.cloneNode(true);
+            const newToneUrl = linkElement
+                .getAttribute("href")
+                .replace(this.layoutConfig.theme, theme);
+            cloneLinkElement.setAttribute("id", elementId + "-clone");
+            cloneLinkElement.setAttribute("href", newToneUrl);
+            cloneLinkElement.addEventListener("load", () => {
+                linkElement.remove();
+                cloneLinkElement.setAttribute("id", elementId);
+            });
+            linkElement.parentNode.insertBefore(
+                cloneLinkElement,
+                linkElement.nextSibling
+            );
+            this.layoutConfig.theme = theme;
         },
     },
 });

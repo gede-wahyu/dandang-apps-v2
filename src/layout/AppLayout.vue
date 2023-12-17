@@ -39,6 +39,22 @@ const containerClass = computed(() => {
             layoutStore.layoutState.staticMenuDesktopInactive,
         "layout-staticmenu-mobile":
             layoutStore.layoutState.staticMenuMobileActive,
+        "layout-menustyle-sticky":
+            layoutStore.layoutConfig.menuStyle === "sticky" ||
+            window.innerWidth < 992,
+        "layout-menustyle-boxes":
+            layoutStore.layoutConfig.menuStyle === "boxes" &&
+            window.innerWidth >= 992,
+        "layout-activemenustyle-rounded-right":
+            layoutStore.layoutConfig.activeMenuStyle === "rounded-right",
+        "layout-activemenustyle-rounded-all":
+            layoutStore.layoutConfig.activeMenuStyle === "rounded-all",
+        "layout-activemenustyle-full-width":
+            layoutStore.layoutConfig.activeMenuStyle === "full-width",
+        "layout-activemenustyle-pill-right":
+            layoutStore.layoutConfig.activeMenuStyle === "pill-right",
+        "layout-activemenustyle-pill-all":
+            layoutStore.layoutConfig.activeMenuStyle === "pill-all",
     };
 });
 const outsideClickListener = ref(null);

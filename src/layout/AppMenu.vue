@@ -12,10 +12,10 @@ import AppMenuItem from "./AppMenuItem.vue";
 
 const model = ref([
     {
-        label: "home",
+        label: "utama",
         items: [
             {
-                label: "dashboard",
+                label: "beranda",
                 icon: "home",
                 to: { name: "dashboard" },
             },
