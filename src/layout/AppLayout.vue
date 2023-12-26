@@ -14,6 +14,7 @@
                 <AppFooter />
             </div>
         </div>
+        <Toast :position="position()" />
     </div>
     <div class="layout-config">
         <AppConfig />
@@ -95,6 +96,10 @@ const isOutsideClicked = (event) => {
         toggleMenuButton.isSameNode(event.target) ||
         toggleMenuButton.contains(event.target)
     );
+};
+
+const position = () => {
+    if (window.innerWidth < 992) return "top-center";
 };
 
 //

@@ -8,7 +8,12 @@
         <span class="material-symbols-outlined"> menu </span>
     </span>
     <div class="layout-help-nav">
-        <span class="span-nav-button left-labeled" role="button" tabindex="0">
+        <span
+            class="span-nav-button left-labeled"
+            role="button"
+            tabindex="0"
+            @click="router.push({ name: 'transaction-add' })"
+        >
             <span>Buat Transaksi</span>
             <span class="material-symbols-outlined"> add_notes </span>
         </span>
@@ -25,7 +30,10 @@
 
 <script setup>
 import { useLayoutStore } from "../store/LayoutStore";
+import { useRouter } from "vue-router";
+
 const layoutStore = useLayoutStore();
+const router = useRouter();
 const onToggleMenu = () => {
     layoutStore.toggleMenu();
 };

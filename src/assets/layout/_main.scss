@@ -20,6 +20,16 @@ body {
     position: relative;
 }
 
+::-moz-selection {
+    /* Code for Firefox */
+    background: var(--bg-hl);
+    color: var(--text-hl);
+}
+
+::selection {
+    background: var(--bg-hl);
+}
+
 a {
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
