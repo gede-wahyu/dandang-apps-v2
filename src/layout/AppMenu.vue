@@ -22,6 +22,21 @@ const model = ref([
         ],
     },
     {
+        label: "produk",
+        items: [
+            {
+                label: "daftar produk",
+                icon: "dataset",
+                to: { name: "product-list" },
+            },
+            {
+                label: "tambah produk",
+                icon: "add_box",
+                to: { name: "product-add" },
+            },
+        ],
+    },
+    {
         label: "transaksi",
         items: [
             {
@@ -42,7 +57,22 @@ const model = ref([
         ],
     },
     {
-        label: "Saler",
+        label: "laporan",
+        items: [
+            {
+                label: "pendapatan",
+                icon: "finance_mode",
+                to: { name: "report-income" },
+            },
+            {
+                label: "laba rugi",
+                icon: "currency_exchange",
+                to: { name: "report-pnl" },
+            },
+        ],
+    },
+    {
+        label: "saler",
         items: [
             {
                 label: "daftar saler",

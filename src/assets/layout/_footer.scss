@@ -14,8 +14,6 @@
     align-items: center;
     gap: 5px;
 
-    user-select: none;
-
     & > span {
         text-transform: uppercase;
         color: var(--text-color-secondary);
@@ -24,6 +22,7 @@
     & > div {
         display: flex;
         gap: 10px;
+        user-select: none;
 
         a {
             display: flex;

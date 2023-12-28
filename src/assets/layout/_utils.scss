@@ -54,11 +54,22 @@
     align-items: center;
 
     & span:first-child,
-    i:first-child {
+    svg:first-child {
         position: absolute;
         width: 1.5rem;
         color: var(--text-color-secondary);
         left: 0.5rem;
+        z-index: 2;
+        user-select: none;
+        font-size: 1.5rem;
+    }
+
+    & span,
+    svg {
+        position: absolute;
+        width: 1.5rem;
+        color: var(--text-color-secondary);
+        right: 0.5rem;
         z-index: 2;
         user-select: none;
         font-size: 1.5rem;
@@ -70,8 +81,10 @@
         }
     }
 
-    .d-input-iconright {
-        padding-right: 2.5rem !important;
+    &.d-input-iconright {
+        input {
+            padding-right: 2.5rem !important;
+        }
     }
 }
 
@@ -90,4 +103,8 @@
         height: 2rem;
         width: 2rem;
     }
+}
+
+.d-error {
+    color: var(--color-danger);
 }

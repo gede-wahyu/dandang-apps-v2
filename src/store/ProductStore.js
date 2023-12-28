@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import { date } from "yup";
 
 export const useProductStore = defineStore("productStore", {
     state: () => ({
@@ -32,8 +31,6 @@ export const useProductStore = defineStore("productStore", {
                 }
             } catch (error) {
                 console.log(error);
-            } finally {
-                this.isLoading = false;
             }
         },
     },

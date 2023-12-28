@@ -1,128 +1,125 @@
 import { defineStore } from "pinia";
+import { fetchWrapper } from "../helper/fetch-wrapper";
+const baseUrl = import.meta.env.VITE_API_URL;
 
-export const useAuthStore = defineStore('authStore', {
+export const useAuthStore = defineStore("authStore", {
     state: () => ({
         auth: {
-            authenticated: false,
             user: null,
-            roleId: null,
-            permission: []
+            role: null,
+            acc: null,
         },
-        users: [],
-        isLoading: false
     }),
-    getters: {},
+    getters: {
+        user() {
+            return this.auth ? this.auth.user : null;
+        },
+    },
     actions: {
-        async getUsers() {
-            this.isLoading = true;
-            const res = await fetch("https://my-json-server.typicode.com/gede-wahyu/dandang-api/users");
-            const data = await res.json();
-            this.users = data;
-            this.isLoading = false;
+        async login(username, password) {
+            const result = await fetchWrapper.post(`${baseUrl}/login`, {
+                email: username,
+                password,
+            });
+
+            if (result.success) {
+                this.auth = result.data;
+                this.setBaseRolePermission();
+                this.setAdditionalRolePermission();
+            }
+
+            return result;
         },
 
-        login(username, password) {
-            let user = this.users.find((user) => user.username === username && user.password === password)
-            if(user) {
-                this.auth.authenticated = true;
-                this.auth.user = user;
-                this.auth.roleId = user.id_role
-                this.setBaseRolePermission()
-                this.setAdditionalRolePermission()
-
-
-                return {
-                    authenticated: true,
-                    user: user
-                }
-            }
-            else {
-                this.auth.authenticated = false;
-                return {
-                    authenticated: false,
-                    message: "Wrong credential"
-                }
-            }
+        isAunthenticated() {
+            // return await fetchWrapper.post(
+            //     "https://omahit.my.id/api/refresh-token",
+            //     {
+            //         "api-token": this.user["api_token"],
+            //     }
+            // );
+            if (this.auth) return true;
+            else return false;
         },
 
         logout() {
-            this.auth.authenticated=false
-            this.auth.user=null
-            this.auth.roleId=null
-            this.auth.permission=null
+            this.auth = null;
+        },
+
+        async updatePersonalInfo(data) {
+            // const result = await fetchWrapper.patch(
+            //     `${baseUrl}/user/${this.auth.user.id}`,
+            //     data
+            // );
+            console.log(data);
         },
 
         /** set basic permission for every (1)route-name and (2)function-name */
         setBaseRolePermission() {
-            if(!this.auth.authenticated) return;
-            if(!this.auth.user) return;
-            this.auth.permission.push(
-                'home',
-                'notifications',
-                'settings',
-                'home-product-list',
-                'coming-soon',
-                'login',
-                'unauthorize',
-                
-                'logout()',
-                'settings-change()',
-            )
+            if (!this.isAunthenticated()) return;
+            if (!this.auth.user) return;
+            this.auth.role.permission.push(
+                "dashboard",
+                "notification",
+                "user",
+                "login",
+                "unauthorize",
+
+                "login()",
+                "logout()"
+            );
         },
 
         /** set additional permission for every (1)route-name and (2)function-name */
         setAdditionalRolePermission() {
-            if(!this.auth.authenticated) return;
-            if(!this.auth.user) return;
-            if(this.auth.roleId == 1) {
-                this.auth.permission.push(
-                    'store-list',
-                    'transaction-add',
-                    'home-transaction-list',
-                    'home-transaction-delay',
-                    'home-distribution-list',
-                    'home-saler-list',
+            if (!this.isAunthenticated()) return;
+            if (!this.auth.user) return;
+            if (this.auth.role.role_id == 1) {
+                this.auth.role.permission.push(
+                    "transaction-list",
+                    "transaction-add",
+                    "transaction-delay",
+                    "saler-list",
+                    "saler-add",
+                    "depo-list",
+                    "depo-add",
 
-                    'make-transaction()'
-                )
-            }
-            else if(this.auth.roleId == 2) {
-                this.auth.permission.push(
-                    'store-list',
-                    'transaction-add',
-                    'home-transaction-list',
-                    'home-transaction-delay',
+                    "transactionPost"
+                );
+            } else if (this.auth.role.role_id == 2) {
+                this.auth.role.permission.push(
+                    "transaction-list",
+                    "transaction-add",
+                    "transaction-delay",
+                    "depo-list",
 
-                    'make-transaction()'
-                )
-            }
-            else if(this.auth.roleId == 3) {
-                this.auth.permission.push(
-                    'store-list',
-                    'transaction-add',
-                    'home-transaction-list',
+                    "transactionPost"
+                );
+            } else if (this.auth.role.role_id == 3) {
+                this.auth.role.permission.push(
+                    "transaction-list",
+                    "transaction-add",
+                    "depo-list",
 
-                    'make-transaction()'
-                )
-            }
-            else if(this.auth.roleId == 4) {
-                this.auth.permission.push(
-                    'store-list',
-                    'transaction-add',
-                    'home-transaction-list',
+                    "transactionPost"
+                );
+            } else if (this.auth.role.role_id == 4) {
+                this.auth.role.permission.push(
+                    "transaction-list",
+                    "transaction-add",
+                    "depo-list",
 
-                    'make-transaction()'
-                )
-            }
-            else if(this.auth.roleId == 5) {
-                this.auth.permission.push(
-                    'home-distribution-list',
-                )
+                    "transactionPost"
+                );
+            } else if (this.auth.role.role_id == 5) {
+                this.auth.role.permission.push("distribution-list");
             }
         },
 
         isAuthorize(routerName) {
-            return this.auth.permission.includes(routerName)
-        }
-    }
-})
+            if (this.isAunthenticated())
+                return this.auth.role.permission.includes(routerName);
+            else return false;
+        },
+    },
+});

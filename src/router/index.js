@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import AppLayout from "../layout/AppLayout.vue";
-// import { useAuthStore } from "../stores/AuthStore";
+import AuthLayout from "../layout/auth/AuthLayout.vue";
+import { useAuthStore } from "../store/AuthStore";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,6 +14,16 @@ const router = createRouter({
                     path: "/",
                     name: "dashboard",
                     component: () => import("../view/Dashboard.vue"),
+                },
+                {
+                    path: "/daftar-produk",
+                    name: "product-list",
+                    component: () => import("../view/DaftarProduk.vue"),
+                },
+                {
+                    path: "/tambah-produk",
+                    name: "product-add",
+                    component: () => import("../view/TambahProduk.vue"),
                 },
                 {
                     path: "/riwayat-transaksi",
@@ -28,6 +39,16 @@ const router = createRouter({
                     path: "/transaksi-terjeda",
                     name: "transaction-delay",
                     component: () => import("../view/TransaksiTerjeda.vue"),
+                },
+                {
+                    path: "/laporan-pendapatan",
+                    name: "report-income",
+                    component: () => import("../view/Pendapatan.vue"),
+                },
+                {
+                    path: "/laporan-laba-rugi",
+                    name: "report-pnl",
+                    component: () => import("../view/LabaRugi.vue"),
                 },
                 {
                     path: "/daftar-saler",
@@ -49,24 +70,50 @@ const router = createRouter({
                     name: "depo-add",
                     component: () => import("../view/TambahDepo.vue"),
                 },
+                {
+                    path: "/pengguna",
+                    name: "user",
+                    component: () => import("../view/user/Pengguna.vue"),
+                },
+                {
+                    path: "/notifikasi",
+                    name: "notif",
+                    component: () => import("../view/Notifikasi.vue"),
+                },
             ],
         },
-        // {
-        //     path: "/coming-soon",
-        //     name: "coming-soon",
-        //     component: () => import("../views/pages/dev/ComingSoon.vue"),
-        // },
-        // {
-        //     path: "/login",
-        //     name: "login",
-        //     component: () => import("../views/auth/Login.vue"),
-        // },
-        // {
-        //     path: "/unauthorize",
-        //     name: "unauthorize",
-        //     component: () => import("../views/auth/Unauthorize.vue"),
-        // },
+        {
+            path: "/auth",
+            component: AuthLayout,
+            children: [
+                {
+                    path: "/login",
+                    name: "login",
+                    component: () => import("../view/auth/Login.vue"),
+                },
+                {
+                    path: "/unauthorize",
+                    name: "unauthorize",
+                    component: () => import("../view/auth/Unauthorize.vue"),
+                },
+            ],
+        },
     ],
 });
+
+// router.beforeEach((to, from, next) => {
+//     const authStore = useAuthStore();
+//     let isAuthenticated = authStore.isAunthenticated();
+
+//     if (!isAuthenticated && to.name !== "login") {
+//         next({ name: "login" });
+//     } else if (isAuthenticated && to.name === "login") {
+//         next({ name: "dashboard" });
+//     } else if (isAuthenticated && !authStore.isAuthorize(to.name)) {
+//         next({ name: "unauthorize" });
+//     } else {
+//         next();
+//     }
+// });
 
 export default router;

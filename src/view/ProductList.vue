@@ -21,14 +21,14 @@
             </div>
         </template>
 
-        <Column header="Nama">
+        <Column header="Nama" style="width: 25%">
             <template #body="slotProps">
                 <span class="product-datatext">
                     {{ slotProps.data.name }}
                 </span>
             </template>
         </Column>
-        <Column header="Gambar">
+        <Column header="Gambar" style="width: 15%">
             <template #body="slotProps">
                 <img
                     src="https://omahit.my.id/storage/barang/6571f01299e9a_dandang%20selection.png"
@@ -43,17 +43,17 @@
                 />
             </template>
         </Column>
-        <Column header="Varian">
+        <Column header="Varian" style="width: 15%">
             <template #body="slotProps">
                 <div>{{ slotProps.data.size }} {{ slotProps.data.uom }}</div>
             </template>
         </Column>
-        <Column header="Stok">
+        <Column header="Stok" style="width: 15%">
             <template #body="slotProps">
                 <div>{{ slotProps.data.stock }}</div>
             </template>
         </Column>
-        <Column header="Harga">
+        <Column header="Harga" style="width: 15%">
             <template #body="slotProps">
                 <div>
                     {{
@@ -103,7 +103,7 @@
                     <div class="item-left">
                         <div class="image" style="width: 4rem; height: 5rem">
                             <img
-                                src="/public/6571f01299e9a_dandang selection.png"
+                                src="/6571f01299e9a_dandang selection.png"
                                 :alt="item.name"
                                 style="
                                     height: 5rem;

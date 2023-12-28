@@ -16,6 +16,8 @@ import DataTable from "primevue/datatable";
 import DataView from "primevue/dataview";
 import Column from "primevue/column";
 import Paginator from "primevue/paginator";
+import Password from "primevue/password";
+import Skeleton from "primevue/skeleton";
 
 import "./assets/styles.scss";
 
@@ -38,5 +40,7 @@ app.component("DataTable", DataTable);
 app.component("DataView", DataView);
 app.component("Column", Column);
 app.component("Paginator", Paginator);
+app.component("Password", Password);
+app.component("Skeleton", Skeleton);
 
 app.mount("#app");

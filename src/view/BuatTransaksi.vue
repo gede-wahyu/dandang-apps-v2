@@ -1,6 +1,8 @@
 <template>
     <div class="d-card" style="margin-bottom: 2rem">
+        <ProductListSkeleton v-if="productStore.isLoading" />
         <ProductList
+            v-else
             :products="products"
             :cartProductId="getIdProductCartList()"
             @add-to-cart="addToCart($event)"
@@ -47,7 +49,7 @@
                             </div>
                             <div class="item-right">
                                 <img
-                                    src="/public/6571f01299e9a_dandang selection.png"
+                                    src="/6571f01299e9a_dandang selection.png"
                                     :alt="item.name"
                                     style="
                                         height: 5rem;
@@ -73,6 +75,7 @@
                                         <InputNumber
                                             class="d-plusmin-input"
                                             v-model="item.amount"
+                                            :min="1"
                                         />
                                         <Button
                                             icon="add"
@@ -273,6 +276,7 @@ import { ref, onMounted } from "vue";
 import { useToast } from "primevue/usetoast";
 import ProductList from "./ProductList.vue";
 import CustList from "./CustList.vue";
+import ProductListSkeleton from "./skeleton/ProductListSkeleton.vue";
 
 const toast = useToast();
 const productStore = useProductStore();
@@ -299,6 +303,7 @@ onMounted(async () => {
     await customerStore.getCustomers();
     products.value = productStore.products;
     customers.value = customerStore.customers;
+    productStore.isLoading = false;
 
     if (localStorage.getItem("cart")) {
         cart.value = JSON.parse(localStorage.getItem("cart"));

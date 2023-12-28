@@ -199,7 +199,7 @@
 }
 
 .d-button {
-    padding: 1rem 1rem;
+    padding: 0.75rem 1rem;
     border: none;
     border-radius: var(--border-radius);
     color: var(--text-primary);
@@ -208,6 +208,7 @@
     transition: all 0.2s ease;
     outline: none;
     transition: all 0.2s ease;
+    cursor: pointer;
 
     &.d-button-icon-only {
         padding: 0.75rem;
@@ -317,6 +318,26 @@
         box-shadow: 0 0 0 1.5px var(--surface-ground),
             0 0 0 3px var(--color-unknown-a);
         outline: 0 none;
+    }
+}
+
+.d-inputpassword-set {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    input {
+        width: 100%;
+    }
+
+    .d-inputpassword-eye {
+        position: absolute;
+        color: var(--text-color-secondary);
+        right: 1rem;
+        cursor: pointer;
+        user-select: none;
+        font-size: 1.3rem;
+        -webkit-tap-highlight-color: transparent;
     }
 }
 
@@ -1094,3 +1115,16 @@
     border-bottom-right-radius: 6px;
 }
 /* DATAVIEW STYLE END */
+
+.p-skeleton {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+}
+.p-skeleton:after {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0.04),
+        rgba(255, 255, 255, 0)
+    );
+}

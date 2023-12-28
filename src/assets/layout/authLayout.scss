@@ -1,0 +1,87 @@
+.auth-layout-wrapper {
+    width: 100dvw;
+    height: 100dvh;
+    padding: 1rem 1.5rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    background-color: var(--primary);
+
+    ::-moz-selection {
+        /* Code for Firefox */
+        background: var(--primary-a);
+        color: var(--text-hl);
+    }
+
+    ::selection {
+        background: var(--primary-a);
+    }
+}
+
+.auth-layout-top {
+    display: flex;
+    justify-content: center;
+    padding: 15px 0;
+
+    span {
+        text-transform: uppercase;
+        color: #dfdfdf;
+    }
+}
+
+.auth-layout-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-layout-bottom {
+    .footer-container {
+        & > span {
+            color: #dfdfdf;
+        }
+
+        & > div {
+            a {
+                color: #dfdfdf;
+
+                svg {
+                    fill: #dfdfdf;
+                }
+            }
+        }
+    }
+}
+
+.content-wrapper {
+    width: 100%;
+    padding: 1rem;
+
+    .d-card {
+        padding: 2rem 2rem;
+    }
+}
+
+@media screen and (min-width: 640px) {
+    .content-wrapper {
+        padding: 1rem 13rem;
+    }
+}
+@media screen and (min-width: 768px) {
+    .content-wrapper {
+        padding: 1rem 16rem;
+    }
+}
+@media screen and (min-width: 992px) {
+    .content-wrapper {
+        padding: 1rem 29rem;
+    }
+}
+@media screen and (min-width: 1280px) {
+    .content-wrapper {
+        padding: 1rem 43rem;
+    }
+}
