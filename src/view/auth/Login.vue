@@ -137,6 +137,12 @@ const FOR_TESTING = async (id) => {
 };
 const LOGIN_TESTING = async (id) => {
     await FOR_TESTING(id);
+    toast.add({
+        severity: "success",
+        summary: "Login Berhasil",
+        detail: `Selamat datang ${authStore.auth.user.nama}`,
+        life: 3000,
+    });
     router.push("/");
 };
 

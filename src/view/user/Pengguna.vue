@@ -21,7 +21,11 @@
                     }}
                 </h4>
                 <span>{{
-                    authStore.auth.acc ? authStore.auth.acc : "@username"
+                    authStore.auth.user && authStore.auth.user.username
+                        ? `@${authStore.auth.user.username}`
+                        : authStore.auth.user && authStore.auth.user.email
+                        ? authStore.auth.user.email
+                        : "@username"
                 }}</span>
             </div>
             <div class="user-profile-button">
@@ -29,10 +33,7 @@
                 <Button
                     label="Log Out"
                     severity="danger"
-                    @click="
-                        authStore.logout();
-                        router.push({ name: 'login' });
-                    "
+                    @click="handleLogout()"
                 />
             </div>
         </div>
@@ -74,6 +75,12 @@ import { useRouter } from "vue-router";
 
 const authStore = useAuthStore();
 const router = useRouter();
+
+const handleLogout = () => {
+    authStore.deleteSession();
+    router.push({ name: "login" });
+    authStore.logout();
+};
 
 //
 </script>

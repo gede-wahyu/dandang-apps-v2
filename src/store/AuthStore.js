@@ -117,7 +117,8 @@ export const useAuthStore = defineStore("authStore", {
                     "tax",
                     "discount",
                     "due",
-                    "warehouse"
+                    "warehouse",
+                    "selectSalerProduct"
                 );
             } else if (this.auth.role.role_id == 1) {
                 this.auth.role.permission.push(
