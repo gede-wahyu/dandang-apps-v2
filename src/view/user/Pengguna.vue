@@ -26,6 +26,14 @@
             </div>
             <div class="user-profile-button">
                 <Button label="Kartu Profil" />
+                <Button
+                    label="Log Out"
+                    severity="danger"
+                    @click="
+                        authStore.logout();
+                        router.push({ name: 'login' });
+                    "
+                />
             </div>
         </div>
     </div>
@@ -62,8 +70,10 @@ import FormPersonal from "./FormPersonal.vue";
 import FormUsername from "./FormUsername.vue";
 import FormPassword from "./FormPassword.vue";
 import { useAuthStore } from "../../store/AuthStore";
+import { useRouter } from "vue-router";
 
 const authStore = useAuthStore();
+const router = useRouter();
 
 //
 </script>
@@ -130,6 +140,10 @@ const authStore = useAuthStore();
         .user-profile-button {
             width: auto;
             margin: 4rem 1.5rem 0 auto;
+
+            button {
+                margin-left: 1rem;
+            }
         }
     }
 }

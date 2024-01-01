@@ -1,5 +1,13 @@
 <template>
-    <li :class="{ 'layout-root-menuitem': root, 'layout-submenu-item': !root }">
+    <li
+        :class="{
+            'layout-root-menuitem': root,
+            'layout-submenu-item': !root,
+            'hide-unauthorize-root': root && isAllChildNotAuthorize(item),
+            'hide-unauthorize-routename':
+                !root && !authStore.isAuthorize(item.to.name),
+        }"
+    >
         <div v-if="root && item.visible !== false" class="layout-root-label">
             {{ item.label }}
         </div>
@@ -45,9 +53,11 @@
 import { ref, onBeforeMount, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useLayoutStore } from "../store/LayoutStore";
+import { useAuthStore } from "../store/AuthStore";
 
 const route = useRoute();
 const layoutStore = useLayoutStore();
+const authStore = useAuthStore();
 const itemKey = ref(null);
 const isActiveMenu = ref(false);
 
@@ -111,5 +121,19 @@ const checkActiveRoute = (item) => {
     }
 };
 
+const isAllChildNotAuthorize = (_item) => {
+    return !_item.items
+        .map((i) => authStore.isAuthorize(i.to.name))
+        .reduce((result, j) => result || j);
+};
+
 //
 </script>
+<style scoped>
+.hide-unauthorize-root {
+    display: none !important;
+}
+.hide-unauthorize-routename {
+    display: none;
+}
+</style>

@@ -8,7 +8,7 @@
     >
         <template #header>
             <div class="modal-header">
-                <h5 style="margin-bottom: 0">Daftar Produk</h5>
+                <h5 style="margin-bottom: 0">{{ header }}</h5>
                 <span class="d-sideicon-set d-input-iconleft">
                     <span class="material-symbols-outlined"> search </span>
                     <InputText placeholder="Cari produk" />
@@ -76,6 +76,12 @@
 <script setup>
 import { ref } from "vue";
 const products = ref(new Array(15));
+const props = defineProps({
+    header: {
+        type: String,
+        default: "Daftar Produk",
+    },
+});
 </script>
 
 <style scoped lang="scss">

@@ -1,13 +1,14 @@
 import { defineStore } from "pinia";
 import { fetchWrapper } from "../helper/fetch-wrapper";
-const baseUrl = import.meta.env.VITE_API_URL;
+
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export const useAuthStore = defineStore("authStore", {
     state: () => ({
         auth: {
             user: null,
             role: null,
-            acc: null,
+            // acc: null,
         },
     }),
     getters: {
@@ -17,7 +18,7 @@ export const useAuthStore = defineStore("authStore", {
     },
     actions: {
         async login(username, password) {
-            const result = await fetchWrapper.post(`${baseUrl}/login`, {
+            const result = await fetchWrapper.post(`${baseUrl}/api/login`, {
                 email: username,
                 password,
             });
@@ -26,24 +27,44 @@ export const useAuthStore = defineStore("authStore", {
                 this.auth = result.data;
                 this.setBaseRolePermission();
                 this.setAdditionalRolePermission();
+
+                localStorage.setItem(
+                    "session",
+                    // JSON.stringify({
+                    //     api_token: this.auth.api_token,
+                    //     login_time: this.auth.login_time,
+                    //     exp: this.auth.exp,
+                    // })
+                    JSON.stringify(this.auth)
+                );
             }
 
             return result;
         },
 
         isAunthenticated() {
-            // return await fetchWrapper.post(
-            //     "https://omahit.my.id/api/refresh-token",
-            //     {
-            //         "api-token": this.user["api_token"],
-            //     }
-            // );
-            if (this.auth) return true;
-            else return false;
+            let session = JSON.parse(localStorage.getItem("session"))
+                ? JSON.parse(localStorage.getItem("session"))
+                : {};
+
+            if (this.auth.exp) {
+                if (this.auth.exp > Date.now()) return true;
+            } else {
+                if (session.exp > Date.now()) {
+                    this.auth = session;
+                    return true;
+                }
+            }
+            return false;
         },
 
+        deleteSession() {
+            localStorage.removeItem("session");
+            this.auth.exp = null;
+        },
         logout() {
-            this.auth = null;
+            this.auth.user = null;
+            this.auth.role = null;
         },
 
         async updatePersonalInfo(data) {
@@ -74,40 +95,68 @@ export const useAuthStore = defineStore("authStore", {
         setAdditionalRolePermission() {
             if (!this.isAunthenticated()) return;
             if (!this.auth.user) return;
-            if (this.auth.role.role_id == 1) {
+            if (this.auth.role.role_id == 1001) {
                 this.auth.role.permission.push(
+                    "my-product-list",
+                    "product-list",
+                    "product-add",
                     "transaction-list",
                     "transaction-add",
                     "transaction-delay",
+                    "report-income",
+                    "report-pnl",
+                    "distribution-add",
+                    "distribution-saler",
+                    "distribution-customer",
                     "saler-list",
                     "saler-add",
                     "depo-list",
                     "depo-add",
 
-                    "transactionPost"
+                    "transactionPost",
+                    "tax",
+                    "discount",
+                    "due",
+                    "warehouse"
+                );
+            } else if (this.auth.role.role_id == 1) {
+                this.auth.role.permission.push(
+                    "product-list",
+                    "product-add",
+                    "distribution-add",
+                    "distribution-saler",
+                    "distribution-customer",
+                    "saler-list"
                 );
             } else if (this.auth.role.role_id == 2) {
                 this.auth.role.permission.push(
+                    "product-list",
+                    "my-product-list",
                     "transaction-list",
                     "transaction-add",
                     "transaction-delay",
-                    "depo-list",
 
-                    "transactionPost"
+                    "transactionPost",
+                    "tax",
+                    "discount",
+                    "due",
+                    "warehouse"
                 );
             } else if (this.auth.role.role_id == 3) {
                 this.auth.role.permission.push(
+                    "product-list",
+                    "my-product-list",
                     "transaction-list",
                     "transaction-add",
-                    "depo-list",
 
                     "transactionPost"
                 );
             } else if (this.auth.role.role_id == 4) {
                 this.auth.role.permission.push(
+                    "product-list",
+                    "my-product-list",
                     "transaction-list",
                     "transaction-add",
-                    "depo-list",
 
                     "transactionPost"
                 );
@@ -116,9 +165,9 @@ export const useAuthStore = defineStore("authStore", {
             }
         },
 
-        isAuthorize(routerName) {
+        isAuthorize(ability) {
             if (this.isAunthenticated())
-                return this.auth.role.permission.includes(routerName);
+                return this.auth.role.permission.includes(ability);
             else return false;
         },
     },

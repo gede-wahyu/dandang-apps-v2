@@ -3,12 +3,12 @@
         <div class="d-card">
             <div class="header">
                 <span class="material-symbols-outlined"> warning </span>
-                <h5>Oopss!</h5>
+                <h5>404 Not Found</h5>
             </div>
             <div class="main">
                 <p>
-                    Percobaan akses tanpa otorisasi. Silakan hubungi admin untuk
-                    mengakses.
+                    Laman yang dituju tidak dapat ditemukan. Silahkan kembali ke
+                    Beranda.
                 </p>
             </div>
             <div class="footer">
@@ -16,7 +16,6 @@
                     icon="home"
                     label="Kembali"
                     @click="router.push({ name: 'dashboard' })"
-                    style="background-color: #34d399"
                 />
             </div>
         </div>
@@ -29,6 +28,7 @@ const router = useRouter();
 </script>
 
 <style scoped lang="scss">
+
 .header {
     display: flex;
     justify-content: center;

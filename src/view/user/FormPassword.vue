@@ -136,14 +136,6 @@ const cancelChangePassword = () => {
 @media screen and (max-width: 640px) {
     .user-setting-input {
         grid-template-columns: 1fr;
-
-        .input-group {
-            &:last-of-type {
-                label {
-                    display: none;
-                }
-            }
-        }
     }
 }
 </style>

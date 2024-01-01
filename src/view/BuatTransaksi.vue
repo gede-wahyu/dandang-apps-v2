@@ -1,6 +1,15 @@
 <template>
+    <h5 style="margin-bottom: 0.5rem">Buat Transaksi</h5>
+    <span
+        style="
+            color: var(--text-color-secondary);
+            margin-bottom: 1rem;
+            display: inline-block;
+        "
+        >Mendaftarkan transaksi baru untuk pelanggan.</span
+    >
     <div class="d-card" style="margin-bottom: 2rem">
-        <ProductListSkeleton v-if="productStore.isLoading" />
+        <ProductSkeleton v-if="productStore.isLoading" />
         <ProductList
             v-else
             :products="products"
@@ -185,7 +194,7 @@
                             />
                         </div>
                     </div>
-                    <div>
+                    <div v-if="authStore.isAuthorize('discount')">
                         <label for="discount">Diskon</label>
                         <div class="cart-info-input">
                             <InputNumber
@@ -211,15 +220,9 @@
                             />
                         </div>
                     </div>
-                    <div>
+                    <div v-if="authStore.isAuthorize('due')">
                         <label for="due">Jatuh Tempo</label>
                         <div class="cart-info-input">
-                            <!-- <InputText
-                                id="due"
-                                v-model="due"
-                                @update:modelValue="saveInputToLocal()"
-                                placeholder="Jatuh Tempo"
-                            /> -->
                             <input
                                 type="date"
                                 id="due"
@@ -230,7 +233,7 @@
                             />
                         </div>
                     </div>
-                    <div>
+                    <div v-if="authStore.isAuthorize('warehouse')">
                         <label for="warehouse">Gudang</label>
                         <div class="cart-info-input">
                             <InputText
@@ -272,11 +275,12 @@
 <script setup>
 import { useProductStore } from "../store/ProductStore";
 import { useCustomerStore } from "../store/CustomerStore";
+import { useAuthStore } from "../store/AuthStore";
 import { ref, onMounted } from "vue";
 import { useToast } from "primevue/usetoast";
 import ProductList from "./ProductList.vue";
 import CustList from "./CustList.vue";
-import ProductListSkeleton from "./skeleton/ProductListSkeleton.vue";
+import ProductSkeleton from "./skeleton/ProductSkeleton.vue";
 
 const toast = useToast();
 const productStore = useProductStore();
@@ -284,6 +288,7 @@ const products = ref(null);
 const customerStore = useCustomerStore();
 const customers = ref(null);
 const custModal = ref(false);
+const authStore = useAuthStore();
 
 const newCustName = ref(null);
 const newCustAddr = ref(null);
@@ -398,7 +403,9 @@ const totalCart = () => {
         .reduce((sum, item) => sum + item);
 };
 const taxAmount = () => {
-    return totalCart() * ((tax.value ? tax.value : 0) * 0.01);
+    if (authStore.isAuthorize("tax"))
+        return totalCart() * ((tax.value ? tax.value : 0) * 0.01);
+    else return 0;
 };
 const discountAmount = () => {
     return totalCart() * ((discount.value ? discount.value : 0) * 0.01);
@@ -425,7 +432,6 @@ const isInvalidSubmit = () => {
         if (!newCustName.value || !newCustAddr.value || !newCustPhone.value)
             return "Identitas pelanggan wajib diisi";
     }
-    if (!due.value) return "Jatuh tempo wajib diisi";
     return false;
 };
 const warnInvalid = (errm) => {

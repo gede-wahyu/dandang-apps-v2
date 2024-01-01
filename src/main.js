@@ -18,6 +18,7 @@ import Column from "primevue/column";
 import Paginator from "primevue/paginator";
 import Password from "primevue/password";
 import Skeleton from "primevue/skeleton";
+import OverlayPanel from "primevue/overlaypanel";
 
 import "./assets/styles.scss";
 
@@ -42,5 +43,6 @@ app.component("Column", Column);
 app.component("Paginator", Paginator);
 app.component("Password", Password);
 app.component("Skeleton", Skeleton);
+app.component("OverlayPanel", OverlayPanel);
 
 app.mount("#app");

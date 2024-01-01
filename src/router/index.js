@@ -16,6 +16,11 @@ const router = createRouter({
                     component: () => import("../view/Dashboard.vue"),
                 },
                 {
+                    path: "/daftar-produk-saya",
+                    name: "my-product-list",
+                    component: () => import("../view/DaftarProdukSaya.vue"),
+                },
+                {
                     path: "/daftar-produk",
                     name: "product-list",
                     component: () => import("../view/DaftarProduk.vue"),
@@ -51,6 +56,24 @@ const router = createRouter({
                     component: () => import("../view/LabaRugi.vue"),
                 },
                 {
+                    path: "/buat-distribusi",
+                    name: "distribution-add",
+                    component: () =>
+                        import("../view/distribution/BuatDistribusi.vue"),
+                },
+                {
+                    path: "/distribusi-saler",
+                    name: "distribution-saler",
+                    component: () =>
+                        import("../view/distribution/DistribusiSaler.vue"),
+                },
+                {
+                    path: "/distribusi-pelanggan",
+                    name: "distribution-customer",
+                    component: () =>
+                        import("../view/distribution/DistribusiPelanggan.vue"),
+                },
+                {
                     path: "/daftar-saler",
                     name: "saler-list",
                     component: () => import("../view/DaftarSaler.vue"),
@@ -75,11 +98,6 @@ const router = createRouter({
                     name: "user",
                     component: () => import("../view/user/Pengguna.vue"),
                 },
-                {
-                    path: "/notifikasi",
-                    name: "notif",
-                    component: () => import("../view/Notifikasi.vue"),
-                },
             ],
         },
         {
@@ -96,24 +114,30 @@ const router = createRouter({
                     name: "unauthorize",
                     component: () => import("../view/auth/Unauthorize.vue"),
                 },
+                {
+                    path: "/:pathMatch(.*)*",
+                    name: "not-found",
+                    component: () => import("../view/auth/NotFound.vue"),
+                },
             ],
         },
     ],
 });
 
-// router.beforeEach((to, from, next) => {
-//     const authStore = useAuthStore();
-//     let isAuthenticated = authStore.isAunthenticated();
+router.beforeEach((to, from, next) => {
+    const authStore = useAuthStore();
+    let isAuthenticated = authStore.isAunthenticated();
+    console.log(to.name, from.name);
 
-//     if (!isAuthenticated && to.name !== "login") {
-//         next({ name: "login" });
-//     } else if (isAuthenticated && to.name === "login") {
-//         next({ name: "dashboard" });
-//     } else if (isAuthenticated && !authStore.isAuthorize(to.name)) {
-//         next({ name: "unauthorize" });
-//     } else {
-//         next();
-//     }
-// });
+    if (!isAuthenticated && to.name !== "login") {
+        next({ name: "login" });
+    } else if (isAuthenticated && to.name === "login") {
+        next({ name: "dashboard" });
+    } else if (isAuthenticated && !authStore.isAuthorize(to.name)) {
+        next({ name: "unauthorize" });
+    } else {
+        next();
+    }
+});
 
 export default router;

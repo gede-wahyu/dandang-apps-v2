@@ -9,6 +9,7 @@
     </span>
     <div class="layout-help-nav">
         <span
+            v-if="authStore.isAuthorize('transaction-add')"
             class="span-nav-button left-labeled"
             role="button"
             tabindex="0"
@@ -21,7 +22,7 @@
             class="span-nav-button left-labeled"
             role="button"
             tabindex="0"
-            @click="router.push({ name: 'notif' })"
+            @click="console.log('open notif')"
         >
             <span>Notifikasi</span>
             <span class="material-symbols-outlined"> notifications </span>
@@ -30,22 +31,31 @@
             class="span-nav-button left-labeled"
             role="button"
             tabindex="0"
-            @click="router.push({ name: 'user' })"
+            @click="userCardToggle"
         >
             <span>{{ displayUsername() }}</span>
             <span class="material-symbols-outlined"> person </span>
         </span>
     </div>
+    <OverlayPanel ref="userCard">
+        <KartuPengguna />
+    </OverlayPanel>
 </template>
 
 <script setup>
 import { useLayoutStore } from "../store/LayoutStore";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../store/AuthStore";
+import { ref } from "vue";
+import KartuPengguna from "../view/user/KartuPengguna.vue";
 
 const layoutStore = useLayoutStore();
 const router = useRouter();
 const authStore = useAuthStore();
+const userCard = ref();
+const userCardToggle = (event) => {
+    userCard.value.toggle(event);
+};
 
 const displayUsername = () => {
     if (authStore.auth)

@@ -25,6 +25,11 @@ const model = ref([
         label: "produk",
         items: [
             {
+                label: "produk saya",
+                icon: "list_alt",
+                to: { name: "my-product-list" },
+            },
+            {
                 label: "daftar produk",
                 icon: "dataset",
                 to: { name: "product-list" },
@@ -53,6 +58,26 @@ const model = ref([
                 label: "transaksi tertunda",
                 icon: "other_admission",
                 to: { name: "transaction-delay" },
+            },
+        ],
+    },
+    {
+        label: "distribusi",
+        items: [
+            {
+                label: "buat distribusi",
+                icon: "box_add",
+                to: { name: "distribution-add" },
+            },
+            {
+                label: "distribusi saler",
+                icon: "person_play",
+                to: { name: "distribution-saler" },
+            },
+            {
+                label: "distribusi pelanggan",
+                icon: "for_you",
+                to: { name: "distribution-customer" },
             },
         ],
     },

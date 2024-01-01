@@ -31,7 +31,7 @@
         <Column header="Gambar" style="width: 15%">
             <template #body="slotProps">
                 <img
-                    src="https://omahit.my.id/storage/barang/6571f01299e9a_dandang%20selection.png"
+                    :src="`${baseUrl}/${slotProps.data.image}`"
                     :alt="slotProps.data.name"
                     style="
                         height: 5rem;
@@ -86,14 +86,20 @@
     </DataTable>
 
     <DataView :value="products" class="list-view">
-        <template #list="slotProps">
+        <template #header>
+            <h5 style="margin-top: 0">Daftar Produk</h5>
             <div class="search">
-                <InputText
-                    v-model="searchProduct"
-                    placeholder="Cari produk"
-                    @update:modelValue="filteredProduct()"
-                />
+                <span class="d-sideicon-set d-input-iconleft">
+                    <span class="material-symbols-outlined"> search </span>
+                    <InputText
+                        v-model="searchProduct"
+                        placeholder="Cari produk"
+                        @update:modelValue="filteredProduct()"
+                    />
+                </span>
             </div>
+        </template>
+        <template #list="slotProps">
             <div class="products-list">
                 <div
                     v-for="item in slotProps.items"
@@ -103,7 +109,7 @@
                     <div class="item-left">
                         <div class="image" style="width: 4rem; height: 5rem">
                             <img
-                                src="/6571f01299e9a_dandang selection.png"
+                                :src="`${baseUrl}/${item.image}`"
                                 :alt="item.name"
                                 style="
                                     height: 5rem;
@@ -158,6 +164,7 @@
 <script setup>
 import { ref } from "vue";
 import { FilterMatchMode } from "primevue/api";
+const baseUrl = import.meta.env.VITE_BASE_URL;
 const props = defineProps({
     products: null,
     cartProductId: null,
@@ -222,7 +229,6 @@ const addToCart = (data) => {
 .modal-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
 }
 .product-datatext {
     text-transform: capitalize;

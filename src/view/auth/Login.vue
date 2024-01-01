@@ -54,6 +54,67 @@
             </div>
         </div>
     </div>
+    <!-- ELEMENT FOR TESTING START -->
+    <div
+        class="d-card ELEMENT FOR TESTING"
+        style="
+            max-width: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        "
+    >
+        <small class="d-error" style="width: 100%; text-align: center"
+            >This element is only used in the testing stage and will disappear
+            in the production stage.</small
+        >
+        <div
+            style="
+                display: flex;
+                gap: 1rem;
+                padding: 0.5rem 0;
+                overflow-x: auto;
+            "
+        >
+            <Button
+                label="Login as Master"
+                severity="danger"
+                @click="LOGIN_TESTING(1001)"
+                style="text-wrap: nowrap"
+            />
+            <Button
+                label="Login as Depo"
+                severity="danger"
+                @click="LOGIN_TESTING(1)"
+                style="text-wrap: nowrap"
+            />
+            <Button
+                label="Login as TO"
+                severity="danger"
+                @click="LOGIN_TESTING(2)"
+                style="text-wrap: nowrap"
+            />
+            <Button
+                label="Login as Mobilis"
+                severity="danger"
+                @click="LOGIN_TESTING(3)"
+                style="text-wrap: nowrap"
+            />
+            <Button
+                label="Login as Motoris"
+                severity="danger"
+                @click="LOGIN_TESTING(4)"
+                style="text-wrap: nowrap"
+            />
+            <Button
+                label="Login as Driver"
+                severity="danger"
+                @click="LOGIN_TESTING(5)"
+                style="text-wrap: nowrap"
+            />
+        </div>
+    </div>
+    <!-- ELEMENT FOR TESTING END -->
 </template>
 
 <script setup>
@@ -62,6 +123,22 @@ import { useAuthStore } from "../../store/AuthStore";
 import { useToast } from "primevue/usetoast";
 import { useForm } from "vee-validate";
 import * as yup from "yup";
+
+const FOR_TESTING = async (id) => {
+    if (id === 1001)
+        await authStore.login("superadmin@example.com", "password123");
+    if (id === 1) await authStore.login("depo@example.com", "password123");
+    if (id === 2) await authStore.login("salesto1@example.com", "password123");
+    if (id === 3)
+        await authStore.login("salesmobilis1@example.com", "password123");
+    if (id === 4)
+        await authStore.login("salesmotoris1@example.com", "password123");
+    if (id === 5) await authStore.login("drrs1@example.com", "password123");
+};
+const LOGIN_TESTING = async (id) => {
+    await FOR_TESTING(id);
+    router.push("/");
+};
 
 const router = useRouter();
 const toast = useToast();

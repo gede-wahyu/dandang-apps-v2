@@ -1,4 +1,5 @@
 import { useAuthStore } from "../store/AuthStore";
+import router from "../router/index";
 
 export const fetchWrapper = {
     get: request("GET"),
@@ -30,7 +31,7 @@ function authHeader(url) {
     // return auth header with jwt if user is logged in and request is to the api url
     const { auth } = useAuthStore();
     const isLoggedIn = !!auth?.api_token;
-    const isApiUrl = url.startsWith(import.meta.env.VITE_API_URL);
+    const isApiUrl = url.startsWith(import.meta.env.VITE_BASE_URL);
     if (isLoggedIn && isApiUrl) {
         return { Authorization: `Bearer ${auth.api_token}` };
     } else {
@@ -47,6 +48,7 @@ function handleResponse(response) {
             if ([401, 403].includes(response.status) && user) {
                 // auto logout if 401 Unauthorized or 403 Forbidden response returned from api
                 logout();
+                router.push({ name: "login" });
             }
 
             const error = (data && data.message) || response.statusText;

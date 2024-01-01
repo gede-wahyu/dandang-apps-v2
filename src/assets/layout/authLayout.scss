@@ -7,16 +7,16 @@
     flex-direction: column;
     justify-content: space-between;
 
-    background-color: var(--primary);
+    background-color: #34d399;
 
     ::-moz-selection {
         /* Code for Firefox */
-        background: var(--primary-a);
-        color: var(--text-hl);
+        background: rgba(52, 211, 153, 50%);
+        color: rgba(57, 63, 92, 0.87);
     }
 
     ::selection {
-        background: var(--primary-a);
+        background: rgba(52, 211, 153, 50%);
     }
 }
 

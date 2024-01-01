@@ -264,7 +264,8 @@
     filter: brightness(75%);
 }
 .d-button.d-button-disabled {
-    background: var(--primary-a6);
+    filter: opacity(70%);
+    cursor: default;
 }
 .d-button-primary {
     background: var(--primary);
@@ -1116,6 +1117,7 @@
 }
 /* DATAVIEW STYLE END */
 
+/* SKELETON STYLE START */
 .p-skeleton {
     background-color: rgba(255, 255, 255, 0.06);
     border-radius: 6px;
@@ -1128,3 +1130,48 @@
         rgba(255, 255, 255, 0)
     );
 }
+/* SKELETON STYLE END */
+
+/* OVERLAYPANEL STYLE START */
+.p-overlaypanel {
+    background: var(--surface-card);
+    color: var(--text-color);
+    border: 0 none;
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 3px var(--box-shadow);
+}
+.p-overlaypanel .p-overlaypanel-content {
+    padding: 1.25rem;
+}
+.p-overlaypanel .p-overlaypanel-close {
+    background: var(--primary);
+    color: var(--text-primary);
+    width: 2rem;
+    height: 2rem;
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+    border-radius: 50%;
+    position: absolute;
+    top: -1rem;
+    right: -1rem;
+}
+.p-overlaypanel .p-overlaypanel-close:enabled:hover {
+    background: var(--primary);
+    color: var(--text-primary);
+}
+/* .p-overlaypanel:after {
+    border: solid transparent;
+    border-color: rgba(255, 255, 255, 0);
+    border-bottom-color: #fff;
+} */
+.p-overlaypanel:before {
+    border: solid transparent;
+    border-color: rgba(255, 255, 255, 0);
+    border-bottom-color: var(--surface-a);
+}
+.p-overlaypanel.p-overlaypanel-flipped:after {
+    border-top-color: var(--surface-a);
+}
+.p-overlaypanel.p-overlaypanel-flipped:before {
+    border-top-color: var(--surface-a);
+}
+/* OVERLAYPANEL STYLE END */
