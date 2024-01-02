@@ -108,3 +108,38 @@
 .d-error {
     color: var(--color-danger);
 }
+
+.d-uppercase {
+    text-transform: uppercase !important;
+}
+.d-capitalize {
+    text-transform: capitalize !important;
+}
+.d-tag {
+    width: fit-content;
+    padding: 4px 6px;
+    border-radius: var(--border-radius);
+    display: flex;
+    font-size: 0.75rem;
+    text-transform: capitalize;
+
+    background-color: var(--primary-a3);
+    color: var(--primary);
+
+    &.d-tag-success {
+        background-color: var(--color-success-a3);
+        color: var(--color-success);
+    }
+    &.d-tag-warning {
+        background-color: var(--color-warning-a3);
+        color: var(--color-warning);
+    }
+    &.d-tag-danger {
+        background-color: var(--color-danger-a3);
+        color: var(--color-danger);
+    }
+    &.d-tag-info {
+        background-color: var(--color-info-a3);
+        color: var(--color-info);
+    }
+}

@@ -59,7 +59,7 @@
     --surface-ground: #f7f7f7;
     --surface-ground-darker: #f8f8f8;
     --surface-card: #ffffff;
-    --surface-border: #f4f4f4;
+    --surface-border: #ececec;
     --surface-input: #fff;
     --surface-input-border: #d3d3d3;
     --surface-scrollbar: #e4e4e4;
@@ -1088,7 +1088,7 @@
     color: var(--text-color);
     border: 1px solid var(--surface-border);
     border-width: 1px 0 1px 0;
-    padding: 1rem 1rem;
+    padding: 1rem 0;
     font-weight: 700;
 }
 .p-dataview .p-dataview-content {
@@ -1134,7 +1134,7 @@
     color: var(--text-color);
     border: 0 none;
     border-radius: var(--border-radius);
-    box-shadow: 0 1px 3px var(--box-shadow);
+    box-shadow: var(--box-shadow-set);
 }
 .p-overlaypanel .p-overlaypanel-content {
     padding: 1.25rem;

@@ -90,15 +90,29 @@
                 </Column>
             </DataTable>
 
-            <DataView :value="products" class="list-view">
-                <template #list="slotProps">
+            <DataView
+                :value="products"
+                class="list-view"
+                paginator
+                :rows="5"
+                paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+            >
+                <template #header>
+                    <h5 style="margin-top: 0">Daftar Produk</h5>
                     <div class="search">
-                        <InputText
-                            v-model="searchProduct"
-                            placeholder="Cari produk"
-                            @update:modelValue="filteredProduct()"
-                        />
+                        <span class="d-sideicon-set d-input-iconleft">
+                            <span class="material-symbols-outlined">
+                                search
+                            </span>
+                            <InputText
+                                v-model="searchProduct"
+                                placeholder="Cari produk"
+                                @update:modelValue="filteredProduct()"
+                            />
+                        </span>
                     </div>
+                </template>
+                <template #list="slotProps">
                     <div class="products-list">
                         <div
                             v-for="item in slotProps.items"
@@ -203,11 +217,6 @@ const filteredProduct = (id) => {
     }
 }
 @media screen and (max-width: 991px) {
-    .products-list {
-        max-height: 35rem;
-        overflow-y: auto;
-        padding-right: 10px;
-    }
     .modal-header {
         flex-direction: column;
         gap: 1rem;
@@ -247,13 +256,22 @@ const filteredProduct = (id) => {
     align-items: center;
     padding: 1.5rem 0 1.5rem 5px;
     border-left: 2px solid transparent;
+    position: relative;
 
     &:not(:first-of-type) {
         border-top: 2px dashed var(--surface-input-border);
     }
 
     &:hover {
-        border-left: 2px solid var(--primary-a);
+        &::before {
+            content: "";
+            position: absolute;
+            left: -0.75rem;
+            width: 4px;
+            height: 60%;
+            border-radius: 99px;
+            background-color: var(--primary);
+        }
     }
 
     &:nth-child(odd) {
