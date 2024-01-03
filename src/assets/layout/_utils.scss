@@ -143,3 +143,33 @@
         color: var(--color-info);
     }
 }
+
+.table-header {
+    width: 100%;
+    text-align: left;
+    padding: 1rem 1rem;
+    border-top: 1px solid var(--surface-tborder);
+}
+.d-table {
+    width: 100%;
+    border-collapse: collapse;
+    thead {
+        tr {
+            th {
+                text-align: left;
+                padding: 1rem 1rem;
+                border-top: 1px solid var(--surface-tborder);
+                border-bottom: 1px solid var(--surface-tborder);
+            }
+        }
+    }
+    tbody {
+        tr {
+            td {
+                padding: 1rem 1rem;
+                border-top: 1px solid var(--surface-tborder);
+                border-bottom: 1px solid var(--surface-tborder);
+            }
+        }
+    }
+}

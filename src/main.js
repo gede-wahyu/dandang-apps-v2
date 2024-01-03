@@ -20,6 +20,7 @@ import Password from "primevue/password";
 import Skeleton from "primevue/skeleton";
 import OverlayPanel from "primevue/overlaypanel";
 import Dropdown from "primevue/dropdown";
+import Calendar from "primevue/calendar";
 
 import "./assets/styles.scss";
 
@@ -46,5 +47,6 @@ app.component("Password", Password);
 app.component("Skeleton", Skeleton);
 app.component("OverlayPanel", OverlayPanel);
 app.component("Dropdown", Dropdown);
+app.component("Calendar", Calendar);
 
 app.mount("#app");

@@ -136,6 +136,7 @@
                                     filter_alt_off
                                 </span>
                             </span>
+                            <Calendar v-model="date" />
                         </div>
                     </div>
                 </template>
@@ -404,6 +405,7 @@ const statusToFilterOpt = computed(() => {
         ];
 });
 const statusToFilter = ref();
+const date = ref();
 
 onMounted(async () => {
     await transactionStore.getTransaction();
@@ -500,6 +502,16 @@ const formatDate = (date, type) => {
             justify-content: end;
             margin-top: 1.5rem;
         }
+    }
+}
+
+.table-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    h5 {
+        margin-bottom: 0;
     }
 }
 </style>
