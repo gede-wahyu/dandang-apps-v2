@@ -108,12 +108,14 @@
 .d-error {
     color: var(--color-danger);
 }
-
 .d-uppercase {
     text-transform: uppercase !important;
 }
 .d-capitalize {
     text-transform: capitalize !important;
+}
+.d-lowercase {
+    text-transform: lowercase !important;
 }
 .d-tag {
     width: fit-content;
@@ -144,6 +146,9 @@
     }
 }
 
+.table-wrapper {
+    overflow: auto;
+}
 .table-header {
     width: 100%;
     text-align: left;

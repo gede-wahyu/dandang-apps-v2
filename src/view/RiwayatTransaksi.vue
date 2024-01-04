@@ -1,6 +1,6 @@
 <template>
     <div class="d-card" style="margin-top: 2rem">
-        <div style="overflow: auto">
+        <div class="table-wrapper">
             <div class="table-header">
                 <h5>Riwayat Transaksi</h5>
                 <div class="filter-group">

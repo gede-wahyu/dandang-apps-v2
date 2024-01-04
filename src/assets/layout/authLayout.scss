@@ -67,21 +67,12 @@
 
 @media screen and (min-width: 640px) {
     .content-wrapper {
-        padding: 1rem 13rem;
+        width: 30rem;
     }
 }
-@media screen and (min-width: 768px) {
-    .content-wrapper {
-        padding: 1rem 16rem;
-    }
-}
+
 @media screen and (min-width: 992px) {
     .content-wrapper {
-        padding: 1rem 29rem;
-    }
-}
-@media screen and (min-width: 1280px) {
-    .content-wrapper {
-        padding: 1rem 43rem;
+        width: 35rem;
     }
 }

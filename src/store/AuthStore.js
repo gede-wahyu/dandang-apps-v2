@@ -102,6 +102,7 @@ export const useAuthStore = defineStore("authStore", {
                     "product-add",
                     "transaction-list",
                     "transaction-add",
+                    "transaction-add-2",
                     "transaction-delay",
                     "report-income",
                     "report-pnl",
@@ -135,6 +136,7 @@ export const useAuthStore = defineStore("authStore", {
                     "my-product-list",
                     "transaction-list",
                     "transaction-add",
+                    "transaction-add-2",
                     "transaction-delay",
 
                     "transactionPost",
@@ -149,6 +151,7 @@ export const useAuthStore = defineStore("authStore", {
                     "my-product-list",
                     "transaction-list",
                     "transaction-add",
+                    "transaction-add-2",
 
                     "transactionPost"
                 );
@@ -158,6 +161,7 @@ export const useAuthStore = defineStore("authStore", {
                     "my-product-list",
                     "transaction-list",
                     "transaction-add",
+                    "transaction-add-2",
 
                     "transactionPost"
                 );
