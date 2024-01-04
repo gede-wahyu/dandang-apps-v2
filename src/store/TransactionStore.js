@@ -8,7 +8,13 @@ export const useTransactionStore = defineStore("transactionStore", {
         transaction: [],
         isLoading: false,
     }),
-    getters: {},
+    getters: {
+        getPendingTransaction() {
+            return this.transaction.filter((item) => {
+                return item["status"]["kode"] === 2;
+            });
+        },
+    },
     actions: {
         async getTransaction() {
             this.isLoading = true;
@@ -22,15 +28,6 @@ export const useTransactionStore = defineStore("transactionStore", {
 
             return result;
         },
-        // async getTransaction() {
-        //     const result = await fetchWrapper.get(`${baseUrl}/api/transaction`);
-
-        //     if (result.success) {
-        //         this.transaction = result.data;
-        //     }
-
-        //     return result;
-        // },
 
         async postTransaction(payload) {
             const result = await fetchWrapper.post(

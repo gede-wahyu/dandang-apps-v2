@@ -62,8 +62,8 @@
     --surface-border: #111725;
     --surface-input: #111827;
     --surface-input-border: #424b57;
-    --surface-scrollbar: #e4e4e4;
-    --surface-thumb: #8a8a8a;
+    --surface-scrollbar: #8a8a8a;
+    --surface-thumb: #e4e4e4;
     --bg-hl: var(--primary-a2);
     --text-hl: rgba(232, 232, 232, 0.87);
 

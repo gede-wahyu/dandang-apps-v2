@@ -2,13 +2,14 @@
     <div class="d-card" style="margin-top: 2rem">
         <div style="overflow: auto">
             <div class="table-header">
-                <h5>Riwayat Transaksi</h5>
-                <div class="flex gap-1 justify-content-end align-items-center">
+                <h5>Transaksi Tertunda</h5>
+                <div class="filter-group">
                     <Dropdown
                         v-model="dateToFilterMode"
                         :options="dateToFilterModeOpt"
                         optionLabel="label"
                         placeholder="Pilih Mode"
+                        class="filter-item mode-selector"
                     />
                     <Calendar
                         v-if="dateToFilterMode.kode === 1"
@@ -17,7 +18,7 @@
                         date-format="dd/mm/yy"
                         @update:model-value="handleSingleDatePicker()"
                         placeholder="Pilih Tanggal Tunggal"
-                        style="min-width: 15.7rem"
+                        class="filter-item"
                     />
                     <Calendar
                         v-if="dateToFilterMode.kode === 2"
@@ -27,22 +28,15 @@
                         selectionMode="range"
                         @update:model-value="handleRangeDatePicker()"
                         placeholder="Pilih Tanggal Jajaran"
-                        style="min-width: 15.7rem"
+                        class="filter-item"
                     />
-                    <div
-                        style="
-                            width: 1px;
-                            height: 2rem;
-                            background-color: var(--surface-input-border);
-                            border-radius: 1px;
-                        "
-                    ></div>
+                    <div class="filter-separator"></div>
                     <Dropdown
                         v-model="fieldToFilter"
                         :options="fieldToFilterOpt"
                         optionLabel="label"
-                        style="min-width: 10rem"
                         @update:modelValue="query = null"
+                        class="filter-item mode-selector"
                     />
                     <Dropdown
                         v-if="isFilterStatus()"
@@ -51,7 +45,7 @@
                         optionLabel="label"
                         placeholder="Pilih status"
                         @update:modelValue="query = statusToFilter.kode"
-                        style="min-width: 15rem"
+                        class="filter-item"
                     >
                         <template #value="slotProps">
                             <span
@@ -80,7 +74,10 @@
                             >
                         </template>
                     </Dropdown>
-                    <span v-else class="d-sideicon-set d-input-iconleft">
+                    <span
+                        v-else
+                        class="d-sideicon-set d-input-iconleft filter-item"
+                    >
                         <span class="material-symbols-outlined"> search </span>
                         <InputText
                             v-model="query"
@@ -89,11 +86,11 @@
                                     ? 'Cari Transaksi'
                                     : `Cari ${fieldToFilter.label}`
                             "
-                            style="min-width: 15rem"
+                            style="width: 100%"
                         />
                     </span>
                     <span
-                        class="span-nav-button"
+                        class="span-nav-button right-labeled filter-clear-btn"
                         role="button"
                         tabindex="0"
                         @click="clearFilter()"
@@ -101,10 +98,14 @@
                         <span class="material-symbols-outlined">
                             filter_alt_off
                         </span>
+                        <span>Bersihkan Filter</span>
                     </span>
                 </div>
             </div>
-            <table class="d-table">
+            <table
+                class="d-table table-view"
+                v-if="!transactionStore.isLoading"
+            >
                 <thead>
                     <tr>
                         <th>No Faktur</th>
@@ -183,18 +184,121 @@
                     </tr>
                 </tfoot>
             </table>
+            <RiwayatTransaksiTableSkeleton v-else :rowPerPage="rowPerPage" />
+        </div>
+
+        <div class="list-view">
+            <div class="transaction-list" v-if="!transactionStore.isLoading">
+                <div
+                    v-for="(item, index) in transactions"
+                    class="transaction-item"
+                >
+                    <div style="margin-bottom: 1rem">
+                        <span>No Faktur. </span>
+                        <span class="d-uppercase">{{ item.no_faktur }}</span>
+                    </div>
+                    <div class="row">
+                        <div class="header">Pelanggan</div>
+                        <div>:</div>
+                        <div class="body d-capitalize">
+                            {{ item.customer }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header">Tanggal</div>
+                        <div>:</div>
+                        <div class="body d-capitalize">
+                            {{ formatDate(item.tanggal, "date") }}
+                            <br />
+                            {{ formatDate(item.tanggal, "time") }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header">Status Transaksi</div>
+                        <div>:</div>
+                        <div
+                            class="body d-tag"
+                            :class="statusTag(item.status.kode, 'transaksi')"
+                        >
+                            {{ item.status.status }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header">Nilai Transaksi</div>
+                        <div>:</div>
+                        <div class="body">
+                            {{
+                                new Intl.NumberFormat("id-ID", {
+                                    style: "currency",
+                                    currency: "IDR",
+                                }).format(item.nilai_transaksi)
+                            }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header">Sales</div>
+                        <div>:</div>
+                        <div class="body d-uppercase">
+                            {{ item.sales }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header">Depo</div>
+                        <div>:</div>
+                        <div class="body d-uppercase">
+                            {{ item.depo }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header">Status Pembayaran</div>
+                        <div>:</div>
+                        <div
+                            class="body d-tag"
+                            :class="
+                                statusTag(
+                                    item.status_pembayaran.kode,
+                                    'pembayaran'
+                                )
+                            "
+                        >
+                            {{ item.status_pembayaran.status }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header"></div>
+                        <div></div>
+                        <div class="body">
+                            <div class="row-button">
+                                <Button label="Detail" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <RiwayatTransaksiListSkeleton v-else :rowPerPage="rowPerPage" />
+            <div>
+                <Paginator
+                    v-model:first="currPage"
+                    :rows="rowPerPage"
+                    :total-records="rowLenghtPostFilter"
+                    style="width: 100%"
+                    template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                />
+            </div>
         </div>
     </div>
 </template>
 <script setup>
 import { useTransactionStore } from "../store/TransactionStore";
 import { ref, onMounted, computed } from "vue";
+import RiwayatTransaksiTableSkeleton from "./skeleton/RiwayatTransaksiTableSkeleton.vue";
+import RiwayatTransaksiListSkeleton from "./skeleton/RiwayatTransaksiListSkeleton.vue";
 
 const transactionStore = useTransactionStore();
 const rowPerPage = ref(5);
 const currPage = ref(0);
 const transactions = computed(() => {
-    let data = transactionStore.transaction;
+    let data = transactionStore.getPendingTransaction;
 
     data = filterDataByDate(data, dateToFilter.value);
 
@@ -371,12 +475,121 @@ const filterDataByDate = (data, date) => {
 </script>
 <style scoped lang="scss">
 .table-header {
-    width: 100%;
+    padding: 1rem 0;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    h5 {
-        margin-bottom: 0;
+    flex-direction: column;
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        .filter-separator {
+            width: 100%;
+            height: 1px;
+            background-color: var(--surface-input-border);
+            border-radius: 1px;
+        }
+
+        .filter-clear-btn {
+            background-color: var(--primary-a0);
+            width: 100%;
+        }
+
+        .filter-item {
+            width: 100%;
+        }
+    }
+}
+
+.transaction-list {
+    display: flex;
+    flex-direction: column;
+}
+.transaction-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 1.5rem 0;
+    position: relative;
+
+    &:not(:first-of-type) {
+        border-top: 2px dashed var(--surface-input-border);
+    }
+
+    &:hover {
+        &::before {
+            content: "";
+            position: absolute;
+            left: -0.75rem;
+            width: 4px;
+            height: 60%;
+            border-radius: 99px;
+            background-color: var(--primary);
+        }
+    }
+
+    &:nth-child(odd) {
+        box-shadow: 0 0 0 100vmax var(--primary-a0);
+        clip-path: inset(0 -100vmax);
+        background: var(--primary-a0);
+    }
+
+    .row {
+        display: grid;
+        grid-template-columns: 11rem 1rem 1fr;
+
+        .row-button {
+            display: flex;
+            justify-content: end;
+            margin-top: 1.5rem;
+        }
+    }
+}
+
+.table-view {
+    display: none;
+}
+
+@media screen and (min-width: 640px) {
+    .table-view {
+        display: table;
+    }
+    .list-view {
+        display: none;
+    }
+
+    .table-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1rem;
+
+        h5 {
+            margin-bottom: 0;
+        }
+
+        .filter-group {
+            flex-direction: row;
+            align-items: center;
+
+            .filter-item {
+                width: 15rem;
+
+                &.mode-selector {
+                    width: fit-content;
+                }
+            }
+
+            .filter-separator {
+                width: 1px;
+                height: 2rem;
+            }
+            .filter-clear-btn {
+                width: 12rem;
+            }
+        }
     }
 }
 </style>

@@ -149,27 +149,31 @@
     text-align: left;
     padding: 1rem 1rem;
     border-top: 1px solid var(--surface-tborder);
+    border-bottom: 1px solid var(--surface-tborder);
 }
 .d-table {
     width: 100%;
     border-collapse: collapse;
     thead {
+        width: 100%;
         tr {
             th {
                 text-align: left;
                 padding: 1rem 1rem;
-                border-top: 1px solid var(--surface-tborder);
                 border-bottom: 1px solid var(--surface-tborder);
             }
         }
     }
     tbody {
+        width: 100%;
         tr {
             td {
                 padding: 1rem 1rem;
-                border-top: 1px solid var(--surface-tborder);
                 border-bottom: 1px solid var(--surface-tborder);
             }
         }
+    }
+    tfoot {
+        width: 100%;
     }
 }

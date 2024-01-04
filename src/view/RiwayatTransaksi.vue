@@ -1,356 +1,319 @@
 <template>
-    <h5 style="margin-top: 0">Riwayat Transaksi</h5>
-    <span
-        style="
-            color: var(--text-color-secondary);
-            margin-bottom: 1rem;
-            display: inline-block;
-        "
-        >Daftar transaksi yang pernah dilakukan user.</span
-    >
-    <div class="d-card">
-        <template v-if="transactionStore.isLoading">
-            <div>loading...</div>
-        </template>
-        <template v-else>
-            <DataTable
-                class="table-view"
-                v-model:filters="filters"
-                :value="transactions"
-                :globalFilterFields="columnToFilter.value"
-                style="width: 100%"
-                paginator
-                :rows="5"
-            >
-                <template #header>
-                    <div class="table-header-group">
-                        <h5 style="margin-bottom: 0">Riwayat Transaksi</h5>
-                        <div class="flex gap-1 align-items-center">
-                            <Dropdown
-                                v-model="columnToFilter"
-                                :options="columnToFilterOpt"
-                                optionLabel="label"
-                                style="min-width: 10rem"
-                                @update:modelValue="
-                                    filters['global'].value = null;
-                                    statusToFilter = null;
-                                "
-                            />
-                            <Dropdown
-                                v-if="
-                                    columnToFilter === columnToFilterOpt[5] ||
-                                    columnToFilter === columnToFilterOpt[6]
-                                "
-                                v-model="statusToFilter"
-                                :options="statusToFilterOpt"
-                                optionLabel="label"
-                                placeholder="Pilih status"
-                                style="width: 15rem"
-                                @update:modelValue="
-                                    filters['global'].value =
-                                        statusToFilter.kode
-                                "
-                            >
-                                <template #value="slotProps">
-                                    <div v-if="slotProps.value">
-                                        <span
-                                            v-if="
-                                                columnToFilter ===
-                                                columnToFilterOpt[5]
-                                            "
-                                            class="d-tag"
-                                            :class="
-                                                statusTransaksi(
-                                                    slotProps.value.kode
-                                                )
-                                            "
-                                            >{{ slotProps.value.label }}</span
-                                        >
-                                        <span
-                                            v-if="
-                                                columnToFilter ===
-                                                columnToFilterOpt[6]
-                                            "
-                                            class="d-tag"
-                                            :class="
-                                                statusPembayaran(
-                                                    slotProps.value.kode
-                                                )
-                                            "
-                                            >{{ slotProps.value.label }}</span
-                                        >
-                                    </div>
-                                    <div v-else>
-                                        {{ slotProps.placeholder }}
-                                    </div>
-                                </template>
-                                <template #option="slotProps">
-                                    <span
-                                        v-if="
-                                            columnToFilter ===
-                                            columnToFilterOpt[5]
-                                        "
-                                        class="d-tag"
-                                        :class="
-                                            statusTransaksi(
-                                                slotProps.option.kode
-                                            )
-                                        "
-                                        >{{ slotProps.option.label }}</span
-                                    >
-                                    <span
-                                        v-if="
-                                            columnToFilter ===
-                                            columnToFilterOpt[6]
-                                        "
-                                        class="d-tag"
-                                        :class="
-                                            statusPembayaran(
-                                                slotProps.option.kode
-                                            )
-                                        "
-                                        >{{ slotProps.option.label }}</span
-                                    >
-                                </template>
-                            </Dropdown>
+    <div class="d-card" style="margin-top: 2rem">
+        <div style="overflow: auto">
+            <div class="table-header">
+                <h5>Riwayat Transaksi</h5>
+                <div class="filter-group">
+                    <Dropdown
+                        v-model="dateToFilterMode"
+                        :options="dateToFilterModeOpt"
+                        optionLabel="label"
+                        placeholder="Pilih Mode"
+                        class="filter-item mode-selector"
+                    />
+                    <Calendar
+                        v-if="dateToFilterMode.kode === 1"
+                        v-model="previewDateToFilter"
+                        :manualInput="false"
+                        date-format="dd/mm/yy"
+                        @update:model-value="handleSingleDatePicker()"
+                        placeholder="Pilih Tanggal Tunggal"
+                        class="filter-item"
+                    />
+                    <Calendar
+                        v-if="dateToFilterMode.kode === 2"
+                        v-model="previewDateToFilter"
+                        :manualInput="false"
+                        date-format="dd/mm/yy"
+                        selectionMode="range"
+                        @update:model-value="handleRangeDatePicker()"
+                        placeholder="Pilih Tanggal Jajaran"
+                        class="filter-item"
+                    />
+                    <div class="filter-separator"></div>
+                    <Dropdown
+                        v-model="fieldToFilter"
+                        :options="fieldToFilterOpt"
+                        optionLabel="label"
+                        @update:modelValue="query = null"
+                        class="filter-item mode-selector"
+                    />
+                    <Dropdown
+                        v-if="isFilterStatus()"
+                        v-model="statusToFilter"
+                        :options="statusToFilterOpt"
+                        optionLabel="label"
+                        placeholder="Pilih status"
+                        @update:modelValue="query = statusToFilter.kode"
+                        class="filter-item"
+                    >
+                        <template #value="slotProps">
                             <span
-                                v-else
-                                class="d-sideicon-set d-input-iconleft"
+                                v-if="slotProps.value"
+                                class="d-tag"
+                                :class="
+                                    statusTag(
+                                        slotProps.value.kode,
+                                        isFilterStatus('label')
+                                    )
+                                "
+                                >{{ slotProps.value.label }}</span
                             >
-                                <span class="material-symbols-outlined">
-                                    search
-                                </span>
-                                <InputText
-                                    v-model="filters['global'].value"
-                                    placeholder="Cari transaksi"
-                                    style="width: 15rem"
-                                />
-                            </span>
+                            <span v-else>{{ slotProps.placeholder }}</span>
+                        </template>
+                        <template #option="slotProps">
                             <span
-                                class="span-nav-button"
-                                role="button"
-                                tabindex="0"
-                                @click="clearFilter()"
+                                class="d-tag"
+                                :class="
+                                    statusTag(
+                                        slotProps.option.kode,
+                                        isFilterStatus('label')
+                                    )
+                                "
+                                >{{ slotProps.option.label }}</span
                             >
-                                <span class="material-symbols-outlined">
-                                    filter_alt_off
-                                </span>
-                            </span>
-                            <Calendar v-model="date" />
-                        </div>
-                    </div>
-                </template>
-
-                <Column header="No Faktur" field="no_faktur">
-                    <template #body="{ data }">
-                        <span class="d-uppercase">{{ data.no_faktur }}</span>
-                    </template>
-                </Column>
-                <Column header="Pelanggan">
-                    <template #body="slotProps">
-                        <span class="d-capitalize">{{
-                            slotProps.data.customer
-                        }}</span>
-                    </template>
-                </Column>
-                <Column header="Tanggal">
-                    <template #body="slotProps">
-                        <span class="d-capitalize"
-                            >{{ formatDate(slotProps.data.tanggal, "date") }}
-                            <br />
-                            {{
-                                formatDate(slotProps.data.tanggal, "time")
-                            }}</span
-                        >
-                    </template>
-                </Column>
-                <Column header="Status Transaksi">
-                    <template #body="slotProps">
-                        <span
-                            class="d-tag"
-                            :class="statusTransaksi(slotProps.data.status.kode)"
-                            >{{ slotProps.data.status.status }}</span
-                        >
-                    </template>
-                </Column>
-                <Column header="Nilai Transaksi">
-                    <template #body="slotProps">
-                        <span>{{
-                            new Intl.NumberFormat("id-ID", {
-                                style: "currency",
-                                currency: "IDR",
-                            }).format(slotProps.data.nilai_transaksi)
-                        }}</span>
-                    </template>
-                </Column>
-                <Column header="Sales">
-                    <template #body="slotProps">
-                        <span class="d-uppercase">{{
-                            slotProps.data.sales
-                        }}</span>
-                    </template>
-                </Column>
-                <Column header="Depo">
-                    <template #body="slotProps">
-                        <span class="d-uppercase">{{
-                            slotProps.data.depo
-                        }}</span>
-                    </template>
-                </Column>
-                <Column header="Status Pembayaran">
-                    <template #body="slotProps">
-                        <span
-                            class="d-tag"
-                            :class="
-                                statusPembayaran(
-                                    slotProps.data.status_pembayaran.kode
-                                )
-                            "
-                            >{{ slotProps.data.status_pembayaran.status }}</span
-                        >
-                    </template>
-                </Column>
-                <Column>
-                    <template #body="slotProps">
-                        <div class="row-button">
-                            <Button label="Detail" />
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
-
-            <DataView
-                :value="transactions"
-                class="list-view"
-                paginator
-                :rows="5"
-                paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-            >
-                <template #header>
-                    <h5 style="margin-top: 0">Riwayat Transaksi</h5>
+                        </template>
+                    </Dropdown>
                     <span
-                        class="d-sideicon-set d-input-iconleft"
-                        style="width: 100%"
+                        v-else
+                        class="d-sideicon-set d-input-iconleft filter-item"
                     >
                         <span class="material-symbols-outlined"> search </span>
                         <InputText
-                            v-model="searchTransaction"
-                            placeholder="Cari transaksi"
-                            @update:modelValue="filteredTransaction()"
+                            v-model="query"
+                            :placeholder="
+                                fieldToFilter.label === 'Global'
+                                    ? 'Cari Transaksi'
+                                    : `Cari ${fieldToFilter.label}`
+                            "
                             style="width: 100%"
                         />
                     </span>
-                </template>
-                <template #list="slotProps">
-                    <div class="transaction-list">
+                    <span
+                        class="span-nav-button right-labeled filter-clear-btn"
+                        role="button"
+                        tabindex="0"
+                        @click="clearFilter()"
+                    >
+                        <span class="material-symbols-outlined">
+                            filter_alt_off
+                        </span>
+                        <span>Bersihkan Filter</span>
+                    </span>
+                </div>
+            </div>
+            <table
+                class="d-table table-view"
+                v-if="!transactionStore.isLoading"
+            >
+                <thead>
+                    <tr>
+                        <th>No Faktur</th>
+                        <th>Pelanggan</th>
+                        <th>Tanggal</th>
+                        <th>Status Transaksi</th>
+                        <th>Nilai Transaksi</th>
+                        <th>Sales</th>
+                        <th>Depo</th>
+                        <th>Status Pembayaran</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, index) in transactions">
+                        <td>
+                            <span class="d-uppercase">{{
+                                item.no_faktur
+                            }}</span>
+                        </td>
+                        <td>
+                            <span class="d-capitalize">{{
+                                item.customer
+                            }}</span>
+                        </td>
+                        <td>
+                            <span>{{ formatDate(item.tanggal, "date") }}</span
+                            ><br />
+                            <span>{{ formatDate(item.tanggal, "time") }}</span>
+                        </td>
+                        <td>
+                            <span
+                                class="d-tag"
+                                :class="
+                                    statusTag(item.status.kode, 'transaksi')
+                                "
+                                >{{ item.status.status }}</span
+                            >
+                        </td>
+                        <td>
+                            <span>{{
+                                formatCurrency(item.nilai_transaksi)
+                            }}</span>
+                        </td>
+                        <td>
+                            <span class="d-uppercase">{{ item.sales }}</span>
+                        </td>
+                        <td>
+                            <span class="d-uppercase">{{ item.depo }}</span>
+                        </td>
+                        <td>
+                            <span
+                                class="d-tag"
+                                :class="
+                                    statusTag(
+                                        item.status_pembayaran.kode,
+                                        'pembayaran'
+                                    )
+                                "
+                                >{{ item.status_pembayaran.status }}</span
+                            >
+                        </td>
+                        <td><Button label="Detail" /></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="9">
+                            <Paginator
+                                v-model:first="currPage"
+                                :rows="rowPerPage"
+                                :total-records="rowLenghtPostFilter"
+                                style="width: 100%"
+                            />
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+            <RiwayatTransaksiTableSkeleton v-else :rowPerPage="rowPerPage" />
+        </div>
+
+        <div class="list-view">
+            <div class="transaction-list" v-if="!transactionStore.isLoading">
+                <div
+                    v-for="(item, index) in transactions"
+                    class="transaction-item"
+                >
+                    <div style="margin-bottom: 1rem">
+                        <span>No Faktur. </span>
+                        <span class="d-uppercase">{{ item.no_faktur }}</span>
+                    </div>
+                    <div class="row">
+                        <div class="header">Pelanggan</div>
+                        <div>:</div>
+                        <div class="body d-capitalize">
+                            {{ item.customer }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header">Tanggal</div>
+                        <div>:</div>
+                        <div class="body d-capitalize">
+                            {{ formatDate(item.tanggal, "date") }}
+                            <br />
+                            {{ formatDate(item.tanggal, "time") }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header">Status Transaksi</div>
+                        <div>:</div>
                         <div
-                            v-for="(item, index) in slotProps.items"
-                            class="transaction-item"
+                            class="body d-tag"
+                            :class="statusTag(item.status.kode, 'transaksi')"
                         >
-                            <div style="margin-bottom: 1rem">
-                                <span>No Faktur. </span>
-                                <span class="d-uppercase">{{
-                                    item.no_faktur
-                                }}</span>
-                            </div>
-                            <div class="row">
-                                <div class="header">Pelanggan</div>
-                                <div>:</div>
-                                <div class="body d-capitalize">
-                                    {{ item.customer }}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="header">Tanggal</div>
-                                <div>:</div>
-                                <div class="body d-capitalize">
-                                    {{ formatDate(item.tanggal, "date") }}
-                                    <br />
-                                    {{ formatDate(item.tanggal, "time") }}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="header">Status Transaksi</div>
-                                <div>:</div>
-                                <div
-                                    class="body d-tag"
-                                    :class="statusTransaksi(item.status.kode)"
-                                >
-                                    {{ item.status.status }}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="header">Nilai Transaksi</div>
-                                <div>:</div>
-                                <div class="body">
-                                    {{
-                                        new Intl.NumberFormat("id-ID", {
-                                            style: "currency",
-                                            currency: "IDR",
-                                        }).format(item.nilai_transaksi)
-                                    }}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="header">Sales</div>
-                                <div>:</div>
-                                <div class="body d-uppercase">
-                                    {{ item.sales }}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="header">Depo</div>
-                                <div>:</div>
-                                <div class="body d-uppercase">
-                                    {{ item.depo }}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="header">Status Pembayaran</div>
-                                <div>:</div>
-                                <div
-                                    class="body d-tag"
-                                    :class="
-                                        statusPembayaran(
-                                            item.status_pembayaran.kode
-                                        )
-                                    "
-                                >
-                                    {{ item.status_pembayaran.status }}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="header"></div>
-                                <div></div>
-                                <div class="body">
-                                    <div class="row-button">
-                                        <Button label="Detail" />
-                                    </div>
-                                </div>
+                            {{ item.status.status }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header">Nilai Transaksi</div>
+                        <div>:</div>
+                        <div class="body">
+                            {{
+                                new Intl.NumberFormat("id-ID", {
+                                    style: "currency",
+                                    currency: "IDR",
+                                }).format(item.nilai_transaksi)
+                            }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header">Sales</div>
+                        <div>:</div>
+                        <div class="body d-uppercase">
+                            {{ item.sales }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header">Depo</div>
+                        <div>:</div>
+                        <div class="body d-uppercase">
+                            {{ item.depo }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header">Status Pembayaran</div>
+                        <div>:</div>
+                        <div
+                            class="body d-tag"
+                            :class="
+                                statusTag(
+                                    item.status_pembayaran.kode,
+                                    'pembayaran'
+                                )
+                            "
+                        >
+                            {{ item.status_pembayaran.status }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="header"></div>
+                        <div></div>
+                        <div class="body">
+                            <div class="row-button">
+                                <Button label="Detail" />
                             </div>
                         </div>
                     </div>
-                </template>
-            </DataView>
-        </template>
+                </div>
+            </div>
+            <RiwayatTransaksiListSkeleton v-else :rowPerPage="rowPerPage" />
+            <div>
+                <Paginator
+                    v-model:first="currPage"
+                    :rows="rowPerPage"
+                    :total-records="rowLenghtPostFilter"
+                    style="width: 100%"
+                    template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                />
+            </div>
+        </div>
     </div>
 </template>
-
 <script setup>
 import { useTransactionStore } from "../store/TransactionStore";
 import { ref, onMounted, computed } from "vue";
-import { FilterMatchMode } from "primevue/api";
+import RiwayatTransaksiTableSkeleton from "./skeleton/RiwayatTransaksiTableSkeleton.vue";
+import RiwayatTransaksiListSkeleton from "./skeleton/RiwayatTransaksiListSkeleton.vue";
 
 const transactionStore = useTransactionStore();
-const transactions = ref();
-const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+const rowPerPage = ref(5);
+const currPage = ref(0);
+const transactions = computed(() => {
+    let data = transactionStore.transaction;
+
+    data = filterDataByDate(data, dateToFilter.value);
+
+    data = filterData(data, query.value);
+
+    rowLenghtPostFilter.value = data.length;
+
+    return data.slice(currPage.value, currPage.value + rowPerPage.value);
 });
-const searchTransaction = ref();
-const columnToFilterOpt = ref([
+const rowLenghtPostFilter = ref();
+const query = ref();
+const fieldToFilterOpt = ref([
     {
         label: "Global",
-        value: [
+        values: [
             "no_faktur",
             "customer",
             "sales",
@@ -361,43 +324,39 @@ const columnToFilterOpt = ref([
     },
     {
         label: "No Faktur",
-        value: ["no_faktur"],
+        values: ["no_faktur"],
     },
     {
         label: "Customer",
-        value: ["customer"],
+        values: ["customer"],
     },
     {
         label: "Sales",
-        value: ["sales"],
+        values: ["sales"],
     },
     {
         label: "Depo",
-        value: ["depo"],
+        values: ["depo"],
     },
     {
         label: "Status Transaksi",
-        value: ["status.kode"],
+        values: ["status.kode"],
     },
     {
         label: "Status Pembayaran",
-        value: ["status_pembayaran.kode"],
-    },
-    {
-        label: "Tanggal Transaksi",
-        value: ["tanggal"],
+        values: ["status_pembayaran.kode"],
     },
 ]);
-const columnToFilter = ref(columnToFilterOpt.value[0]);
+const fieldToFilter = ref(fieldToFilterOpt.value[0]);
 const statusToFilterOpt = computed(() => {
-    if (columnToFilter.value === columnToFilterOpt.value[5])
+    if (fieldToFilter.value === fieldToFilterOpt.value[5])
         return [
             { label: "Gagal", kode: 0 },
             { label: "Selesai", kode: 1 },
             { label: "Belum Selesai", kode: 2 },
             { label: "Batal", kode: 3 },
         ];
-    if (columnToFilter.value === columnToFilterOpt.value[6])
+    if (fieldToFilter.value === fieldToFilterOpt.value[6])
         return [
             { label: "Belum Dibayar", kode: 0 },
             { label: "Lunas", kode: 1 },
@@ -405,30 +364,60 @@ const statusToFilterOpt = computed(() => {
         ];
 });
 const statusToFilter = ref();
-const date = ref();
+const dateToFilterModeOpt = ref([
+    { label: "Tanggal Tunggal", kode: 1 },
+    { label: "Tanggal Jajaran", kode: 2 },
+]);
+const dateToFilterMode = ref(dateToFilterModeOpt.value[0]);
+const previewDateToFilter = ref(null);
+const dateToFilter = ref([]);
 
 onMounted(async () => {
     await transactionStore.getTransaction();
-    transactions.value = transactionStore.transaction;
     transactionStore.isLoading = false;
 });
 
 const clearFilter = () => {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    };
-    columnToFilter.value = columnToFilterOpt.value[0];
+    query.value = null;
+    fieldToFilter.value = fieldToFilterOpt.value[0];
+    previewDateToFilter.value = null;
+    dateToFilter.value = [];
+    dateToFilterMode.value = dateToFilterModeOpt.value[0];
 };
-
-const statusPembayaran = (statusCode) => {
-    if (statusCode === 0) return "d-tag-warning";
-    if (statusCode === 1) return "d-tag-success";
-    if (statusCode === 2) return "d-tag-info";
+const isFilterStatus = (type) => {
+    if (type === "label") {
+        if (fieldToFilter.value === fieldToFilterOpt.value[5])
+            return "transaksi";
+        if (fieldToFilter.value === fieldToFilterOpt.value[6])
+            return "pembayaran";
+    }
+    if (fieldToFilter.value === fieldToFilterOpt.value[5]) return true;
+    if (fieldToFilter.value === fieldToFilterOpt.value[6]) return true;
+    return false;
 };
-const statusTransaksi = (statusCode) => {
-    if (statusCode === 0 || statusCode === 3) return "d-tag-danger";
-    if (statusCode === 1) return "d-tag-success";
-    if (statusCode === 2) return "d-tag-warning";
+const statusTag = (statusCode, type) => {
+    if (type === "transaksi") {
+        if (statusCode === 0 || statusCode === 3) return "d-tag-danger";
+        if (statusCode === 1) return "d-tag-success";
+        if (statusCode === 2) return "d-tag-warning";
+    }
+    if (type === "pembayaran") {
+        if (statusCode === 0) return "d-tag-warning";
+        if (statusCode === 1) return "d-tag-success";
+        if (statusCode === 2) return "d-tag-info";
+    }
+};
+const handleSingleDatePicker = () => {
+    dateToFilter.value[0] = previewDateToFilter.value.getTime();
+    dateToFilter.value[1] = previewDateToFilter.value.getTime() + 86_400_000;
+    console.log(dateToFilter.value);
+};
+const handleRangeDatePicker = () => {
+    dateToFilter.value[0] = previewDateToFilter.value[0].getTime();
+    dateToFilter.value[1] = previewDateToFilter.value[1]
+        ? previewDateToFilter.value[1].getTime()
+        : null;
+    console.log(dateToFilter.value);
 };
 const formatDate = (date, type) => {
     let newDate = new Date(date);
@@ -436,27 +425,81 @@ const formatDate = (date, type) => {
     else if (type === "time") return `${newDate.toLocaleTimeString()}`;
     return `${newDate.toDateString()} ${newDate.toLocaleTimeString()}`;
 };
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+    }).format(value);
+};
+const filterData = (data, query) => {
+    query = query || query === 0 ? query : "";
+    return data.filter((item) => {
+        for (let field of fieldToFilter.value.values) {
+            if (field.toString().includes(".")) {
+                let key1 = field.toString().split(".")[0];
+                let key2 = field.toString().split(".")[1];
+
+                console.log(query);
+                if (
+                    item[key1][key2]
+                        .toString()
+                        .toLowerCase()
+                        .includes(query.toString().toLowerCase())
+                ) {
+                    return true;
+                }
+            } else if (
+                item[field] &&
+                item[field]
+                    .toString()
+                    .toLowerCase()
+                    .includes(query.toString().toLowerCase())
+            ) {
+                return true;
+            }
+        }
+        return false;
+    });
+};
+const filterDataByDate = (data, date) => {
+    return data.filter((item) => {
+        if (!date[0] && !date[1]) return true;
+        else if (item["tanggal"] >= date[0] && item["tanggal"] < date[1]) {
+            return true;
+        }
+        return false;
+    });
+};
 
 //
 </script>
-
 <style scoped lang="scss">
-.table-view {
-    display: none;
-}
-@media screen and (min-width: 640px) {
-    .table-view {
-        display: contents;
-    }
-    .list-view {
-        display: none;
-    }
-}
-
-.table-header-group {
+.table-header {
+    padding: 1rem 0;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        .filter-separator {
+            width: 100%;
+            height: 1px;
+            background-color: var(--surface-input-border);
+            border-radius: 1px;
+        }
+
+        .filter-clear-btn {
+            background-color: var(--primary-a0);
+            width: 100%;
+        }
+
+        .filter-item {
+            width: 100%;
+        }
+    }
 }
 
 .transaction-list {
@@ -505,13 +548,49 @@ const formatDate = (date, type) => {
     }
 }
 
-.table-header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    h5 {
-        margin-bottom: 0;
+.table-view {
+    display: none;
+}
+
+@media screen and (min-width: 640px) {
+    .table-view {
+        display: table;
+    }
+    .list-view {
+        display: none;
+    }
+
+    .table-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1rem;
+
+        h5 {
+            margin-bottom: 0;
+        }
+
+        .filter-group {
+            flex-direction: row;
+            align-items: center;
+
+            .filter-item {
+                width: 15rem;
+
+                &.mode-selector {
+                    width: fit-content;
+                }
+            }
+
+            .filter-separator {
+                width: 1px;
+                height: 2rem;
+            }
+
+            .filter-clear-btn {
+                width: 12rem;
+            }
+        }
     }
 }
 </style>

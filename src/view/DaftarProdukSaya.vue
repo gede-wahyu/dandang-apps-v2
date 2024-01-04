@@ -257,7 +257,6 @@ const onSelectSalerProducts = async () => {
     await productStore.getSalerProducts(selectedSaler.value.id);
     salerProducts.value = productStore.salerProducts;
     productStore.isLoading = false;
-    console.log(salerProducts.value);
 };
 
 //

@@ -65,7 +65,7 @@
         "
     >
         <small class="d-error" style="width: 100%; text-align: center"
-            >This element is only used in the testing stage and will disappear
+            >This element is only used in the development and testing stage and will disappear
             in the production stage.</small
         >
         <div
@@ -123,6 +123,7 @@ import { useAuthStore } from "../../store/AuthStore";
 import { useToast } from "primevue/usetoast";
 import { useForm } from "vee-validate";
 import * as yup from "yup";
+import { useRoute } from "vue-router";
 
 const FOR_TESTING = async (id) => {
     if (id === 1001)
@@ -143,10 +144,12 @@ const LOGIN_TESTING = async (id) => {
         detail: `Selamat datang ${authStore.auth.user.nama}`,
         life: 3000,
     });
-    router.push("/");
+    if (route.redirectedFrom) router.push({ name: route.redirectedFrom.name });
+    else router.push({ name: "dashboard" });
 };
 
 const router = useRouter();
+const route = useRoute();
 const toast = useToast();
 const authStore = useAuthStore();
 const { errors, handleSubmit, defineField } = useForm({
@@ -171,7 +174,9 @@ const login = handleSubmit(async () => {
             detail: `Selamat datang ${authStore.auth.user.nama}`,
             life: 3000,
         });
-        router.push({ name: "dashboard" });
+        if (route.redirectedFrom)
+            router.push({ name: route.redirectedFrom.name });
+        else router.push({ name: "dashboard" });
     } else {
         console.log(result);
         let msg = errors;
