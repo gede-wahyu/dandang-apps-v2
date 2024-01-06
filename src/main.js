@@ -21,6 +21,7 @@ import Skeleton from "primevue/skeleton";
 import OverlayPanel from "primevue/overlaypanel";
 import Dropdown from "primevue/dropdown";
 import Calendar from "primevue/calendar";
+import InputSwitch from "primevue/inputswitch";
 
 import "./assets/styles.scss";
 
@@ -48,5 +49,6 @@ app.component("Skeleton", Skeleton);
 app.component("OverlayPanel", OverlayPanel);
 app.component("Dropdown", Dropdown);
 app.component("Calendar", Calendar);
+app.component("InputSwitch", InputSwitch);
 
 app.mount("#app");

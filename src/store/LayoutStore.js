@@ -9,6 +9,7 @@ export const useLayoutStore = defineStore("layoutStore", {
             activeMenuItem: "",
             activePageName: "",
             menuMode: "static",
+            prevMenuMode: "",
             menuStyle: "sticky",
             activeMenuStyle: "rounded-right",
         },

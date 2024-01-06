@@ -193,7 +193,7 @@
                     v-for="(item, index) in transactions"
                     class="transaction-item"
                 >
-                    <div style="margin-bottom: 1rem">
+                    <div class="row-header">
                         <span>No Faktur. </span>
                         <span class="d-uppercase">{{ item.no_faktur }}</span>
                     </div>
@@ -474,8 +474,11 @@ const filterDataByDate = (data, date) => {
 //
 </script>
 <style scoped lang="scss">
+.d-card {
+    padding: 2rem 0;
+}
 .table-header {
-    padding: 1rem 0;
+    padding: 1rem 1.5rem;
     display: flex;
     flex-direction: column;
 
@@ -522,21 +525,26 @@ const filterDataByDate = (data, date) => {
         &::before {
             content: "";
             position: absolute;
-            left: -0.75rem;
+            left: 0.5rem;
+            top: 1.25rem;
             width: 4px;
-            height: 60%;
+            height: 2rem;
             border-radius: 99px;
             background-color: var(--primary);
         }
     }
 
     &:nth-child(odd) {
-        box-shadow: 0 0 0 100vmax var(--primary-a0);
-        clip-path: inset(0 -100vmax);
         background: var(--primary-a0);
     }
 
+    .row-header {
+        padding: 0 1.5rem;
+        margin-bottom: 1rem;
+    }
+
     .row {
+        padding: 0 1.5rem;
         display: grid;
         grid-template-columns: 11rem 1rem 1fr;
 
@@ -553,6 +561,9 @@ const filterDataByDate = (data, date) => {
 }
 
 @media screen and (min-width: 640px) {
+    .d-card {
+        padding: 2rem 1.5rem;
+    }
     .table-view {
         display: table;
     }

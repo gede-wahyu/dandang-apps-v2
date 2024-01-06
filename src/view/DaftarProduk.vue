@@ -274,12 +274,6 @@ const filteredProduct = (id) => {
         }
     }
 
-    &:nth-child(odd) {
-        box-shadow: 0 0 0 100vmax var(--primary-a0);
-        clip-path: inset(0 -100vmax);
-        background: var(--primary-a0);
-    }
-
     .item-left {
         display: flex;
         gap: 0.75rem;

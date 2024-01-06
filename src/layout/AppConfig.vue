@@ -29,6 +29,7 @@
                         inputId="theme-1"
                         name="theme"
                         value="light-theme"
+                        @update:modelValue="setTheme()"
                     />
                     <label for="theme-1">Tema Terang</label>
                 </div>
@@ -38,6 +39,7 @@
                         inputId="theme-2"
                         name="theme"
                         value="dark-theme"
+                        @update:modelValue="setTheme()"
                     />
                     <label for="theme-2">Tema Gelap</label>
                 </div>
@@ -51,6 +53,7 @@
                         inputId="tone-1"
                         name="tone"
                         value="tone-green"
+                        @update:modelValue="setTone()"
                     />
                     <label for="tone-1">Hijau</label>
                 </div>
@@ -60,6 +63,7 @@
                         inputId="tone-2"
                         name="tone"
                         value="tone-blue"
+                        @update:modelValue="setTone()"
                     />
                     <label for="tone-2">Biru</label>
                 </div>
@@ -69,6 +73,7 @@
                         inputId="tone-3"
                         name="tone"
                         value="tone-orange"
+                        @update:modelValue="setTone()"
                     />
                     <label for="tone-3">Oranye</label>
                 </div>
@@ -78,6 +83,7 @@
                         inputId="tone-4"
                         name="tone"
                         value="tone-red"
+                        @update:modelValue="setTone()"
                     />
                     <label for="tone-4">Merah</label>
                 </div>
@@ -87,6 +93,7 @@
                         inputId="tone-5"
                         name="tone"
                         value="tone-purple"
+                        @update:modelValue="setTone()"
                     />
                     <label for="tone-5">Ungu</label>
                 </div>
@@ -100,6 +107,7 @@
                         inputId="menuMode-1"
                         name="menumode"
                         value="static"
+                        @update:modelValue="setMenuMode()"
                     />
                     <label for="menuMode-1">Sembunyikan manual</label>
                 </div>
@@ -109,6 +117,7 @@
                         inputId="menuMode-2"
                         name="menumode"
                         value="overlay"
+                        @update:modelValue="setMenuMode()"
                     />
                     <label for="menuMode-2">Sembunyikan otomatis</label>
                 </div>
@@ -122,6 +131,7 @@
                         inputId="menuStyle-1"
                         name="menuStyle"
                         value="sticky"
+                        @update:modelValue="setMenuStyle()"
                     />
                     <label for="menuStyle-1">Menempel</label>
                 </div>
@@ -131,6 +141,7 @@
                         inputId="menuStyle-2"
                         name="menuStyle"
                         value="boxes"
+                        @update:modelValue="setMenuStyle()"
                     />
                     <label for="menuStyle-2">Kotak</label>
                 </div>
@@ -144,6 +155,7 @@
                         inputId="activeMenuStyle-1"
                         name="activeMenuStyle"
                         value="rounded-right"
+                        @update:modelValue="setActiveMenuStyle()"
                     />
                     <label for="activeMenuStyle-1">Kotak Sebagian</label>
                 </div>
@@ -153,6 +165,7 @@
                         inputId="activeMenuStyle-2"
                         name="activeMenuStyle"
                         value="rounded-all"
+                        @update:modelValue="setActiveMenuStyle()"
                     />
                     <label for="activeMenuStyle-2">Kotak Penuh</label>
                 </div>
@@ -162,6 +175,7 @@
                         inputId="activeMenuStyle-3"
                         name="activeMenuStyle"
                         value="full-width"
+                        @update:modelValue="setActiveMenuStyle()"
                     />
                     <label for="activeMenuStyle-3">Lebar Penuh</label>
                 </div>
@@ -171,6 +185,7 @@
                         inputId="activeMenuStyle-4"
                         name="activeMenuStyle"
                         value="pill-right"
+                        @update:modelValue="setActiveMenuStyle()"
                     />
                     <label for="activeMenuStyle-4">Pill Sebagian</label>
                 </div>
@@ -180,6 +195,7 @@
                         inputId="activeMenuStyle-5"
                         name="activeMenuStyle"
                         value="pill-all"
+                        @update:modelValue="setActiveMenuStyle()"
                     />
                     <label for="activeMenuStyle-5">Pill Penuh</label>
                 </div>
@@ -221,72 +237,69 @@ watch(
     }
 );
 watch(
-    () => theme.value,
+    () => layoutStore.layoutConfig.menuMode,
     () => {
-        layoutStore.onChangeTheme(theme.value);
-        localStorage.setItem("layoutTheme", theme.value);
+        menuMode.value = layoutStore.layoutConfig.menuMode;
     }
 );
-watch(
-    () => tone.value,
-    () => {
-        layoutStore.onChangeTone(tone.value);
-        localStorage.setItem("layoutTone", tone.value);
-    }
-);
-watch(
-    () => menuMode.value,
-    () => {
-        layoutStore.layoutConfig.menuMode = menuMode.value;
-        localStorage.setItem("menuMode", menuMode.value);
-    }
-);
-watch(
-    () => menuStyle.value,
-    () => {
-        layoutStore.layoutConfig.menuStyle = menuStyle.value;
-        localStorage.setItem("menuStyle", menuStyle.value);
-    }
-);
-watch(
-    () => activeMenuStyle.value,
-    () => {
-        layoutStore.layoutConfig.activeMenuStyle = activeMenuStyle.value;
-        localStorage.setItem("activeMenuStyle", activeMenuStyle.value);
-    }
-);
+
 onBeforeMount(() => {
     if (localStorage.getItem("layoutTheme")) {
-        let _theme = localStorage.getItem("layoutTheme");
-        theme.value = _theme;
+        theme.value = localStorage.getItem("layoutTheme");
+        setTheme();
     } else {
         theme.value = layoutStore.layoutConfig.theme;
     }
     if (localStorage.getItem("layoutTone")) {
-        let _tone = localStorage.getItem("layoutTone");
-        tone.value = _tone;
+        tone.value = localStorage.getItem("layoutTone");
+        setTone();
     } else {
         tone.value = layoutStore.layoutConfig.tone;
     }
     if (localStorage.getItem("menuMode")) {
-        let _menuMode = localStorage.getItem("menuMode");
-        menuMode.value = _menuMode;
+        menuMode.value = localStorage.getItem("menuMode");
+        setMenuMode();
     } else {
         menuMode.value = layoutStore.layoutConfig.menuMode;
     }
     if (localStorage.getItem("menuStyle")) {
-        let _menuStyle = localStorage.getItem("menuStyle");
-        menuStyle.value = _menuStyle;
+        menuStyle.value = localStorage.getItem("menuStyle");
+        setMenuStyle();
     } else {
         menuStyle.value = layoutStore.layoutConfig.menuStyle;
     }
     if (localStorage.getItem("activeMenuStyle")) {
-        let _activeMenuStyle = localStorage.getItem("activeMenuStyle");
-        activeMenuStyle.value = _activeMenuStyle;
+        activeMenuStyle.value = localStorage.getItem("activeMenuStyle");
+        setActiveMenuStyle();
     } else {
         activeMenuStyle.value = layoutStore.layoutConfig.activeMenuStyle;
     }
 });
+
+const setTheme = () => {
+    layoutStore.onChangeTheme(theme.value);
+    localStorage.setItem("layoutTheme", theme.value);
+};
+
+const setTone = () => {
+    layoutStore.onChangeTone(tone.value);
+    localStorage.setItem("layoutTone", tone.value);
+};
+
+const setMenuMode = () => {
+    layoutStore.layoutConfig.menuMode = menuMode.value;
+    localStorage.setItem("menuMode", menuMode.value);
+};
+
+const setMenuStyle = () => {
+    layoutStore.layoutConfig.menuStyle = menuStyle.value;
+    localStorage.setItem("menuStyle", menuStyle.value);
+};
+
+const setActiveMenuStyle = () => {
+    layoutStore.layoutConfig.activeMenuStyle = activeMenuStyle.value;
+    localStorage.setItem("activeMenuStyle", activeMenuStyle.value);
+};
 
 const openConfig = () => {
     layoutStore.layoutState.configMenuActive = true;

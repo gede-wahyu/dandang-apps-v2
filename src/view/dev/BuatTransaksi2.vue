@@ -5,51 +5,66 @@
     >
     <div class="page-layout-wrapper">
         <div class="d-card">
-            <div class="table-wrapper">
-                <table class="d-table">
-                    <thead>
-                        <tr>
-                            <th>Produk</th>
-                            <th>Varian</th>
-                            <th>Stok</th>
-                            <th>Harga</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="item in products">
-                            <td>
-                                <div class="produk">
-                                    <img
-                                        :src="`${baseUrl}/${item.image}`"
-                                        :alt="item.name"
-                                        class="table-img"
-                                    />
-                                    <span>{{ item.name }}</span>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="d-tag d-lowercase">
-                                    {{ `${item.size} ${formatUom(item.uom)}` }}
-                                </span>
-                            </td>
-                            <td>
-                                <span>{{ item.stock }} item</span>
-                            </td>
-                            <td>
-                                <span>{{ formatCurrency(item.price) }}</span>
-                            </td>
-                            <td>
-                                <div>
-                                    <Button
-                                        label="Tambah"
-                                        @click="addToCart(item)"
-                                    />
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="d-list">
+                <div class="header-style">
+                    <h5>Pilih Produk</h5>
+                    <span class="d-sideicon-set d-input-iconleft filter-item">
+                        <span class="material-symbols-outlined"> search </span>
+                        <InputText
+                            v-model="query"
+                            placeholder="Cari Produk"
+                            style="width: 100%"
+                        />
+                    </span>
+                </div>
+                <div v-for="item in products" class="list-item">
+                    <div class="product-image">
+                        <img
+                            :src="`${baseUrl}/${item.image}`"
+                            :alt="item.nama"
+                            class="img-style"
+                        />
+                    </div>
+                    <div class="product-name">
+                        <span>{{ item.name }}</span>
+                    </div>
+                    <div class="product-tag">
+                        <span class="d-tag">
+                            {{ item.size }} {{ formatUom(item.uom) }}
+                        </span>
+                    </div>
+                    <div class="product-price">
+                        <span>{{ formatCurrency(item.price) }}</span>
+                    </div>
+                    <div class="product-button">
+                        <Button
+                            v-if="!isProductInCart(item.id)"
+                            label="Tambah"
+                            @click="addToCart(item)"
+                        />
+                        <div
+                            v-else
+                            class="d-plusmin-button-set product-button-item"
+                        >
+                            <Button
+                                icon="remove"
+                                @click="reduceAmountProductInCart(item.id)"
+                            />
+                            <InputNumber
+                                class="d-plusmin-input"
+                                v-model="
+                                    cart[findIndexOfProductInCart(item.id)]
+                                        .amount
+                                "
+                                :min="1"
+                            />
+                            <Button
+                                icon="add"
+                                @click="addAmoutProductInCart(item.id)"
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="paginator">
                 <Paginator
@@ -57,7 +72,20 @@
                     :rows="rowPerPage"
                     :total-records="rowLenghtPostFilter"
                     style="width: 100%"
-                />
+                    template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                >
+                    <template #start>
+                        <div class="paginator-side" style="width: 4.4rem"></div>
+                    </template>
+                    <template #end>
+                        <div class="paginator-side">
+                            <Dropdown
+                                v-model="rowPerPage"
+                                :options="[4, 5, 6, 7]"
+                            />
+                        </div>
+                    </template>
+                </Paginator>
             </div>
         </div>
 
@@ -117,6 +145,15 @@
                                 @update:modelValue="saveInputToLocal()"
                             />
                         </div>
+                        <div class="input-item">
+                            <label for="payment">Metode Pembayaran</label>
+                            <InputText
+                                v-model="payment"
+                                id="payment"
+                                placeholder="Metode Pembayaran"
+                                @update:modelValue="saveInputToLocal()"
+                            />
+                        </div>
                         <div
                             class="input-item"
                             v-if="authStore.isAuthorize('discount')"
@@ -130,15 +167,8 @@
                                 suffix="%"
                                 placeholder="Diskon"
                                 @update:modelValue="saveInputToLocal()"
-                            />
-                        </div>
-                        <div class="input-item">
-                            <label for="payment">Metode Pembayaran</label>
-                            <InputText
-                                v-model="payment"
-                                id="payment"
-                                placeholder="Metode Pembayaran"
-                                @update:modelValue="saveInputToLocal()"
+                                style="width: 100%"
+                                :inputStyle="{ width: '100%' }"
                             />
                         </div>
                         <div
@@ -152,6 +182,7 @@
                                 inputId="due"
                                 placeholder="Pilih Tanggal Jatuh Tempo"
                                 @update:modelValue="saveInputToLocal()"
+                                style="width: 100%"
                             />
                         </div>
                         <div
@@ -169,58 +200,68 @@
                     </div>
                 </div>
                 <div class="trans-section info-cart">
-                    <div v-if="!cart.length" class="cart-none">
-                        Belum ada produk di keranjang.
-                    </div>
-                    <table v-else class="cart-list">
-                        <tr v-for="item in cart">
-                            <td style="max-width: 10rem">
-                                <div class="stack-it">
+                    <div class="table-wrapper">
+                        <div v-if="!cart.length" class="cart-none">
+                            Belum ada produk di keranjang.
+                        </div>
+                        <div v-else class="cart-list">
+                            <div v-for="item in cart" class="cart-item">
+                                <div class="cart-product-name">
                                     <span>{{ item.name }}</span>
+                                </div>
+                                <div class="cart-product-tag">
                                     <span class="d-tag d-lowercase">
                                         {{ item.size }}
                                         {{ formatUom(item.uom) }}
                                     </span>
                                 </div>
-                            </td>
-                            <td>
-                                <div class="stack-it">
+                                <div class="cart-product-price">
                                     <span>{{
                                         formatCurrency(item.price)
                                     }}</span>
-                                    <span>{{
-                                        formatCurrency(item.price * item.amount)
-                                    }}</span>
                                 </div>
-                            </td>
-                            <td>
-                                <div class="d-plusmin-button-set">
+                                <div class="cart-product-subtotal">
+                                    <span>
+                                        {{
+                                            formatCurrency(
+                                                item.price * item.amount
+                                            )
+                                        }}
+                                    </span>
+                                </div>
+                                <div class="cart-product-editamount">
+                                    <div class="d-plusmin-button-set">
+                                        <Button
+                                            icon="remove"
+                                            @click="
+                                                reduceAmountProductInCart(
+                                                    item.id
+                                                )
+                                            "
+                                        />
+                                        <InputNumber
+                                            class="d-plusmin-input"
+                                            v-model="item.amount"
+                                            :min="1"
+                                        />
+                                        <Button
+                                            icon="add"
+                                            @click="
+                                                addAmoutProductInCart(item.id)
+                                            "
+                                        />
+                                    </div>
+                                </div>
+                                <div class="cart-product-removebutt">
                                     <Button
-                                        icon="remove"
-                                        @click="
-                                            reduceAmountProductInCart(item.id)
-                                        "
-                                    />
-                                    <InputNumber
-                                        class="d-plusmin-input"
-                                        v-model="item.amount"
-                                        :min="1"
-                                    />
-                                    <Button
-                                        icon="add"
-                                        @click="addAmoutProductInCart(item.id)"
+                                        icon="close"
+                                        severity="danger"
+                                        @click="removeProductFromCart(item.id)"
                                     />
                                 </div>
-                            </td>
-                            <td style="max-width: 6.2rem">
-                                <Button
-                                    label="Hapus"
-                                    severity="danger"
-                                    @click="removeProductFromCart(item.id)"
-                                />
-                            </td>
-                        </tr>
-                    </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="trans-section info-summary">
                     <div v-if="!cart.length" class="summary-none">
@@ -282,24 +323,30 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onBeforeMount, onMounted, onBeforeUnmount } from "vue";
 import { useProductStore } from "../../store/ProductStore";
 import { useAuthStore } from "../../store/AuthStore";
 import { useCustomerStore } from "../../store/CustomerStore";
 import { useToast } from "primevue/usetoast";
+import { useLayoutStore } from "../../store/LayoutStore";
 import CustList from "../CustList.vue";
 const baseUrl = import.meta.env.VITE_BASE_URL;
+const { layoutConfig } = useLayoutStore();
 
 // for PRODUCT-PICK
 const productStore = useProductStore();
 const authStore = useAuthStore();
 const customerStore = useCustomerStore();
 const toast = useToast();
-const rowPerPage = ref(5);
+const query = ref(null);
+const fieldToFilter = ref(["name", "price", "size", "stock"]);
+const rowPerPage = ref(4);
 const currPage = ref(0);
 const rowLenghtPostFilter = ref(0);
 const products = computed(() => {
     let data = productStore.products;
+
+    data = filterData(data, query.value);
 
     rowLenghtPostFilter.value = data.length;
 
@@ -322,6 +369,10 @@ const due = ref(null);
 const warehouse = ref(null);
 const cart = ref([]);
 
+layoutConfig.prevMenuMode = layoutConfig.menuMode;
+onBeforeMount(() => {
+    layoutConfig.menuMode = "overlay";
+});
 onMounted(async () => {
     await productStore.getProducts();
     productStore.isLoading = false;
@@ -350,6 +401,9 @@ onMounted(async () => {
             newCustData.value["phone"] = JSON.parse(custInfo.phone);
         }
     }
+});
+onBeforeUnmount(() => {
+    layoutConfig.menuMode = layoutConfig.prevMenuMode;
 });
 
 const selectCustomer = (data) => {
@@ -550,6 +604,25 @@ const formatCurrency = (value) => {
 const formatUom = (value) => {
     if (value.toLowerCase() === "grams" || value.toLowerCase() === "gram")
         return "gr";
+    else return value;
+};
+
+const filterData = (data, query) => {
+    query = query || query === 0 ? query : "";
+    return data.filter((item) => {
+        for (let field of fieldToFilter.value) {
+            if (
+                item[field] &&
+                item[field]
+                    .toString()
+                    .toLowerCase()
+                    .includes(query.toString().toLowerCase())
+            ) {
+                return true;
+            }
+        }
+        return false;
+    });
 };
 
 //
@@ -566,30 +639,85 @@ const formatUom = (value) => {
 }
 
 .page-layout-wrapper {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: row;
     gap: 2rem;
 }
 
-.table-img {
+.header-style {
+    padding: 1rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--surface-tborder);
+    border-bottom: 1px solid var(--surface-tborder);
+
+    h5 {
+        margin-bottom: 0;
+    }
+
+    .filter-item {
+        width: 15rem;
+    }
+}
+
+.paginator {
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--surface-tborder);
+}
+
+.d-list {
+    display: grid;
+}
+
+.list-item {
+    padding: 1rem 1rem;
+
+    &:not(:last-of-type) {
+        border-bottom: 2px dashed var(--surface-input-border);
+    }
+
+    display: grid;
+    grid-template-columns: min-content 1fr min-content;
+    row-gap: 0.5rem;
+    column-gap: 1rem;
+    grid-template-areas:
+        "product-image product-name product-button"
+        "product-image product-tag product-button"
+        "product-image product-price product-button";
+}
+
+.product-image {
+    grid-area: product-image;
+    display: flex;
+    align-items: center;
+}
+.product-name {
+    grid-area: product-name;
+    text-transform: capitalize;
+}
+.product-tag {
+    grid-area: product-tag;
+
+    span {
+        text-transform: lowercase;
+    }
+}
+.product-price {
+    grid-area: product-price;
+}
+.product-button {
+    grid-area: product-button;
+    align-self: center;
+    justify-self: end;
+}
+
+.img-style {
     width: 4rem;
     height: 5rem;
     object-fit: cover;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow-set);
-    margin: 0 1rem;
-}
-
-.produk {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    max-width: 10rem;
-
-    span {
-        text-transform: capitalize;
-        text-wrap: wrap;
-    }
 }
 
 .transaction {
@@ -624,9 +752,15 @@ const formatUom = (value) => {
 }
 
 .input-item {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+
+    input {
+        width: 100%;
+    }
+
     &.checkbox {
         display: flex;
         flex-direction: row;
@@ -658,28 +792,12 @@ const formatUom = (value) => {
     border-radius: var(--border-radius);
 }
 
-table.cart-list {
-    width: 100%;
-
-    & tr td {
-        padding: 1.5rem 1rem;
-    }
-
-    & tr:not(:last-of-type) td {
-        border-bottom: 2px dashed var(--surface-input-border);
-    }
-}
-.stack-it {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    text-transform: capitalize;
-}
-
 .summary-list {
     width: 100%;
     display: flex;
     flex-direction: column;
+    border-radius: var(--border-radius);
+    overflow: hidden;
     .summary-item {
         padding: 1rem;
         display: flex;
@@ -689,6 +807,97 @@ table.cart-list {
         &:nth-of-type(odd) {
             background-color: var(--primary-a1);
         }
+    }
+}
+
+.cart-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-item {
+    padding: 1rem 0;
+    display: grid;
+    grid-template-columns: 3.5rem 3fr 1.5fr;
+    row-gap: 0.5rem;
+    grid-template-areas:
+        "cart-product-removebutt cart-product-name cart-product-editamount"
+        "cart-product-removebutt cart-product-tag cart-product-editamount"
+        "cart-product-removebutt cart-product-price cart-product-subtotal";
+
+    &:not(:last-of-type) {
+        border-bottom: 2px dashed var(--surface-input-border);
+    }
+}
+
+.cart-product-name {
+    grid-area: cart-product-name;
+    text-transform: capitalize;
+}
+.cart-product-tag {
+    grid-area: cart-product-tag;
+}
+.cart-product-price {
+    grid-area: cart-product-price;
+}
+.cart-product-editamount {
+    grid-area: cart-product-editamount;
+    align-self: center;
+}
+.cart-product-subtotal {
+    grid-area: cart-product-subtotal;
+}
+.cart-product-removebutt {
+    grid-area: cart-product-removebutt;
+    align-self: center;
+    justify-self: start;
+
+    button {
+        padding: 0;
+        height: 2rem;
+        width: 2rem;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .page-layout-wrapper {
+        flex-direction: column;
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .header-style {
+        flex-direction: column;
+        align-items: start;
+        gap: 1rem;
+        padding: 1rem 0;
+
+        h5 {
+            display: none;
+        }
+
+        .filter-item {
+            width: 100%;
+        }
+    }
+
+    .list-item {
+        padding: 1rem 0;
+    }
+
+    .paginator-side {
+        display: none;
+    }
+
+    .d-plusmin-button-set.product-button-item {
+        flex-direction: column-reverse;
+        button {
+            width: 3.8rem;
+        }
+    }
+
+    .input-grid {
+        grid-template-columns: 1fr;
     }
 }
 </style>

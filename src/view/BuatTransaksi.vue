@@ -1,260 +1,387 @@
 <template>
-    <h5 style="margin-bottom: 0.5rem">Buat Transaksi</h5>
-    <span
-        style="
-            color: var(--text-color-secondary);
-            margin-bottom: 1rem;
-            display: inline-block;
-        "
+    <h5 class="page-title">Buat Transaksi</h5>
+    <span class="page-subtitle"
         >Mendaftarkan transaksi baru untuk pelanggan.</span
     >
-    <div class="d-card" style="margin-bottom: 2rem">
-        <ProductSkeleton v-if="productStore.isLoading" />
-        <ProductList
-            v-else
-            :products="products"
-            :cartProductId="getIdProductCartList()"
-            @add-to-cart="addToCart($event)"
-        />
-    </div>
+    <div class="page-layout-wrapper">
+        <div class="d-card">
+            <div class="header-style">
+                <h5>Pilih Produk</h5>
+                <div class="header-tools">
+                    <span class="d-sideicon-set d-input-iconleft filter-item">
+                        <span class="material-symbols-outlined"> search </span>
+                        <InputText
+                            v-model="query"
+                            placeholder="Cari Produk"
+                            style="width: 100%"
+                        />
+                    </span>
+                    <div class="grid-setting button-group">
+                        <span
+                            class="span-nav-button"
+                            :class="{ active: !gridView }"
+                            role="button"
+                            tabindex="0"
+                            @click="onChangeViewMode(false)"
+                        >
+                            <span class="material-symbols-outlined">
+                                menu
+                            </span>
+                        </span>
+                        <span
+                            class="span-nav-button"
+                            :class="{ active: gridView }"
+                            role="button"
+                            tabindex="0"
+                            @click="onChangeViewMode(true)"
+                        >
+                            <span class="material-symbols-outlined">
+                                grid_view
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-list" :class="{ 'grid-view': gridView }">
+                <div v-for="item in products" class="list-item">
+                    <div class="product-image">
+                        <img
+                            :src="`${baseUrl}/${item.image}`"
+                            :alt="item.nama"
+                            class="img-style"
+                        />
+                    </div>
+                    <div class="product-name">
+                        <span>{{ item.name }}</span>
+                    </div>
+                    <div class="product-tag">
+                        <span class="d-tag">
+                            {{ item.size }} {{ formatUom(item.uom) }}
+                        </span>
+                    </div>
+                    <div class="product-stock">
+                        <span>{{ item.stock }} item</span>
+                    </div>
+                    <div class="product-price">
+                        <span>{{
+                            formatCurrency(item.price, "products")
+                        }}</span>
+                    </div>
+                    <div v-if="!gridView" class="product-button">
+                        <Button
+                            v-if="!isProductInCart(item.id)"
+                            label="Tambah"
+                            @click="addToCart(item)"
+                        />
+                        <div v-else class="d-plusmin-button-set">
+                            <Button
+                                icon="remove"
+                                @click="reduceAmountProductInCart(item.id)"
+                            />
+                            <InputNumber
+                                class="d-plusmin-input"
+                                v-model="
+                                    cart[findIndexOfProductInCart(item.id)]
+                                        .amount
+                                "
+                                :min="1"
+                                @update:modelValue="saveCartToLocal()"
+                            />
+                            <Button
+                                icon="add"
+                                @click="addAmoutProductInCart(item.id)"
+                            />
+                        </div>
+                    </div>
+                    <div v-else class="product-button">
+                        <Button
+                            v-if="isProductInCart(item.id)"
+                            icon="shopping_cart"
+                            @click="addToCart(item)"
+                        />
+                        <Button
+                            v-else
+                            icon="shopping_cart"
+                            outline
+                            @click="addToCart(item)"
+                        />
+                    </div>
+                </div>
+            </div>
+            <div v-if="!rowLenghtPostFilter <= rowPerPage" class="paginator">
+                <Paginator
+                    v-model:first="currPage"
+                    :rows="rowPerPage"
+                    :total-records="rowLenghtPostFilter"
+                    style="width: 100%"
+                    template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                >
+                    <template #start>
+                        <div class="paginator-side" style="width: 4.4rem"></div>
+                    </template>
+                    <template #end>
+                        <div class="paginator-side">
+                            <Dropdown
+                                v-model="rowPerPage"
+                                :options="rowPerPageOpt"
+                            />
+                        </div>
+                    </template>
+                </Paginator>
+            </div>
+        </div>
 
-    <div class="d-card">
-        <h4 style="margin-bottom: 2rem">Keranjang</h4>
-        <form @submit.prevent="onSubmit">
-            <div class="cart">
-                <div class="cart-info items">
-                    <h5 style="margin-bottom: 0">Informasi Keranjang</h5>
-                    <span v-if="!cart.length"
-                        >Belum ada produk di keranjang</span
+        <div class="d-card cart" :class="{ 'cart-modal-active': cartModal }">
+            <div v-if="cartModal" class="transaction-header-modal">
+                <div class="header">
+                    <h5>Buat Transaksi</h5>
+                    <span
+                        class="span-nav-button"
+                        role="button"
+                        tabindex="0"
+                        @click="closeCart()"
                     >
-                    <div class="cart-list" v-else>
-                        <div v-for="item in cart" class="cart-item">
-                            <div class="item-left">
-                                <div class="detail">
+                        <span class="material-symbols-outlined"> close </span>
+                    </span>
+                </div>
+            </div>
+            <div class="transaction">
+                <div class="trans-section info-input">
+                    <h5>Informasi Transaksi</h5>
+                    <div class="input-item checkbox">
+                        <CheckBox
+                            v-model="newCust"
+                            :binary="true"
+                            inputId="newCust"
+                            @update:modelValue="saveInputToLocal()"
+                        />
+                        <label for="newCust">Pelanggan Baru</label>
+                    </div>
+                    <div class="input-grid">
+                        <div v-if="!newCust" class="input-item">
+                            <label for="cust">Pelanggan</label>
+                            <div class="select-cust-input-group">
+                                <InputText
+                                    v-model="dispCust"
+                                    id="cust"
+                                    placeholder="Pilih Pelanggan"
+                                    disabled
+                                />
+                                <Button
+                                    icon="search"
+                                    @click="custModal = true"
+                                />
+                            </div>
+                        </div>
+                        <div v-if="newCust" class="input-item">
+                            <label for="newCustName">Nama Pelanggan</label>
+                            <InputText
+                                v-model="newCustData.name"
+                                id="newCustName"
+                                placeholder="Nama Pelanggan"
+                                @update:modelValue="saveInputToLocal()"
+                            />
+                        </div>
+                        <div v-if="newCust" class="input-item">
+                            <label for="newCustAddr">Alamat Pelanggan</label>
+                            <InputText
+                                v-model="newCustData.address"
+                                id="newCustAddr"
+                                placeholder="Alamat Pelanggan"
+                                @update:modelValue="saveInputToLocal()"
+                            />
+                        </div>
+                        <div v-if="newCust" class="input-item">
+                            <label for="newCustPhone">No Hp Pelanggan</label>
+                            <InputText
+                                v-model="newCustData.phone"
+                                id="newCustPhone"
+                                placeholder="No Hp Pelanggan"
+                                @update:modelValue="saveInputToLocal()"
+                            />
+                        </div>
+                        <div class="input-item">
+                            <label for="payment">Metode Pembayaran</label>
+                            <Dropdown
+                                v-model="payment"
+                                :options="[
+                                    'Tunai',
+                                    'E-payment',
+                                    'Transfer',
+                                    'Cicilan',
+                                    'Lainnya',
+                                ]"
+                                inputId="payment"
+                                placeholder="Pilih Metode Pembayaran"
+                                @update:modelValue="saveInputToLocal()"
+                            />
+                        </div>
+                        <div
+                            class="input-item"
+                            v-if="authStore.isAuthorize('discount')"
+                        >
+                            <label for="discount">Diskon</label>
+                            <InputNumber
+                                v-model="discount"
+                                inputId="discount"
+                                :min="0"
+                                :max="100"
+                                suffix="%"
+                                placeholder="Diskon"
+                                @update:modelValue="saveInputToLocal()"
+                                style="width: 100%"
+                                :inputStyle="{ width: '100%' }"
+                            />
+                        </div>
+                        <div
+                            class="input-item"
+                            v-if="authStore.isAuthorize('due')"
+                        >
+                            <label for="due">Jatuh Tempo</label>
+                            <Calendar
+                                v-model="due"
+                                dateFormat="dd - mm - yy"
+                                inputId="due"
+                                placeholder="Pilih Tanggal Jatuh Tempo"
+                                @update:modelValue="saveInputToLocal()"
+                                style="width: 100%"
+                            />
+                        </div>
+                        <div
+                            class="input-item"
+                            v-if="authStore.isAuthorize('warehouse')"
+                        >
+                            <label for="warehouse">Gudang</label>
+                            <InputText
+                                v-model="warehouse"
+                                id="warehouse"
+                                placeholder="Gudang"
+                                @update:modelValue="saveInputToLocal()"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div class="trans-section info-cart">
+                    <div class="table-wrapper">
+                        <div v-if="!cart.length" class="cart-none">
+                            Belum ada produk di keranjang.
+                        </div>
+                        <div v-else class="cart-list">
+                            <div v-for="item in cart" class="cart-item">
+                                <div class="cart-product-name">
                                     <span>{{ item.name }}</span>
-                                    <span
-                                        >{{ item.size }}
-                                        {{
-                                            item.uom === "grams"
-                                                ? "gr"
-                                                : item.uom
-                                        }}</span
-                                    >
                                 </div>
-                                <div class="price">
-                                    <!-- <span>
-                                        {{
-                                            new Intl.NumberFormat(
-                                                "id-ID"
-                                            ).format(item.price)
-                                        }}
-                                    </span> -->
+                                <div class="cart-product-tag">
+                                    <span class="d-tag d-lowercase">
+                                        {{ item.size }}
+                                        {{ formatUom(item.uom) }}
+                                    </span>
+                                </div>
+                                <div class="cart-product-price">
                                     <span>{{
-                                        new Intl.NumberFormat("id-ID").format(
-                                            item.price * item.amount
-                                        )
+                                        formatCurrency(item.price)
                                     }}</span>
                                 </div>
-                            </div>
-                            <div class="item-right">
-                                <img
-                                    src="/6571f01299e9a_dandang selection.png"
-                                    :alt="item.name"
-                                    style="
-                                        height: 5rem;
-                                        width: 5rem;
-                                        object-fit: cover;
-                                        border-radius: var(--border-radius);
-                                        box-shadow: var(--box-shadow-set);
-                                    "
-                                />
-                                <div class="button">
-                                    <Button
-                                        icon="delete"
-                                        severity="danger"
-                                        @click="onDeleteCartItem(item.id)"
-                                    />
+                                <div class="cart-product-subtotal">
+                                    <span>
+                                        {{
+                                            formatCurrency(
+                                                item.price * item.amount
+                                            )
+                                        }}
+                                    </span>
+                                </div>
+                                <div class="cart-product-editamount">
                                     <div class="d-plusmin-button-set">
                                         <Button
                                             icon="remove"
-                                            @click.prevent="
-                                                onRemoveCartItemAmount(item.id)
+                                            @click="
+                                                reduceAmountProductInCart(
+                                                    item.id
+                                                )
                                             "
                                         />
                                         <InputNumber
                                             class="d-plusmin-input"
                                             v-model="item.amount"
                                             :min="1"
+                                            @update:modelValue="
+                                                saveCartToLocal()
+                                            "
                                         />
                                         <Button
                                             icon="add"
                                             @click="
-                                                onAddCartItemAmount(item.id)
+                                                addAmoutProductInCart(item.id)
                                             "
                                         />
                                     </div>
+                                </div>
+                                <div class="cart-product-removebutt">
+                                    <Button
+                                        icon="close"
+                                        severity="danger"
+                                        @click="removeProductFromCart(item.id)"
+                                    />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="cart-info summary">
-                    <h5 style="margin-bottom: 0">Ringkasan Transaksi</h5>
-                    <span v-if="!cart.length"
-                        >Tambah produk untuk melihat ringkasan</span
-                    >
-                    <div v-else class="cart-summary">
+                <div class="trans-section info-summary">
+                    <div v-if="!cart.length" class="summary-none">
+                        Tambah produk untuk melihat ringkasan.
+                    </div>
+                    <div v-else class="summary-list">
                         <div class="summary-item">
-                            <span>Harga</span>
+                            <h5 style="margin: 0">Ringkasan Transaksi</h5>
+                        </div>
+                        <div class="summary-item">
+                            <span>Total Harga</span>
                             <span>{{
-                                new Intl.NumberFormat("id-ID").format(
-                                    totalCart()
-                                )
+                                formatCurrency(totalAmountOfCart())
                             }}</span>
                         </div>
                         <div class="summary-item">
                             <span>PPN ({{ tax }}%)</span>
-                            <span>{{
-                                new Intl.NumberFormat("id-ID").format(
-                                    taxAmount()
-                                )
-                            }}</span>
+                            <span>{{ formatCurrency(taxAmount()) }}</span>
                         </div>
                         <div class="summary-item">
-                            <span>Diskon ({{ discount ? discount : 0 }}%)</span>
-                            <span>{{
-                                new Intl.NumberFormat("id-ID").format(
-                                    discountAmount()
-                                )
-                            }}</span>
+                            <span>Diskon ({{ discount }}%)</span>
+                            <span>{{ formatCurrency(discountAmount()) }}</span>
                         </div>
                         <div class="summary-item">
                             <span>Total Pembayaran</span>
-                            <span>{{
-                                new Intl.NumberFormat("id-ID").format(
-                                    totalBill()
-                                )
-                            }}</span>
+                            <span>{{ formatCurrency(totalBill()) }}</span>
                         </div>
                     </div>
                 </div>
-                <div class="cart-info input">
-                    <h5 style="margin-bottom: 0">Informasi Transaksi</h5>
-                    <div>
-                        <CheckBox
-                            v-model="newCust"
-                            @update:modelValue="saveInputToLocal()"
-                            :binary="true"
-                            input-id="newCust"
-                        />
-                        <label for="newCust">Pelanggan baru</label>
-                    </div>
-                    <div v-if="!newCust">
-                        <label for="customer">Pelanggan</label>
-                        <div class="cart-info-input">
-                            <InputText
-                                id="customer"
-                                v-model="dispCust"
-                                placeholder="Pilih pelanggan"
-                                disabled
-                            />
-                            <Button @click="custModal = true" icon="search" />
-                        </div>
-                    </div>
-                    <div v-if="newCust">
-                        <label for="newCustName">Nama Pelanggan</label>
-                        <div class="cart-info-input">
-                            <InputText
-                                id="newCustName"
-                                v-model="newCustName"
-                                @update:modelValue="saveInputToLocal()"
-                                placeholder="Nama Pelanggan"
-                            />
-                        </div>
-                    </div>
-                    <div v-if="newCust">
-                        <label for="newCustAddr">Alamat Pelanggan</label>
-                        <div class="cart-info-input">
-                            <InputText
-                                id="newCustAddr"
-                                v-model="newCustAddr"
-                                @update:modelValue="saveInputToLocal()"
-                                placeholder="Alamat Pelanggan"
-                            />
-                        </div>
-                    </div>
-                    <div v-if="newCust">
-                        <label for="newCustPhone">No Hp Pelanggan</label>
-                        <div class="cart-info-input">
-                            <InputText
-                                id="newCustPhone"
-                                v-model="newCustPhone"
-                                @update:modelValue="saveInputToLocal()"
-                                placeholder="No Hp Pelanggan"
-                            />
-                        </div>
-                    </div>
-                    <div v-if="authStore.isAuthorize('discount')">
-                        <label for="discount">Diskon</label>
-                        <div class="cart-info-input">
-                            <InputNumber
-                                input-id="discount"
-                                v-model="discount"
-                                @update:modelValue="saveInputToLocal()"
-                                :min="0"
-                                :max="100"
-                                suffix="%"
-                                placeholder="Diskon"
-                                style="width: 100%"
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <label for="payment">Metode Pembayaran</label>
-                        <div class="cart-info-input">
-                            <InputText
-                                id="payment"
-                                v-model="payment"
-                                @update:modelValue="saveInputToLocal()"
-                                placeholder="Metode Pembayaran"
-                            />
-                        </div>
-                    </div>
-                    <div v-if="authStore.isAuthorize('due')">
-                        <label for="due">Jatuh Tempo</label>
-                        <div class="cart-info-input">
-                            <input
-                                type="date"
-                                id="due"
-                                v-model="due"
-                                @change="saveInputToLocal()"
-                                placeholder="Jatuh Tempo"
-                                class="p-inputtext"
-                            />
-                        </div>
-                    </div>
-                    <div v-if="authStore.isAuthorize('warehouse')">
-                        <label for="warehouse">Gudang</label>
-                        <div class="cart-info-input">
-                            <InputText
-                                id="warehouse"
-                                v-model="warehouse"
-                                @update:modelValue="saveInputToLocal()"
-                                placeholder="Gudang"
-                            />
-                        </div>
-                    </div>
+                <div class="trans-section submit-button">
+                    <Button
+                        label="Reset Transaksi"
+                        severity="danger"
+                        @click="resetTrans()"
+                    />
+                    <Button
+                        label="Buat Transaksi"
+                        severity="success"
+                        @click="onSubmitTransaction()"
+                    />
                 </div>
             </div>
-            <div class="trans-button">
-                <Button
-                    severity="danger"
-                    label="Reset Transaksi"
-                    @click="resetTrans()"
-                />
-                <Button type="submit" label="Buat Transaksi" />
-            </div>
-        </form>
+        </div>
+    </div>
+
+    <div class="cart-bar" @click="openCart">
+        <div class="cart-icon">
+            <span class="material-symbols-outlined"> shopping_cart </span>
+        </div>
+        <div class="cart-item-amount">
+            <span>Total {{ totalProductOfCart() }} item</span>
+        </div>
+        <div class="cart-total-amount">
+            <span>{{ formatCurrency(totalAmountOfCart()) }}</span>
+        </div>
     </div>
 
     <Dialog
@@ -273,46 +400,72 @@
 </template>
 
 <script setup>
+import { ref, computed, onBeforeMount, onMounted, onBeforeUnmount } from "vue";
 import { useProductStore } from "../store/ProductStore";
-import { useCustomerStore } from "../store/CustomerStore";
 import { useAuthStore } from "../store/AuthStore";
-import { ref, onMounted } from "vue";
+import { useCustomerStore } from "../store/CustomerStore";
 import { useToast } from "primevue/usetoast";
-import ProductList from "./ProductList.vue";
+import { useLayoutStore } from "../store/LayoutStore";
 import CustList from "./CustList.vue";
-import ProductSkeleton from "./skeleton/ProductSkeleton.vue";
+const baseUrl = import.meta.env.VITE_BASE_URL;
+const { layoutConfig } = useLayoutStore();
 
-const toast = useToast();
+// for PRODUCT-PICK
 const productStore = useProductStore();
-const products = ref(null);
-const customerStore = useCustomerStore();
-const customers = ref(null);
-const custModal = ref(false);
 const authStore = useAuthStore();
+const customerStore = useCustomerStore();
+const toast = useToast();
+const gridView = ref(false);
+const query = ref(null);
+const fieldToFilter = ref(["name", "price", "size", "stock"]);
+const rowPerPageOpt = ref([4, 5, 6, 7]);
+const rowPerPage = ref(4);
+const currPage = ref(0);
+const rowLenghtPostFilter = ref(0);
+const products = computed(() => {
+    let data = productStore.products;
 
-const newCustName = ref(null);
-const newCustAddr = ref(null);
-const newCustPhone = ref(null);
+    data = filterData(data, query.value);
+
+    rowLenghtPostFilter.value = data.length;
+
+    if (rowLenghtPostFilter.value <= rowPerPage.value) return data;
+
+    return data.slice(currPage.value, currPage.value + rowPerPage.value);
+});
+
+// for CUST-PICK
+const custModal = ref(false);
+const customers = ref(null);
 const dispCust = ref(null);
-const customer = ref(null);
+const cust = ref(null);
+
+// for CART
 const newCust = ref(false);
+const newCustData = ref({});
+const tax = ref(11);
 const discount = ref(null);
 const payment = ref(null);
 const due = ref(null);
-const tax = ref(11);
 const warehouse = ref(null);
 const cart = ref([]);
+const cartModal = ref(false);
 
+layoutConfig.prevMenuMode = layoutConfig.menuMode;
+
+onBeforeMount(() => {
+    layoutConfig.menuMode = "overlay";
+});
 onMounted(async () => {
     await productStore.getProducts();
-    await customerStore.getCustomers();
-    products.value = productStore.products;
-    customers.value = customerStore.customers;
     productStore.isLoading = false;
+    await customerStore.getCustomers();
+    customers.value = customerStore.customers;
 
     if (localStorage.getItem("cart")) {
         cart.value = JSON.parse(localStorage.getItem("cart"));
     }
+
     if (localStorage.getItem("transInfo") || localStorage.getItem("custInfo")) {
         let transInfo = JSON.parse(localStorage.getItem("transInfo"));
         let custInfo = JSON.parse(localStorage.getItem("custInfo"));
@@ -323,19 +476,120 @@ onMounted(async () => {
         newCust.value = JSON.parse(custInfo.newCust);
 
         if (!JSON.parse(custInfo.newCust)) {
-            customer.value = JSON.parse(custInfo.customer);
-            dispCust.value = formatDispCust(customer.value);
+            cust.value = JSON.parse(custInfo.customer);
+            dispCust.value = formatDispCust(cust.value);
         } else {
-            newCustName.value = JSON.parse(custInfo.name);
-            newCustAddr.value = JSON.parse(custInfo.addr);
-            newCustPhone.value = JSON.parse(custInfo.contact);
+            newCustData.value["name"] = JSON.parse(custInfo.name);
+            newCustData.value["address"] = JSON.parse(custInfo.address);
+            newCustData.value["phone"] = JSON.parse(custInfo.phone);
         }
-    } else due.value = new Date().toISOString().slice(0, 10);
+    }
 });
+onBeforeUnmount(() => {
+    layoutConfig.menuMode = layoutConfig.prevMenuMode;
+});
+
+const onChangeViewMode = (grid) => {
+    gridView.value = grid;
+
+    if (gridView.value) {
+        rowPerPageOpt.value = [6, 8, 10, 12];
+        if (window.innerWidth < 575) rowPerPage.value = 6;
+        else rowPerPage.value = 8;
+    } else {
+        rowPerPage.value = 4;
+        rowPerPageOpt.value = [4, 5, 6, 7];
+    }
+};
+
+const selectCustomer = (data) => {
+    dispCust.value = formatDispCust(data);
+    cust.value = data;
+    custModal.value = false;
+    saveInputToLocal();
+};
+
+const formatDispCust = (data) => {
+    if (data) return `${data.name} - ${data.code.toUpperCase()}`;
+};
+
+const addToCart = (item) => {
+    if (isProductInCart(item["id"])) {
+        addAmoutProductInCart(item["id"]);
+    } else {
+        item["amount"] = 1;
+        cart.value.push(item);
+    }
+
+    saveCartToLocal();
+};
+
+const addAmoutProductInCart = (productId) => {
+    let index = findIndexOfProductInCart(productId);
+    cart.value[index]["amount"]++;
+
+    // saveCartToLocal();
+};
+
+const reduceAmountProductInCart = (productId) => {
+    let index = findIndexOfProductInCart(productId);
+    if (cart.value[index]["amount"] > 1) cart.value[index]["amount"]--;
+    else removeProductFromCart(productId);
+
+    // saveCartToLocal();
+};
+
+const removeProductFromCart = (productId) => {
+    let index = findIndexOfProductInCart(productId);
+    cart.value.splice(index, 1);
+
+    saveCartToLocal();
+};
+
+const totalProductOfCart = () => {
+    if (!cart.value.length) return 0;
+    return cart.value.reduce((sum, p) => {
+        return sum + p["amount"];
+    }, 0);
+};
+
+const totalAmountOfCart = () => {
+    if (!cart.value.length) return 0;
+    return cart.value
+        .map((item) => item.amount * item.price)
+        .reduce((sum, item) => sum + item);
+};
+
+const taxAmount = () => {
+    if (authStore.isAuthorize("tax"))
+        return tax.value * 0.01 * totalAmountOfCart();
+    else return 0;
+};
+
+const discountAmount = () => {
+    return (discount.value ? discount.value : 0) * 0.01 * totalAmountOfCart();
+};
+
+const totalBill = () => {
+    return totalAmountOfCart() + taxAmount() - discountAmount();
+};
+
+const isProductInCart = (productId) => {
+    return getListOfIdProductInCart(productId).includes(productId);
+};
+
+const getListOfIdProductInCart = () => {
+    return cart.value.map((item) => item["id"]);
+};
+
+const findIndexOfProductInCart = (productId) => {
+    return getListOfIdProductInCart().indexOf(productId);
+};
 
 const saveCartToLocal = () => {
     localStorage.setItem("cart", JSON.stringify(cart.value));
 };
+
 const saveInputToLocal = () => {
     localStorage.setItem(
         "transInfo",
@@ -351,7 +605,7 @@ const saveInputToLocal = () => {
             "custInfo",
             JSON.stringify({
                 newCust: JSON.stringify(newCust.value),
-                customer: JSON.stringify(customer.value),
+                customer: JSON.stringify(cust.value),
             })
         );
     else
@@ -359,81 +613,29 @@ const saveInputToLocal = () => {
             "custInfo",
             JSON.stringify({
                 newCust: JSON.stringify(newCust.value),
-                name: JSON.stringify(newCustName.value),
-                addr: JSON.stringify(newCustAddr.value),
-                contact: JSON.stringify(newCustPhone.value),
+                name: JSON.stringify(newCustData.value["name"]),
+                address: JSON.stringify(newCustData.value["address"]),
+                phone: JSON.stringify(newCustData.value["phone"]),
             })
         );
-};
-const addToCart = (data) => {
-    if (isProductInCart(data.id)) return;
-    cart.value.push(data);
-
-    saveCartToLocal();
-};
-const findIndexOfCart = (id) => {
-    return getIdProductCartList().indexOf(id);
-};
-const onAddCartItemAmount = (id) => {
-    cart.value[findIndexOfCart(id)].amount++;
-
-    saveCartToLocal();
-};
-const onRemoveCartItemAmount = (id) => {
-    cart.value[findIndexOfCart(id)].amount--;
-    if (cart.value[findIndexOfCart(id)].amount <= 0)
-        cart.value.splice(findIndexOfCart(id), 1);
-
-    saveCartToLocal();
-};
-const onDeleteCartItem = (id) => {
-    cart.value.splice(findIndexOfCart(id), 1);
-
-    saveCartToLocal();
-};
-const isProductInCart = (id) => {
-    return getIdProductCartList().includes(id);
-};
-const getIdProductCartList = () => {
-    return cart.value.map((item) => item.id);
-};
-const totalCart = () => {
-    return cart.value
-        .map((item) => item.amount * item.price)
-        .reduce((sum, item) => sum + item);
-};
-const taxAmount = () => {
-    if (authStore.isAuthorize("tax"))
-        return totalCart() * ((tax.value ? tax.value : 0) * 0.01);
-    else return 0;
-};
-const discountAmount = () => {
-    return totalCart() * ((discount.value ? discount.value : 0) * 0.01);
-};
-const totalBill = () => {
-    return totalCart() + taxAmount() - discountAmount();
-};
-const selectCustomer = (data) => {
-    dispCust.value = formatDispCust(data);
-    customer.value = data;
-    custModal.value = false;
-    saveInputToLocal();
-};
-const formatDispCust = (data) => {
-    return `${data.name} - ${data.code.toUpperCase()}`;
 };
 
 const isInvalidSubmit = () => {
     if (!cart.value.length) return "Pembelian minimal 1 produk";
     if (!newCust.value) {
-        if (!customer.value) return "Identitas pelanggan wajib diisi";
+        if (!cust.value) return "Identitas pelanggan wajib diisi";
     }
     if (newCust.value) {
-        if (!newCustName.value || !newCustAddr.value || !newCustPhone.value)
+        if (
+            !newCustData.value["name"] ||
+            !newCustData.value["address"] ||
+            !newCustData.value["phone"]
+        )
             return "Identitas pelanggan wajib diisi";
     }
     return false;
 };
+
 const warnInvalid = (errm) => {
     toast.add({
         severity: "error",
@@ -442,7 +644,8 @@ const warnInvalid = (errm) => {
         life: 3000,
     });
 };
-const onSubmit = () => {
+
+const onSubmitTransaction = () => {
     if (isInvalidSubmit()) warnInvalid(isInvalidSubmit());
     else {
         toast.add({
@@ -451,180 +654,527 @@ const onSubmit = () => {
             detail: "OK",
             life: 3000,
         });
+        console.log({
+            sales: authStore.user,
+            isNewCustomer: newCust.value,
+            customer: !newCust.value
+                ? cust.value
+                : {
+                      nama: newCustData.value["name"],
+                      alamat: newCustData.value["address"],
+                      hp: newCustData.value["phone"],
+                  },
+            "metode pembayaran": payment.value,
+            diskon: discount.value,
+            "jumlah diskon": discountAmount(),
+            ppn: taxAmount() ? tax.value : 0,
+            "jumlah pajak": taxAmount(),
+            "jatuh tempo": due.value,
+            gudang: warehouse.value,
+            keranjang: cart.value,
+        });
 
         resetTrans();
     }
 };
+
 const resetTrans = () => {
     cart.value = [];
     newCust.value = false;
-    customer.value = null;
+    cust.value = null;
     dispCust.value = null;
-    newCustName.value = null;
-    newCustAddr.value = null;
-    newCustPhone.value = null;
+    newCustData.value = {};
     discount.value = null;
     payment.value = null;
-    due.value = new Date().toISOString().slice(0, 10);
+    due.value = null;
     warehouse.value = null;
 
     resetTransOnLocal();
 };
+
 const resetTransOnLocal = () => {
     localStorage.removeItem("cart");
     localStorage.removeItem("transInfo");
     localStorage.removeItem("custInfo");
 };
 
+const openCart = () => {
+    cartModal.value = true;
+};
+
+const closeCart = () => {
+    cartModal.value = false;
+};
+
+const formatCurrency = (value, from) => {
+    if (from && gridView.value) {
+        return new Intl.NumberFormat("id-ID").format(value);
+    }
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+    }).format(value);
+};
+
+const formatUom = (value) => {
+    if (value.toLowerCase() === "grams" || value.toLowerCase() === "gram")
+        return "gr";
+    else return value;
+};
+
+const filterData = (data, query) => {
+    query = query || query === 0 ? query : "";
+    return data.filter((item) => {
+        for (let field of fieldToFilter.value) {
+            if (
+                item[field] &&
+                item[field]
+                    .toString()
+                    .toLowerCase()
+                    .includes(query.toString().toLowerCase())
+            ) {
+                return true;
+            }
+        }
+        return false;
+    });
+};
+
 //
 </script>
 
 <style scoped lang="scss">
-.cart {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 3rem;
+.page-title {
+    margin-bottom: 0.5rem;
+    & + .page-subtitle {
+        display: inline-block;
+        margin-bottom: 1rem;
+        color: var(--text-color-secondary);
+    }
 }
 
-.cart-info {
+.page-layout-wrapper {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
-
-    &.items,
-    &.summary {
-        h5 + span {
-            color: var(--text-color-secondary);
-            padding: 2rem 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px dashed var(--primary);
-            border-radius: var(--border-radius);
-        }
-    }
-
-    &.input > div {
-        display: flex;
-        gap: 0.5rem;
-
-        &:not(:first-of-type) {
-            flex-direction: column;
-        }
-    }
+    flex-direction: row;
+    gap: 1.5rem;
 }
 
-.cart-info-input {
+.header-style {
+    padding: 1rem 1rem;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--surface-tborder);
+    border-bottom: 1px solid var(--surface-tborder);
+
+    h5 {
+        margin-bottom: 0;
+    }
+
+    .header-tools {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .filter-item {
+        width: 15rem;
+    }
+}
+
+.paginator {
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--surface-tborder);
+}
+
+.view-settings {
+    margin: 1rem 1rem 0.5rem 0;
+    display: flex;
+    justify-content: end;
+}
+.button-group {
+    display: flex;
+    scale: 0.8;
+    border-collapse: collapse;
+    .span-nav-button:first-of-type {
+        border: 1px solid var(--surface-input-border);
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    .span-nav-button:last-of-type {
+        border: 1px solid var(--surface-input-border);
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .span-nav-button.active {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        color: var(--text-primary);
+    }
+}
+
+.d-list {
+    display: grid;
+}
+
+.d-list.grid-view {
+    padding: 1rem 0;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    row-gap: 1.5rem;
+}
+
+.list-item {
+    padding: 1rem 1rem;
+
+    &:not(:last-of-type) {
+        border-bottom: 2px dashed var(--surface-input-border);
+    }
+
+    display: grid;
+    grid-template-columns: min-content 1fr min-content;
+    row-gap: 0.5rem;
+    column-gap: 1rem;
+    grid-template-areas:
+        "product-image product-name product-price"
+        "product-image product-tag product-button"
+        "product-image product-stock product-button";
+}
+
+.product-image {
+    grid-area: product-image;
+    display: flex;
+    align-items: center;
+}
+.product-name {
+    grid-area: product-name;
+    text-transform: capitalize;
+}
+.product-tag {
+    grid-area: product-tag;
+
+    span {
+        text-transform: lowercase;
+    }
+}
+.product-stock {
+    grid-area: product-stock;
+}
+.product-price {
+    grid-area: product-price;
+    align-self: end;
+    justify-self: end;
+}
+.product-button {
+    grid-area: product-button;
+    align-self: center;
+    justify-self: end;
+}
+
+.grid-view .list-item {
+    width: min-content;
+    justify-self: center;
+    grid-template-columns: 1rem 3.5rem 3.5rem 1rem;
+    column-gap: 0;
+    grid-template-areas:
+        "product-tag product-tag product-stock product-stock"
+        "product-image product-image product-image product-image"
+        "product-name product-name product-name product-name"
+        "product-price product-price product-button product-button";
+
+    border: 1px solid var(--surface-input-border);
+    border-radius: var(--border-radius);
+
+    & .product-tag {
+        justify-self: start;
+    }
+    & .product-stock {
+        justify-self: end;
+    }
+    & .product-image {
+        justify-self: center;
+        align-self: end;
+    }
+    & .product-name {
+        justify-self: center;
+        text-align: center;
+    }
+    & .product-price {
+        justify-self: start;
+    }
+    & .product-button {
+        justify-self: end;
+    }
+}
+
+.img-style {
+    width: 4rem;
+    height: 5rem;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-set);
+}
+
+.transaction {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.trans-section {
+    &.info-input {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    &.info-summary {
+        display: flex;
+        justify-content: end;
+    }
+
+    &.submit-button {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+}
+
+.input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 1rem;
+}
+
+.input-item {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    input {
+        width: 100%;
+    }
+
+    &.checkbox {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+    }
+}
+
+.select-cust-input-group {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 
     input {
         width: 100%;
     }
 }
 
-.cart-summary {
+.cart-none,
+.summary-none {
+    width: 100%;
+    color: var(--text-color-secondary);
+    padding: 2rem 1rem;
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    .summary-item {
-        display: flex;
-        justify-content: space-between;
-    }
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--primary);
+    border-radius: var(--border-radius);
 }
 
-.trans-button {
-    margin-top: 1.5rem;
+.summary-list {
+    width: 100%;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    .summary-item {
+        padding: 1rem;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        &:nth-of-type(odd) {
+            background-color: var(--primary-a1);
+        }
+    }
 }
 
 .cart-list {
     display: flex;
     flex-direction: column;
-    height: fit-content;
+}
 
-    .cart-item {
-        height: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem 0;
+.cart-item {
+    padding: 1rem 0;
+    display: grid;
+    grid-template-columns: 3.5rem 3fr 1.5fr;
+    row-gap: 0.5rem;
+    grid-template-areas:
+        "cart-product-removebutt cart-product-name cart-product-editamount"
+        "cart-product-removebutt cart-product-tag cart-product-editamount"
+        "cart-product-removebutt cart-product-price cart-product-subtotal";
 
-        &:not(:first-of-type) {
-            border-top: 2px dashed var(--surface-input-border);
-        }
-
-        .item-left {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 0.5rem;
-
-            .detail {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-
-                span:first-of-type {
-                    text-transform: capitalize;
-                    font-weight: 500;
-                }
-                span:nth-of-type(2) {
-                    display: flex;
-                    width: fit-content;
-                    padding: 3px 5px;
-                    background-color: var(--primary-a3);
-                    font-size: 0.7rem;
-                    color: var(--primary);
-                    border-radius: var(--border-radius);
-                }
-            }
-
-            .price {
-                display: flex;
-                flex-direction: column;
-                justify-content: end;
-            }
-        }
-
-        .item-right {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-
-            .button {
-                position: relative;
-
-                & > button {
-                    position: absolute;
-                    left: calc(-2.5rem);
-                    padding: 0 !important;
-                    height: 2rem;
-                    width: 2rem;
-                }
-            }
-        }
+    &:not(:last-of-type) {
+        border-bottom: 2px dashed var(--surface-input-border);
     }
 }
 
-@media screen and (max-width: 991px) {
-    .cart {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
+.cart-product-name {
+    grid-area: cart-product-name;
+    text-transform: capitalize;
+}
+.cart-product-tag {
+    grid-area: cart-product-tag;
+}
+.cart-product-price {
+    grid-area: cart-product-price;
+}
+.cart-product-editamount {
+    grid-area: cart-product-editamount;
+    align-self: center;
+}
+.cart-product-subtotal {
+    grid-area: cart-product-subtotal;
+}
+.cart-product-removebutt {
+    grid-area: cart-product-removebutt;
+    align-self: center;
+    justify-self: start;
 
-        .cart-info.input {
-            order: 1;
+    button {
+        padding: 0;
+        height: 2rem;
+        width: 2rem;
+    }
+}
+
+.cart-bar {
+    display: none;
+}
+
+@media screen and (max-width: 767px) {
+    .page-layout-wrapper {
+        flex-direction: column;
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .header-style {
+        flex-direction: column;
+        align-items: start;
+        gap: 1rem;
+        padding: 1rem 0;
+
+        h5 {
+            display: none;
         }
-        .cart-info.items {
-            order: 2;
+
+        .filter-item {
+            width: 100%;
         }
-        .cart-info.summary {
-            order: 3;
+    }
+
+    .d-list:not(.grid-view) {
+        .list-item {
+            padding: 1rem 0;
+        }
+    }
+
+    .paginator-side {
+        display: none;
+    }
+
+    .d-plusmin-button-set.product-button-item {
+        flex-direction: column-reverse;
+        button {
+            width: 3.8rem;
+        }
+    }
+
+    .input-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cart-bar {
+        width: calc(100vw - 5rem);
+        padding: 1rem 1.5rem;
+
+        position: fixed;
+        bottom: 2rem;
+        left: 2.5rem;
+        z-index: 2;
+
+        display: grid;
+        grid-template-columns: min-content 3fr 4fr;
+        column-gap: 0.75rem;
+
+        background-color: var(--primary-a);
+        border-radius: var(--border-radius);
+        backdrop-filter: blur(4px);
+        box-shadow: var(--box-shadow-set);
+        user-select: none;
+
+        &:hover {
+            background-color: var(--primary-a7);
+        }
+    }
+
+    .cart-icon {
+        align-self: center;
+    }
+    .cart-item-amount {
+        align-self: center;
+    }
+    .cart-total-amount {
+        align-self: center;
+        justify-self: end;
+    }
+
+    .d-card.cart:not(.cart-modal-active) {
+        display: none;
+    }
+
+    .d-card.cart-modal-active {
+        width: 100vw;
+        height: 100vh;
+        padding: 0;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        z-index: 99;
+
+        display: flex;
+        align-items: end;
+        background-color: rgba(0, 0, 0, 0.5);
+
+        .transaction-header-modal {
+            width: 100vw;
+            padding: 1rem 1.5rem;
+            position: fixed;
+            left: 0;
+            bottom: 70vh;
+            background-color: var(--surface-card);
+            box-shadow: var(--box-shadow-set);
+
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                h5 {
+                    margin: 0;
+                }
+            }
+        }
+        .transaction {
+            width: 100vw;
+            height: 70vh;
+            padding: 1.5rem 1.5rem 2rem 1.5rem;
+            overflow-y: auto;
+            background-color: var(--surface-card);
         }
     }
 }

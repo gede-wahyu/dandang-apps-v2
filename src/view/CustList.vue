@@ -22,12 +22,12 @@
 
         <Column header="Nama">
             <template #body="slotProps">
-                <div>{{ slotProps.data.name }}</div>
+                <div class="d-capitalize">{{ slotProps.data.name }}</div>
             </template>
         </Column>
         <Column header="Kode">
             <template #body="slotProps">
-                <div>#{{ slotProps.data.code }}</div>
+                <div class="d-uppercase">#{{ slotProps.data.code }}</div>
             </template>
         </Column>
         <Column header="No Hp">

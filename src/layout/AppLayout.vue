@@ -1,4 +1,7 @@
 <template>
+    <div class="layout-config">
+        <AppConfig />
+    </div>
     <div class="layout-wrapper" :class="containerClass">
         <div class="layout-sidebar">
             <AppSidebar />
@@ -14,9 +17,6 @@
                 <AppFooter />
             </div>
         </div>
-    </div>
-    <div class="layout-config">
-        <AppConfig />
     </div>
 </template>
 
