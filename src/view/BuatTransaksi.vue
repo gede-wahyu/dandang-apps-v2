@@ -113,6 +113,10 @@
                             @click="addToCart(item)"
                         />
                     </div>
+                    <div
+                        class="grid-item-wrapper"
+                        @click="addToCart(item)"
+                    ></div>
                 </div>
             </div>
             <div v-if="!rowLenghtPostFilter <= rowPerPage" class="paginator">
@@ -894,6 +898,19 @@ const filterData = (data, query) => {
 
     border: 1px solid var(--surface-input-border);
     border-radius: var(--border-radius);
+    transition: scale 0.2s ease;
+    -webkit-tap-highlight-color: var(--primary-a0);
+
+    &:hover {
+        position: relative;
+        scale: 1.05;
+        .grid-item-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+    }
 
     & .product-tag {
         justify-self: start;
