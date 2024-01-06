@@ -418,8 +418,8 @@ const toast = useToast();
 const gridView = ref(false);
 const query = ref(null);
 const fieldToFilter = ref(["name", "price", "size", "stock"]);
-const rowPerPageOpt = ref([4, 5, 6, 7]);
-const rowPerPage = ref(4);
+const rowPerPageOpt = ref([7, 8, 9, 10]);
+const rowPerPage = ref(7);
 const currPage = ref(0);
 const rowLenghtPostFilter = ref(0);
 const products = computed(() => {
@@ -493,12 +493,12 @@ const onChangeViewMode = (grid) => {
     gridView.value = grid;
 
     if (gridView.value) {
-        rowPerPageOpt.value = [6, 8, 10, 12];
+        rowPerPageOpt.value = [8, 12, 16, 20];
         if (window.innerWidth < 575) rowPerPage.value = 6;
-        else rowPerPage.value = 8;
+        else rowPerPage.value = 12;
     } else {
-        rowPerPage.value = 4;
-        rowPerPageOpt.value = [4, 5, 6, 7];
+        rowPerPage.value = 7;
+        rowPerPageOpt.value = [7, 8, 9, 10];
     }
 };
 
