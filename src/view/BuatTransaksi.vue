@@ -43,7 +43,11 @@
                 </div>
             </div>
             <div class="d-list" :class="{ 'grid-view': gridView }">
-                <div v-for="item in products" class="list-item">
+                <div
+                    v-for="item in products"
+                    class="list-item"
+                    :class="{ 'li-in-cart': isProductInCart(item.id) }"
+                >
                     <div class="product-image">
                         <img
                             :src="`${baseUrl}/${item.image}`"
@@ -73,24 +77,27 @@
                             label="Tambah"
                             @click="addToCart(item)"
                         />
-                        <div v-else class="d-plusmin-button-set">
-                            <Button
-                                icon="remove"
-                                @click="reduceAmountProductInCart(item.id)"
-                            />
-                            <InputNumber
-                                class="d-plusmin-input"
-                                v-model="
-                                    cart[findIndexOfProductInCart(item.id)]
-                                        .amount
-                                "
-                                :min="1"
-                                @update:modelValue="saveCartToLocal()"
-                            />
-                            <Button
-                                icon="add"
-                                @click="addAmoutProductInCart(item.id)"
-                            />
+                        <div v-else class="pb-in-cart-state">
+                            <div class="d-plusmin-button-set">
+                                <Button
+                                    icon="remove"
+                                    @click="reduceAmountProductInCart(item.id)"
+                                />
+                                <InputNumber
+                                    class="d-plusmin-input"
+                                    v-model="
+                                        cart[findIndexOfProductInCart(item.id)]
+                                            .amount
+                                    "
+                                    :min="1"
+                                    @update:modelValue="saveCartToLocal()"
+                                />
+                                <Button
+                                    icon="add"
+                                    @click="addAmoutProductInCart(item.id)"
+                                />
+                            </div>
+                            <Button label="Tambah" @click="addToCart(item)" />
                         </div>
                     </div>
                     <div v-else class="product-button">
@@ -495,12 +502,15 @@ const onChangeViewMode = (grid) => {
     if (gridView.value) {
         rowPerPageOpt.value = [8, 12, 16, 20];
         if (window.innerWidth < 575) rowPerPage.value = 6;
-        else rowPerPage.value = 12;
+        else rowPerPage.value = 16;
     } else {
         rowPerPage.value = 7;
         rowPerPageOpt.value = [7, 8, 9, 10];
     }
 };
+
+if (window.innerWidth < 575) onChangeViewMode(false);
+else onChangeViewMode(true);
 
 const selectCustomer = (data) => {
     dispCust.value = formatDispCust(data);
@@ -674,6 +684,7 @@ const onSubmitTransaction = () => {
             keranjang: cart.value,
         });
 
+        closeCart();
         resetTrans();
     }
 };
@@ -786,11 +797,6 @@ const filterData = (data, query) => {
     border-top: 1px solid var(--surface-tborder);
 }
 
-.view-settings {
-    margin: 1rem 1rem 0.5rem 0;
-    display: flex;
-    justify-content: end;
-}
 .button-group {
     display: flex;
     scale: 0.8;
@@ -867,6 +873,12 @@ const filterData = (data, query) => {
     grid-area: product-button;
     align-self: center;
     justify-self: end;
+
+    .pb-in-cart-state {
+        & > div {
+            display: none;
+        }
+    }
 }
 
 .grid-view .list-item {
@@ -1046,6 +1058,7 @@ const filterData = (data, query) => {
     justify-self: start;
 
     button {
+        margin-left: 3px;
         padding: 0;
         height: 2rem;
         width: 2rem;
@@ -1054,6 +1067,22 @@ const filterData = (data, query) => {
 
 .cart-bar {
     display: none;
+}
+
+@media screen and (min-width: 768px) {
+    .d-list {
+        &:not(.grid-view) .list-item.li-in-cart .product-name {
+            &::after {
+                content: "";
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                margin-left: 0.5rem;
+                border-radius: 50%;
+                background-color: var(--primary);
+            }
+        }
+    }
 }
 
 @media screen and (max-width: 767px) {
@@ -1081,6 +1110,17 @@ const filterData = (data, query) => {
     .d-list:not(.grid-view) {
         .list-item {
             padding: 1rem 0;
+        }
+    }
+
+    .product-button {
+        .pb-in-cart-state {
+            & > button {
+                display: none;
+            }
+            & > div {
+                display: flex;
+            }
         }
     }
 
