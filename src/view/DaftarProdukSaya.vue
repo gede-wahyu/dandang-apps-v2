@@ -6,7 +6,7 @@
             margin-bottom: 1rem;
             display: inline-block;
         "
-        >Daftar produk yang dibawa saler untuk dikirim atau dijual.</span
+        >Daftar produk yang sedang dibawa saler untuk dikirim atau dijual.</span
     >
     <div class="d-card">
         <div
@@ -118,10 +118,7 @@
                 </Column>
 
                 <template #empty>
-                    <div class="empty-data">
-                        Tidak ada produk ditemukan. Mohon pilih saler terlebih
-                        dahulu.
-                    </div>
+                    <div class="empty-data">Tidak ada produk ditemukan.</div>
                 </template>
             </DataTable>
 

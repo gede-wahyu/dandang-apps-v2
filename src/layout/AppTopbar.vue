@@ -59,7 +59,7 @@ const userCardToggle = (event) => {
 
 const displayUsername = () => {
     if (authStore.auth)
-        if (authStore.auth.user) return authStore.auth.user.nama;
+        if (authStore.auth.user) return authStore.auth.user.name;
         else return "Username";
     else return "Username";
 };

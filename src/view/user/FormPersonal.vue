@@ -73,10 +73,10 @@ const authStore = useAuthStore();
 const editPersonal = ref(false);
 const initialValues = () => {
     return {
-        name: authStore.auth.user ? authStore.auth.user.nama : null,
+        name: authStore.auth.user ? authStore.auth.user.name : null,
         email: authStore.auth.user ? authStore.auth.user.email : null,
-        addr: authStore.auth.user ? authStore.auth.user.alamat : null,
-        phone: authStore.auth.user ? authStore.auth.user.no_hp : null,
+        addr: authStore.auth.user ? authStore.auth.user.address : null,
+        phone: authStore.auth.user ? authStore.auth.user.contact : null,
     };
 };
 

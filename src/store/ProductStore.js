@@ -10,7 +10,14 @@ export const useProductStore = defineStore("productStore", {
         salerProducts: [],
         isLoading: false,
     }),
-    getters: {},
+    getters: {
+        getProductsForTransaction() {
+            const { isAdminOrSTO } = useAuthStore();
+
+            if (isAdminOrSTO) return this.products;
+            else return this.salerProducts;
+        },
+    },
     actions: {
         async getProducts() {
             this.isLoading = true;
@@ -23,24 +30,23 @@ export const useProductStore = defineStore("productStore", {
             return result;
         },
 
-        async getSalerProducts(userId) {
+        async getSalerProducts() {
             this.isLoading = true;
+            const { auth, isAdminOrSTO } = useAuthStore();
 
-            const { auth } = useAuthStore();
-            if (!userId) {
-                if (auth.role.role_id != 1001) userId = auth.user.id;
-                else userId = "";
+            if (isAdminOrSTO) {
+                return await this.getProducts();
+            } else {
+                const result = await fetchWrapper.get(
+                    `${baseUrl}/api/sales-products/${auth.user["id"]}`
+                );
+
+                if (result) {
+                    this.salerProducts = result.data;
+                }
+
+                return result;
             }
-
-            const result = await fetchWrapper.get(
-                `https://my-json-server.typicode.com/gede-wahyu/dandang-api-v2/saler-products/${userId}`
-            );
-
-            if (result) {
-                this.salerProducts = result;
-            }
-
-            return result;
         },
     },
 });

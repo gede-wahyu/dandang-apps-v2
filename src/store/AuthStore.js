@@ -8,12 +8,15 @@ export const useAuthStore = defineStore("authStore", {
         auth: {
             user: null,
             role: null,
-            // acc: null,
         },
     }),
     getters: {
-        user() {
-            return this.auth ? this.auth.user : null;
+        isAdminOrSTO() {
+            if ((this.auth.role ? this.auth.role["role_id"] : null) === 1001)
+                return true;
+            if ((this.auth.role ? this.auth.role["role_id"] : null) === 4)
+                return true;
+            return false;
         },
     },
     actions: {
@@ -28,15 +31,7 @@ export const useAuthStore = defineStore("authStore", {
                 this.setBaseRolePermission();
                 this.setAdditionalRolePermission();
 
-                localStorage.setItem(
-                    "session",
-                    // JSON.stringify({
-                    //     api_token: this.auth.api_token,
-                    //     login_time: this.auth.login_time,
-                    //     exp: this.auth.exp,
-                    // })
-                    JSON.stringify(this.auth)
-                );
+                localStorage.setItem("session", JSON.stringify(this.auth));
             }
 
             return result;
@@ -102,7 +97,6 @@ export const useAuthStore = defineStore("authStore", {
                     "product-add",
                     "transaction-list",
                     "transaction-add",
-                    "transaction-add-2",
                     "transaction-delay",
                     "report-income",
                     "report-pnl",
@@ -121,7 +115,7 @@ export const useAuthStore = defineStore("authStore", {
                     "warehouse",
                     "selectSalerProduct"
                 );
-            } else if (this.auth.role.role_id == 1) {
+            } else if (this.auth.role.role_id == 3) {
                 this.auth.role.permission.push(
                     "product-list",
                     "product-add",
@@ -130,13 +124,12 @@ export const useAuthStore = defineStore("authStore", {
                     "distribution-customer",
                     "saler-list"
                 );
-            } else if (this.auth.role.role_id == 2) {
+            } else if (this.auth.role.role_id == 4) {
                 this.auth.role.permission.push(
                     "product-list",
                     "my-product-list",
                     "transaction-list",
                     "transaction-add",
-                    "transaction-add-2",
                     "transaction-delay",
 
                     "transactionPost",
@@ -145,27 +138,25 @@ export const useAuthStore = defineStore("authStore", {
                     "due",
                     "warehouse"
                 );
-            } else if (this.auth.role.role_id == 3) {
-                this.auth.role.permission.push(
-                    "product-list",
-                    "my-product-list",
-                    "transaction-list",
-                    "transaction-add",
-                    "transaction-add-2",
-
-                    "transactionPost"
-                );
-            } else if (this.auth.role.role_id == 4) {
-                this.auth.role.permission.push(
-                    "product-list",
-                    "my-product-list",
-                    "transaction-list",
-                    "transaction-add",
-                    "transaction-add-2",
-
-                    "transactionPost"
-                );
             } else if (this.auth.role.role_id == 5) {
+                this.auth.role.permission.push(
+                    "product-list",
+                    "my-product-list",
+                    "transaction-list",
+                    "transaction-add",
+
+                    "transactionPost"
+                );
+            } else if (this.auth.role.role_id == 6) {
+                this.auth.role.permission.push(
+                    "product-list",
+                    "my-product-list",
+                    "transaction-list",
+                    "transaction-add",
+
+                    "transactionPost"
+                );
+            } else if (this.auth.role.role_id == 7) {
                 this.auth.role.permission.push("distribution-list");
             }
         },

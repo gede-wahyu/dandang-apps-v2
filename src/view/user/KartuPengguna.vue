@@ -5,7 +5,7 @@
                 <img
                     v-if="authStore.auth.user && authStore.auth.user.profile"
                     :src="`https://omahit.my.id/${authStore.auth.user.profile}`"
-                    :alt="authStore.auth.user.nama"
+                    :alt="authStore.auth.user.name"
                 />
                 <div class="profile-img-none" v-else>
                     <span class="material-symbols-outlined"> person </span>

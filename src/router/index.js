@@ -41,11 +41,6 @@ const router = createRouter({
                     component: () => import("../view/BuatTransaksi.vue"),
                 },
                 {
-                    path: "/buat-transaksi-2",
-                    name: "transaction-add-2",
-                    component: () => import("../view/dev/BuatTransaksi2.vue"),
-                },
-                {
                     path: "/transaksi-terjeda",
                     name: "transaction-delay",
                     component: () => import("../view/TransaksiTerjeda.vue"),

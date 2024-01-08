@@ -55,11 +55,6 @@ const model = ref([
                 to: { name: "transaction-add" },
             },
             {
-                label: "buat transaksi 2",
-                icon: "add_notes",
-                to: { name: "transaction-add-2" },
-            },
-            {
                 label: "transaksi tertunda",
                 icon: "other_admission",
                 to: { name: "transaction-delay" },

@@ -42,7 +42,11 @@
                     </div>
                 </div>
             </div>
-            <div class="d-list" :class="{ 'grid-view': gridView }">
+            <div
+                v-if="products.length"
+                class="d-list"
+                :class="{ 'grid-view': gridView }"
+            >
                 <div
                     v-for="item in products"
                     class="list-item"
@@ -90,11 +94,14 @@
                                             .amount
                                     "
                                     :min="1"
+                                    :max="parseInt(item.stock)"
                                     @update:modelValue="saveCartToLocal()"
                                 />
                                 <Button
                                     icon="add"
-                                    @click="addAmoutProductInCart(item.id)"
+                                    @click.prevent="
+                                        addAmoutProductInCart(item.id)
+                                    "
                                 />
                             </div>
                             <Button label="Tambah" @click="addToCart(item)" />
@@ -118,6 +125,9 @@
                         @click="addToCart(item)"
                     ></div>
                 </div>
+            </div>
+            <div v-if="!products.length" class="empty">
+                Tidak data untuk ditampilkan
             </div>
             <div v-if="!rowLenghtPostFilter <= rowPerPage" class="paginator">
                 <Paginator
@@ -211,6 +221,15 @@
                                 @update:modelValue="saveInputToLocal()"
                             />
                         </div>
+                        <div v-if="newCust" class="input-item">
+                            <label for="newCustCity">Kota</label>
+                            <InputText
+                                v-model="newCustData.city"
+                                id="newCustCity"
+                                placeholder="Kota / Kabupaten Pelanggan"
+                                @update:modelValue="saveInputToLocal()"
+                            />
+                        </div>
                         <div class="input-item">
                             <label for="payment">Metode Pembayaran</label>
                             <Dropdown
@@ -223,7 +242,19 @@
                                     'Lainnya',
                                 ]"
                                 inputId="payment"
-                                placeholder="Pilih Metode Pembayaran"
+                                placeholder="Pilih Metode"
+                                @update:modelValue="saveInputToLocal()"
+                            />
+                        </div>
+                        <div class="input-item" v-if="payment === 'Cicilan'">
+                            <label for="downpayment">Pembayaran Awal</label>
+                            <InputNumber
+                                v-model="downpayment"
+                                mode="currency"
+                                currency="IDR"
+                                locale="id-ID"
+                                inputId="downpayment"
+                                placeholder="Pembayaran Awal"
                                 @update:modelValue="saveInputToLocal()"
                             />
                         </div>
@@ -240,7 +271,6 @@
                                 suffix="%"
                                 placeholder="Diskon"
                                 @update:modelValue="saveInputToLocal()"
-                                style="width: 100%"
                                 :inputStyle="{ width: '100%' }"
                             />
                         </div>
@@ -253,7 +283,7 @@
                                 v-model="due"
                                 dateFormat="dd - mm - yy"
                                 inputId="due"
-                                placeholder="Pilih Tanggal Jatuh Tempo"
+                                placeholder="Pilih Tanggal"
                                 @update:modelValue="saveInputToLocal()"
                                 style="width: 100%"
                             />
@@ -316,13 +346,14 @@
                                             class="d-plusmin-input"
                                             v-model="item.amount"
                                             :min="1"
+                                            :max="parseInt(item.stock)"
                                             @update:modelValue="
                                                 saveCartToLocal()
                                             "
                                         />
                                         <Button
                                             icon="add"
-                                            @click="
+                                            @click.prevent="
                                                 addAmoutProductInCart(item.id)
                                             "
                                         />
@@ -434,7 +465,7 @@ const rowPerPage = ref(7);
 const currPage = ref(0);
 const rowLenghtPostFilter = ref(0);
 const products = computed(() => {
-    let data = productStore.products;
+    let data = productStore.getProductsForTransaction;
 
     data = filterData(data, query.value);
 
@@ -457,6 +488,7 @@ const newCustData = ref({});
 const tax = ref(11);
 const discount = ref(null);
 const payment = ref(null);
+const downpayment = ref(null);
 const due = ref(null);
 const warehouse = ref(null);
 const cart = ref([]);
@@ -468,10 +500,11 @@ onBeforeMount(() => {
     layoutConfig.menuMode = "overlay";
 });
 onMounted(async () => {
-    await productStore.getProducts();
+    await productStore.getSalerProducts();
     productStore.isLoading = false;
     await customerStore.getCustomers();
     customers.value = customerStore.customers;
+    await productStore.getSalerProducts();
 
     if (localStorage.getItem("cart")) {
         cart.value = JSON.parse(localStorage.getItem("cart"));
@@ -482,6 +515,7 @@ onMounted(async () => {
         let custInfo = JSON.parse(localStorage.getItem("custInfo"));
         discount.value = JSON.parse(transInfo.discount);
         payment.value = JSON.parse(transInfo.payment);
+        downpayment.value = JSON.parse(transInfo.downpayment);
         due.value = JSON.parse(transInfo.due);
         warehouse.value = JSON.parse(transInfo.warehouse);
         newCust.value = JSON.parse(custInfo.newCust);
@@ -492,6 +526,7 @@ onMounted(async () => {
         } else {
             newCustData.value["name"] = JSON.parse(custInfo.name);
             newCustData.value["address"] = JSON.parse(custInfo.address);
+            newCustData.value["city"] = JSON.parse(custInfo.city);
             newCustData.value["phone"] = JSON.parse(custInfo.phone);
         }
     }
@@ -539,18 +574,17 @@ const addToCart = (item) => {
 };
 
 const addAmoutProductInCart = (productId) => {
+    let pindex = findIndexOfProductInProducts(productId);
     let index = findIndexOfProductInCart(productId);
-    cart.value[index]["amount"]++;
-
-    // saveCartToLocal();
+    if (products.value[pindex]["stock"] > cart.value[index]["amount"])
+        cart.value[index]["amount"]++;
+    else return;
 };
 
 const reduceAmountProductInCart = (productId) => {
     let index = findIndexOfProductInCart(productId);
     if (cart.value[index]["amount"] > 1) cart.value[index]["amount"]--;
     else removeProductFromCart(productId);
-
-    // saveCartToLocal();
 };
 
 const removeProductFromCart = (productId) => {
@@ -600,6 +634,10 @@ const findIndexOfProductInCart = (productId) => {
     return getListOfIdProductInCart().indexOf(productId);
 };
 
+const findIndexOfProductInProducts = (productId) => {
+    return products.value.map((item) => item["id"]).indexOf(productId);
+};
+
 const saveCartToLocal = () => {
     localStorage.setItem("cart", JSON.stringify(cart.value));
 };
@@ -610,6 +648,7 @@ const saveInputToLocal = () => {
         JSON.stringify({
             discount: JSON.stringify(discount.value),
             payment: JSON.stringify(payment.value),
+            downpayment: JSON.stringify(downpayment.value),
             due: JSON.stringify(due.value),
             warehouse: JSON.stringify(warehouse.value),
         })
@@ -629,6 +668,7 @@ const saveInputToLocal = () => {
                 newCust: JSON.stringify(newCust.value),
                 name: JSON.stringify(newCustData.value["name"]),
                 address: JSON.stringify(newCustData.value["address"]),
+                city: JSON.stringify(newCustData.value["city"]),
                 phone: JSON.stringify(newCustData.value["phone"]),
             })
         );
@@ -647,6 +687,8 @@ const isInvalidSubmit = () => {
         )
             return "Identitas pelanggan wajib diisi";
     }
+    if (payment.value === "Cicilan" && !downpayment.value)
+        return "Pembayaran awal wajib diisi";
     return false;
 };
 
@@ -669,23 +711,33 @@ const onSubmitTransaction = () => {
             life: 3000,
         });
         console.log({
-            sales: authStore.user,
-            isNewCustomer: newCust.value,
-            customer: !newCust.value
-                ? cust.value
-                : {
-                      nama: newCustData.value["name"],
-                      alamat: newCustData.value["address"],
-                      hp: newCustData.value["phone"],
-                  },
-            "metode pembayaran": payment.value,
-            diskon: discount.value,
-            "jumlah diskon": discountAmount(),
-            ppn: taxAmount() ? tax.value : 0,
-            "jumlah pajak": taxAmount(),
-            "jatuh tempo": due.value,
-            gudang: warehouse.value,
-            keranjang: cart.value,
+            sales_id: authStore.auth.user["id"],
+            customer_id: !newCust.value ? cust.value["id"] : null,
+            new_customer: newCust.value
+                ? {
+                      name: newCustData.value["name"],
+                      contact: newCustData.value["phone"],
+                      address: newCustData.value["address"],
+                      city: newCustData.value["city"],
+                  }
+                : null,
+            depo_id: warehouse.value,
+            products: [
+                cart.value.map((item) => {
+                    return { id: item["id"], amount: item["amount"] };
+                }),
+            ],
+            payment_method: payment.value,
+            downpayment: payment.value === "Cicilan" ? downpayment.value : null,
+            due: new Date(due.value).getTime(),
+            tax: {
+                ppn: taxAmount() ? tax.value : 0,
+                amount: taxAmount(),
+            },
+            discount: {
+                disc: discount.value ? discount.value : 0,
+                amount: discountAmount(),
+            },
         });
 
         closeCart();
@@ -825,6 +877,11 @@ const filterData = (data, query) => {
 .d-list {
     display: grid;
 }
+.empty {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--text-color-secondary);
+}
 
 .d-list.grid-view {
     padding: 1rem 0;
@@ -888,7 +945,7 @@ const filterData = (data, query) => {
 .grid-view .list-item {
     width: min-content;
     justify-self: center;
-    grid-template-columns: 1rem 3.5rem 3.5rem 1rem;
+    grid-template-columns: 1.5rem 3.5rem 3.5rem 1.5rem;
     column-gap: 0;
     grid-template-areas:
         "product-tag product-tag product-stock product-stock"
@@ -974,7 +1031,6 @@ const filterData = (data, query) => {
 }
 
 .input-item {
-    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;

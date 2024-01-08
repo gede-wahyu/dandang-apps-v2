@@ -65,8 +65,8 @@
         "
     >
         <small class="d-error" style="width: 100%; text-align: center"
-            >This element is only used in the development and testing stage and will disappear
-            in the production stage.</small
+            >This element is only used in the development and testing stage and
+            will disappear in the production stage.</small
         >
         <div
             style="
@@ -171,7 +171,7 @@ const login = handleSubmit(async () => {
         toast.add({
             severity: "success",
             summary: "Login Berhasil",
-            detail: `Selamat datang ${authStore.auth.user.nama}`,
+            detail: `Selamat datang ${authStore.auth.user.name}`,
             life: 3000,
         });
         if (route.redirectedFrom)
