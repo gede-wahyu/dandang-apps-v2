@@ -16,9 +16,9 @@ const router = createRouter({
                     component: () => import("../view/Dashboard.vue"),
                 },
                 {
-                    path: "/daftar-produk-saya",
-                    name: "my-product-list",
-                    component: () => import("../view/DaftarProdukSaya.vue"),
+                    path: "/daftar-produk-sales",
+                    name: "sales-product-list",
+                    component: () => import("../view/ProdukSales.vue"),
                 },
                 {
                     path: "/daftar-produk",
@@ -41,7 +41,7 @@ const router = createRouter({
                     component: () => import("../view/BuatTransaksi.vue"),
                 },
                 {
-                    path: "/transaksi-terjeda",
+                    path: "/transaksi-tertunda",
                     name: "transaction-delay",
                     component: () => import("../view/TransaksiTerjeda.vue"),
                 },

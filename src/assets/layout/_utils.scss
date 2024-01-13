@@ -46,6 +46,15 @@
     box-shadow: var(--box-shadow-set);
 }
 
+.page-title {
+    margin-bottom: 0.5rem;
+    & + .page-subtitle {
+        display: inline-block;
+        margin-bottom: 1rem;
+        color: var(--text-color-secondary);
+    }
+}
+
 .d-sideicon-set {
     position: relative;
     display: flex;

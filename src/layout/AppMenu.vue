@@ -25,9 +25,9 @@ const model = ref([
         label: "produk",
         items: [
             {
-                label: "produk saya",
+                label: "produk sales",
                 icon: "list_alt",
-                to: { name: "my-product-list" },
+                to: { name: "sales-product-list" },
             },
             {
                 label: "daftar produk",

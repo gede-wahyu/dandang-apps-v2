@@ -1,8 +1,13 @@
 <template>
+    <h5 class="page-title">Transaksi Tertunda</h5>
+    <span class="page-subtitle"
+        >Daftar riwayat transaksi yang belum selesai.</span
+    >
+
     <div class="d-card">
         <div class="data-header-wrapper">
             <div class="data-header">
-                <h5>Riwayat Transaksi</h5>
+                <h5>Transaksi Tertunda</h5>
                 <div class="tools-group">
                     <span
                         class="span-nav-button right-labeled"
@@ -92,7 +97,7 @@
                                     @click="changeSortState('status.code')"
                                 >
                                     <div>
-                                        <span>Status Transaksi</span>
+                                        <span>Status</span>
                                         <span class="material-symbols-outlined">
                                             {{
                                                 sortStateIcon(
@@ -231,7 +236,15 @@
                                         >{{ item.payment_status.status }}</span
                                     >
                                 </td>
-                                <td><Button icon="search" /></td>
+                                <td>
+                                    <div class="flex gap-0">
+                                        <Button icon="search" />
+                                        <Button
+                                            icon="edit"
+                                            severity="warning"
+                                        />
+                                    </div>
+                                </td>
                             </tr>
                             <tr v-if="!transactions.length" class="empty">
                                 <td colspan="9">
@@ -629,8 +642,7 @@ const column = ref({
 });
 
 onMounted(async () => {
-    await transactionStore.getTransaction();
-    transactionStore.filterTransaction(filters.value);
+    await transactionStore.GET__TRANSACTION();
     transactionStore.isLoading = false;
 });
 

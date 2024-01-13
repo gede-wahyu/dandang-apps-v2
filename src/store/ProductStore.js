@@ -12,40 +12,65 @@ export const useProductStore = defineStore("productStore", {
     }),
     getters: {
         getProductsForTransaction() {
-            const { isAdminOrSTO } = useAuthStore();
+            const { isAdmin, isSalerTO } = useAuthStore();
 
-            if (isAdminOrSTO) return this.products;
+            if (isAdmin || isSalerTO) return this.products;
             else return this.salerProducts;
         },
     },
     actions: {
-        async getProducts() {
+        async GET__PRODUCTS() {
             this.isLoading = true;
-            const result = await fetchWrapper.get(`${baseUrl}/api/products`);
-
-            if (result.success) {
-                this.products = result.data;
-            }
+            const result = await fetchWrapper
+                .get(`${baseUrl}/api/products`)
+                .then((result) => (this.products = result.data))
+                .catch((error) => error);
 
             return result;
         },
 
-        async getSalerProducts() {
+        async GET__SALES_PRODUCTS_BY_ID(userId) {
             this.isLoading = true;
-            const { auth, isAdminOrSTO } = useAuthStore();
+            const { auth, isAdmin } = useAuthStore();
 
-            if (isAdminOrSTO) {
-                return await this.getProducts();
+            if (!isAdmin) userId = auth.user["id"];
+            else if (isAdmin && !userId) return;
+
+            const result = await fetchWrapper
+                .get(`${baseUrl}/api/sales-products/${userId}`)
+                .then((result) => (this.salerProducts = result.data))
+                .catch((error) => error);
+
+            return result;
+        },
+
+        async GET__PRODUCTS_TRANSACTION() {
+            const { isAdmin, isSalerTO } = useAuthStore();
+            if (isAdmin || isSalerTO) {
+                await this.GET__PRODUCTS();
             } else {
-                const result = await fetchWrapper.get(
-                    `${baseUrl}/api/sales-products/${auth.user["id"]}`
-                );
+                await this.GET__SALES_PRODUCTS_BY_ID();
+            }
+        },
 
-                if (result) {
-                    this.salerProducts = result.data;
+        filterData(data, filters) {
+            if (!data) return;
+            if (!filters) return;
+
+            return data.filter((item) => {
+                for (let field of filters["fields"]) {
+                    if (item[field] && CONTAINS(item[field], filters["value"]))
+                        return true;
+                    else return false;
                 }
+            });
 
-                return result;
+            function CONTAINS(data, query) {
+                if (!query) return true;
+                return data
+                    .toString()
+                    .toLowerCase()
+                    .includes(query.toString().toLowerCase());
             }
         },
     },

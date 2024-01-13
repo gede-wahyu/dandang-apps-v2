@@ -127,7 +127,7 @@ import { useRoute } from "vue-router";
 
 const FOR_TESTING = async (id) => {
     if (id === 1001)
-        await authStore.login("superadmin@example.com", "password123");
+        await authStore.POST__LOGIN("superadmin@example.com", "password123");
     if (id === 1) await authStore.login("depo@example.com", "password123");
     if (id === 2) await authStore.login("salesto1@example.com", "password123");
     if (id === 3)
@@ -165,9 +165,9 @@ const [username, usernameAttrs] = defineField("username");
 const [password, passwordAttrs] = defineField("password");
 
 const login = handleSubmit(async () => {
-    const result = await authStore.login(username.value, password.value);
+    const result = await authStore.POST__LOGIN(username.value, password.value);
 
-    if (result.success) {
+    if (!result.error) {
         toast.add({
             severity: "success",
             summary: "Login Berhasil",
@@ -177,17 +177,18 @@ const login = handleSubmit(async () => {
         if (route.redirectedFrom)
             router.push({ name: route.redirectedFrom.name });
         else router.push({ name: "dashboard" });
-    } else {
-        console.log(result);
-        let msg = errors;
-        if (result.message.toLowerCase() === "user not found")
-            msg = "Akun tidak ditemukan!";
-        else if (result.message.toLowerCase() === "invalid credentials")
-            msg = "Password salah!";
+    } else if (result.error && result.error === "Unauthorized") {
         toast.add({
             severity: "error",
             summary: "Login Gagal",
-            detail: msg,
+            detail: `Username atau password salah`,
+            life: 3000,
+        });
+    } else {
+        toast.add({
+            severity: "error",
+            summary: "Terjadi Kesalahan",
+            detail: `Sedang terjadi kesalahan, silahkan coba beberapa saat lagi.`,
             life: 3000,
         });
     }

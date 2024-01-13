@@ -1,322 +1,255 @@
 <template>
-    <h5 style="margin-bottom: 0.5rem">Daftar Produk</h5>
-    <span
-        style="
-            color: var(--text-color-secondary);
-            margin-bottom: 1rem;
-            display: inline-block;
-        "
-        >Daftar berbagai macam produk yang dimiliki.</span
-    >
+    <h5 class="page-title">Daftar Produk</h5>
+    <span class="page-subtitle">Daftar seluruh produk yang dimiliki.</span>
+
     <div class="d-card">
-        <template v-if="productStore.isLoading">
-            <ProductSkeleton />
-        </template>
-        <template v-else>
-            <DataTable
-                class="table-view"
-                v-model:filters="filters"
-                :value="products"
-                :globalFilterFields="['name', 'total_stok']"
-                style="width: 100%"
-                paginator
-                :rows="5"
-            >
-                <template #header>
-                    <div class="modal-header">
-                        <h5 style="margin-bottom: 0">Daftar Produk</h5>
-                        <span class="d-sideicon-set d-input-iconleft">
-                            <span class="material-symbols-outlined">
-                                search
-                            </span>
-                            <InputText
-                                v-model="filters['global'].value"
-                                placeholder="Cari produk"
-                            />
-                        </span>
-                    </div>
-                </template>
-
-                <Column header="Nama" style="width: 25%">
-                    <template #body="slotProps">
-                        <span class="product-datatext">
-                            {{ slotProps.data.name }}
-                        </span>
-                    </template>
-                </Column>
-                <Column header="Gambar" style="width: 15%">
-                    <template #body="slotProps">
-                        <img
-                            :src="`${baseUrl}/${slotProps.data.image}`"
-                            :alt="slotProps.data.name"
-                            style="
-                                height: 5rem;
-                                width: 5rem;
-                                object-fit: cover;
-                                border-radius: var(--border-radius);
-                                box-shadow: var(--box-shadow-set);
-                            "
+        <div class="data-header-wrapper">
+            <div class="data-header">
+                <h5>Daftar Produk</h5>
+                <div class="tools-group">
+                    <span class="d-sideicon-set d-input-iconleft">
+                        <span class="material-symbols-outlined"> search </span>
+                        <InputText
+                            v-model="filters['value']"
+                            placeholder="Cari produk"
                         />
-                    </template>
-                </Column>
-                <Column header="Varian" style="width: 15%">
-                    <template #body="slotProps">
-                        <div>
-                            {{ slotProps.data.size }} {{ slotProps.data.uom }}
-                        </div>
-                    </template>
-                </Column>
-                <Column header="Stok" style="width: 15%">
-                    <template #body="slotProps">
-                        <div>{{ slotProps.data.stock }}</div>
-                    </template>
-                </Column>
-                <Column header="Harga" style="width: 15%">
-                    <template #body="slotProps">
-                        <div>
-                            {{
-                                new Intl.NumberFormat("id-ID", {
-                                    style: "currency",
-                                    currency: "IDR",
-                                }).format(slotProps.data.price)
-                            }}
-                        </div>
-                    </template>
-                </Column>
-                <Column>
-                    <template #body="slotProps">
-                        <Button label="Detail" />
-                    </template>
-                </Column>
-            </DataTable>
+                    </span>
+                </div>
+            </div>
+        </div>
 
-            <DataView
-                :value="products"
-                class="list-view"
-                paginator
-                :rows="5"
-                paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-            >
-                <template #header>
-                    <h5 style="margin-top: 0">Daftar Produk</h5>
-                    <div class="search">
-                        <span class="d-sideicon-set d-input-iconleft">
-                            <span class="material-symbols-outlined">
-                                search
-                            </span>
-                            <InputText
-                                v-model="searchProduct"
-                                placeholder="Cari produk"
-                                @update:modelValue="filteredProduct()"
-                            />
-                        </span>
-                    </div>
-                </template>
-                <template #list="slotProps">
-                    <div class="products-list">
-                        <div
-                            v-for="item in slotProps.items"
-                            class="products-item"
-                            :class="{ hidden: filteredProduct(item.id) }"
-                        >
-                            <div class="item-left">
-                                <div
-                                    class="image"
-                                    style="width: 4rem; height: 5rem"
-                                >
+        <div class="products">
+            <div class="products-table">
+                <div class="table-wrapper">
+                    <table class="d-table">
+                        <thead>
+                            <tr>
+                                <td>Nama</td>
+                                <td>Gambar</td>
+                                <td>Varian</td>
+                                <td>Stok</td>
+                                <td>Harga</td>
+                                <td></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in products">
+                                <td class="d-capitalize">
+                                    <span>{{ item.name }}</span>
+                                </td>
+                                <td>
                                     <img
+                                        class="img-style"
                                         :src="`${baseUrl}/${item.image}`"
                                         :alt="item.name"
-                                        style="
-                                            height: 5rem;
-                                            width: 4rem;
-                                            object-fit: cover;
-                                            border-radius: var(--border-radius);
-                                        "
                                     />
-                                </div>
-                                <div class="detail">
-                                    <span>{{ item.name }}</span>
-                                    <span
-                                        >{{ item.size }}
-                                        {{
-                                            item.uom === "grams"
-                                                ? "gr"
-                                                : item.uom
-                                        }}</span
+                                </td>
+                                <td>
+                                    <span class="d-tag d-lowercase">
+                                        {{ item.size }}
+                                        {{ formatUom(item.uom) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="d-tag d-tag-success"
+                                        >{{ item.stock }} item</span
                                     >
-                                    <span>{{ item.stock }} pack</span>
-                                </div>
-                            </div>
-                            <div class="item-right">
-                                <div class="price">
-                                    {{
-                                        new Intl.NumberFormat("id-ID").format(
-                                            item.price
-                                        )
-                                    }}
-                                </div>
-                                <div class="button">
+                                </td>
+                                <td>
+                                    <span>{{
+                                        formatCurrency(item.price)
+                                    }}</span>
+                                </td>
+                                <td>
                                     <Button label="Detail" />
-                                </div>
-                            </div>
-                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <!-- table skeleton -->
+                        <tr></tr>
+                        <!-- table skeleton -->
+                    </table>
+                </div>
+            </div>
+            <div class="products-list">
+                <div v-for="item in products" class="products-list-item">
+                    <div class="item-image">
+                        <img
+                            :src="`${baseUrl}/${item.image}`"
+                            :alt="item.image"
+                            class="img-style"
+                        />
                     </div>
-                </template>
-            </DataView>
-        </template>
+                    <div class="item-name">
+                        <span class="d-capitalize">{{ item.name }}</span>
+                    </div>
+                    <div class="item-tag">
+                        <span class="d-tag d-lowercase"
+                            >{{ item.size }} {{ formatUom(item.uom) }}</span
+                        >
+                    </div>
+                    <div class="item-stock">
+                        <span>{{ item.stock }} item</span>
+                    </div>
+                    <div class="item-price">
+                        <span>{{ formatCurrency(item.price) }}</span>
+                    </div>
+                    <div class="item-button">
+                        <Button label="Detail" />
+                    </div>
+                </div>
+                <!-- list skeleton -->
+                <!-- list skeleton -->
+            </div>
+
+            <div class="products-paginator">
+                <Paginator
+                    v-model:first="currPage"
+                    :rows="rowPerPage"
+                    :total-records="rowLenghtPostFilter"
+                    style="width: 100%"
+                    :template="{
+                        '575px':
+                            'FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink',
+                        default:
+                            'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink',
+                    }"
+                />
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { FilterMatchMode } from "primevue/api";
+import { ref, computed, onMounted } from "vue";
 import { useProductStore } from "../store/ProductStore";
-import ProductSkeleton from "./skeleton/ProductSkeleton.vue";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 const productStore = useProductStore();
-const products = ref();
-const searchProduct = ref("");
+const rowPerPage = ref(5);
+const currPage = ref(0);
+const rowLenghtPostFilter = ref();
 const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    value: null,
+    fields: ["name", "size", "uom", "stock", "price"],
+});
+const products = computed(() => {
+    let data = productStore.products;
+
+    data = productStore.filterData(data, filters.value);
+
+    rowLenghtPostFilter.value = data.length;
+
+    return data.slice(currPage.value, currPage.value + rowPerPage.value);
 });
 
 onMounted(async () => {
-    await productStore.getProducts();
-    products.value = productStore.products;
+    await productStore.GET__PRODUCTS();
     productStore.isLoading = false;
 });
 
-const filteredProduct = (id) => {
-    let _filteredProduct = products.value
-        ? products.value
-              .filter((item) =>
-                  item.name
-                      .toLowerCase()
-                      .includes(searchProduct.value.toLowerCase())
-              )
-              .map((item) => item.id)
-        : products.value;
-    return !_filteredProduct.includes(id);
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+    }).format(value);
+};
+
+const formatUom = (value) => {
+    if (value.toLowerCase() === "grams" || value.toLowerCase() === "gram")
+        return "gr";
+    else return value;
 };
 
 //
 </script>
 
 <style scoped lang="scss">
-.table-view {
-    display: none;
-}
-@media screen and (min-width: 640px) {
-    .table-view {
-        display: contents;
-    }
-    .list-view {
-        display: none;
-    }
-}
-@media screen and (max-width: 991px) {
-    .modal-header {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: start;
-
-        & > span,
-        input {
-            width: 100%;
-        }
-    }
-}
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.product-datatext {
-    text-transform: capitalize;
+.img-style {
+    width: 4rem;
+    height: 5rem;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-set);
 }
 
 .products-list {
-    display: flex;
-    flex-direction: column;
-}
-.search {
-    width: 100%;
-    padding-bottom: 1rem;
-
-    input {
-        width: 100%;
-    }
+    display: none;
 }
 
-.products-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 0 1.5rem 5px;
-    border-left: 2px solid transparent;
-    position: relative;
+.products-list-item {
+    padding: 1.5rem 0;
+    display: grid;
+    grid-template-columns: 4rem 2fr 1fr;
+    column-gap: 1rem;
+    row-gap: 0.5rem;
+    grid-template-areas:
+        "item-image item-name item-price"
+        "item-image item-tag item-button"
+        "item-image item-stock item-button";
 
-    &:not(:first-of-type) {
-        border-top: 2px dashed var(--surface-input-border);
+    &:not(:last-of-type) {
+        border-bottom: 2px dashed var(--surface-input-border);
     }
-
     &:hover {
+        position: relative;
         &::before {
             content: "";
             position: absolute;
+            top: 3rem;
             left: -0.75rem;
             width: 4px;
-            height: 60%;
+            height: 2rem;
             border-radius: 99px;
             background-color: var(--primary);
         }
     }
 
-    .item-left {
-        display: flex;
-        gap: 0.75rem;
-        justify-content: start;
-        align-items: center;
+    .item-image {
+        grid-area: item-image;
+        align-self: center;
+    }
+    .item-name {
+        grid-area: item-name;
+    }
+    .item-tag {
+        grid-area: item-tag;
+    }
+    .item-stock {
+        grid-area: item-stock;
+    }
+    .item-price {
+        grid-area: item-price;
+        justify-self: end;
+        align-self: end;
+    }
+    .item-button {
+        grid-area: item-button;
+        justify-self: end;
+        align-self: center;
+    }
+}
 
-        .detail {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            max-width: 12rem;
-
-            span:first-of-type {
-                text-transform: capitalize;
-                font-weight: 500;
-            }
-            span:nth-of-type(2) {
-                display: flex;
-                width: fit-content;
-                padding: 3px 5px;
-                background-color: var(--primary-a3);
-                font-size: 0.7rem;
-                color: var(--primary);
-                border-radius: var(--border-radius);
+@media screen and (max-width: 575px) {
+    .data-header {
+        flex-direction: column;
+        .tools-group {
+            input {
+                width: 100%;
             }
         }
     }
-    .item-right {
+    .products-table {
+        display: none;
+    }
+
+    .products-list {
         display: flex;
         flex-direction: column;
-        justify-content: end;
-        gap: 0.5rem;
+    }
 
-        .price {
-            text-align: right;
-            font-weight: 500;
-        }
-
-        .button {
-            button {
-                padding: 0.75rem;
-            }
-        }
+    .products-paginator {
+        border-top: 1px solid var(--surface-tborder);
     }
 }
 </style>

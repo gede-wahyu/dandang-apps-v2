@@ -11,28 +11,30 @@ export const useAuthStore = defineStore("authStore", {
         },
     }),
     getters: {
-        isAdminOrSTO() {
+        isAdmin() {
             if ((this.auth.role ? this.auth.role["role_id"] : null) === 1001)
                 return true;
+            return false;
+        },
+        isSalerTO() {
             if ((this.auth.role ? this.auth.role["role_id"] : null) === 4)
                 return true;
             return false;
         },
     },
     actions: {
-        async login(username, password) {
-            const result = await fetchWrapper.post(`${baseUrl}/api/login`, {
-                email: username,
-                password,
-            });
+        async POST__LOGIN(username, password) {
+            const result = await fetchWrapper
+                .post(`${baseUrl}/api/login`, { email: username, password })
+                .then((result) => {
+                    this.auth = result.data;
+                    this.setBaseRolePermission();
+                    this.setAdditionalRolePermission();
+                    localStorage.setItem("session", JSON.stringify(this.auth));
 
-            if (result.success) {
-                this.auth = result.data;
-                this.setBaseRolePermission();
-                this.setAdditionalRolePermission();
-
-                localStorage.setItem("session", JSON.stringify(this.auth));
-            }
+                    return result;
+                })
+                .catch((error) => ({ error }));
 
             return result;
         },
@@ -62,7 +64,7 @@ export const useAuthStore = defineStore("authStore", {
             this.auth.role = null;
         },
 
-        async updatePersonalInfo(data) {
+        async PATCH__PERSONAL_INFO(data) {
             // const result = await fetchWrapper.patch(
             //     `${baseUrl}/user/${this.auth.user.id}`,
             //     data
@@ -92,7 +94,7 @@ export const useAuthStore = defineStore("authStore", {
             if (!this.auth.user) return;
             if (this.auth.role.role_id == 1001) {
                 this.auth.role.permission.push(
-                    "my-product-list",
+                    "sales-product-list",
                     "product-list",
                     "product-add",
                     "transaction-list",
@@ -113,7 +115,7 @@ export const useAuthStore = defineStore("authStore", {
                     "discount",
                     "due",
                     "warehouse",
-                    "selectSalerProduct"
+                    "selectSalerProducts"
                 );
             } else if (this.auth.role.role_id == 3) {
                 this.auth.role.permission.push(
@@ -122,12 +124,13 @@ export const useAuthStore = defineStore("authStore", {
                     "distribution-add",
                     "distribution-saler",
                     "distribution-customer",
-                    "saler-list"
+                    "saler-list",
+
+                    "selectSalerProducts"
                 );
             } else if (this.auth.role.role_id == 4) {
                 this.auth.role.permission.push(
                     "product-list",
-                    "my-product-list",
                     "transaction-list",
                     "transaction-add",
                     "transaction-delay",
@@ -141,7 +144,7 @@ export const useAuthStore = defineStore("authStore", {
             } else if (this.auth.role.role_id == 5) {
                 this.auth.role.permission.push(
                     "product-list",
-                    "my-product-list",
+                    "sales-product-list",
                     "transaction-list",
                     "transaction-add",
 
@@ -150,7 +153,7 @@ export const useAuthStore = defineStore("authStore", {
             } else if (this.auth.role.role_id == 6) {
                 this.auth.role.permission.push(
                     "product-list",
-                    "my-product-list",
+                    "sales-product-list",
                     "transaction-list",
                     "transaction-add",
 

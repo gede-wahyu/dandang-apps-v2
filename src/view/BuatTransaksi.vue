@@ -181,18 +181,42 @@
                     <div class="input-grid">
                         <div v-if="!newCust" class="input-item">
                             <label for="cust">Pelanggan</label>
-                            <div class="select-cust-input-group">
-                                <InputText
-                                    v-model="dispCust"
-                                    id="cust"
-                                    placeholder="Pilih Pelanggan"
-                                    disabled
-                                />
-                                <Button
-                                    icon="search"
-                                    @click="custModal = true"
-                                />
-                            </div>
+                            <Dropdown
+                                v-model="cust"
+                                inputId="cust"
+                                placeholder="Pilih Pelanggan"
+                                filter
+                                :options="customers"
+                                optionLabel="name"
+                                filterPlaceholder="Cari pelanggan"
+                                @update:modelValue="saveInputToLocal()"
+                            >
+                                <template #filtericon>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        height="24"
+                                        viewBox="0 -960 960 960"
+                                        width="24"
+                                        class="p-icon p-dropdown-filter-icon"
+                                    >
+                                        <path
+                                            d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
+                                        />
+                                    </svg>
+                                </template>
+                                <template #emptyfilter>
+                                    <span>Pelanggan tidak ditemukan</span>
+                                </template>
+                                <template #option="slotProps">
+                                    <div class="customer-options">
+                                        <span>{{ slotProps.option.name }}</span>
+                                        <span>{{ slotProps.option.code }}</span>
+                                        <span>{{
+                                            slotProps.option.contact
+                                        }}</span>
+                                    </div>
+                                </template>
+                            </Dropdown>
                         </div>
                         <div v-if="newCust" class="input-item">
                             <label for="newCustName">Nama Pelanggan</label>
@@ -292,11 +316,11 @@
                             class="input-item"
                             v-if="authStore.isAuthorize('warehouse')"
                         >
-                            <label for="warehouse">Gudang</label>
+                            <label for="warehouse">Depo</label>
                             <InputText
                                 v-model="warehouse"
                                 id="warehouse"
-                                placeholder="Gudang"
+                                placeholder="Depo"
                                 @update:modelValue="saveInputToLocal()"
                             />
                         </div>
@@ -425,20 +449,6 @@
             <span>{{ formatCurrency(totalAmountOfCart()) }}</span>
         </div>
     </div>
-
-    <Dialog
-        v-model:visible="custModal"
-        modal
-        :style="{ width: '65vw' }"
-        :breakpoints="{ '640px': '100vw' }"
-        header="Daftar Pelanggan"
-        dismissableMask
-    >
-        <CustList
-            :customers="customers"
-            @selectCustomer="selectCustomer($event)"
-        />
-    </Dialog>
 </template>
 
 <script setup>
@@ -448,7 +458,6 @@ import { useAuthStore } from "../store/AuthStore";
 import { useCustomerStore } from "../store/CustomerStore";
 import { useToast } from "primevue/usetoast";
 import { useLayoutStore } from "../store/LayoutStore";
-import CustList from "./CustList.vue";
 const baseUrl = import.meta.env.VITE_BASE_URL;
 const { layoutConfig } = useLayoutStore();
 
@@ -477,9 +486,7 @@ const products = computed(() => {
 });
 
 // for CUST-PICK
-const custModal = ref(false);
 const customers = ref(null);
-const dispCust = ref(null);
 const cust = ref(null);
 
 // for CART
@@ -500,11 +507,10 @@ onBeforeMount(() => {
     layoutConfig.menuMode = "overlay";
 });
 onMounted(async () => {
-    await productStore.getSalerProducts();
+    await productStore.GET__PRODUCTS_TRANSACTION();
     productStore.isLoading = false;
-    await customerStore.getCustomers();
+    await customerStore.GET__CUSTOMERS();
     customers.value = customerStore.customers;
-    await productStore.getSalerProducts();
 
     if (localStorage.getItem("cart")) {
         cart.value = JSON.parse(localStorage.getItem("cart"));
@@ -522,7 +528,6 @@ onMounted(async () => {
 
         if (!JSON.parse(custInfo.newCust)) {
             cust.value = JSON.parse(custInfo.customer);
-            dispCust.value = formatDispCust(cust.value);
         } else {
             newCustData.value["name"] = JSON.parse(custInfo.name);
             newCustData.value["address"] = JSON.parse(custInfo.address);
@@ -550,17 +555,6 @@ const onChangeViewMode = (grid) => {
 
 if (window.innerWidth < 575) onChangeViewMode(false);
 else onChangeViewMode(true);
-
-const selectCustomer = (data) => {
-    dispCust.value = formatDispCust(data);
-    cust.value = data;
-    custModal.value = false;
-    saveInputToLocal();
-};
-
-const formatDispCust = (data) => {
-    if (data) return `${data.name} - ${data.code.toUpperCase()}`;
-};
 
 const addToCart = (item) => {
     if (isProductInCart(item["id"])) {
@@ -749,10 +743,10 @@ const resetTrans = () => {
     cart.value = [];
     newCust.value = false;
     cust.value = null;
-    dispCust.value = null;
     newCustData.value = {};
     discount.value = null;
     payment.value = null;
+    downpayment.value = null;
     due.value = null;
     warehouse.value = null;
 
@@ -811,15 +805,6 @@ const filterData = (data, query) => {
 </script>
 
 <style scoped lang="scss">
-.page-title {
-    margin-bottom: 0.5rem;
-    & + .page-subtitle {
-        display: inline-block;
-        margin-bottom: 1rem;
-        color: var(--text-color-secondary);
-    }
-}
-
 .page-layout-wrapper {
     display: flex;
     flex-direction: row;
@@ -1026,7 +1011,7 @@ const filterData = (data, query) => {
 
 .input-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
     gap: 1rem;
 }
 
@@ -1044,6 +1029,19 @@ const filterData = (data, query) => {
         flex-direction: row;
         align-items: center;
         gap: 0.5rem;
+    }
+}
+
+.customer-options {
+    display: flex;
+    flex-direction: column;
+    span:first-of-type {
+        text-transform: capitalize;
+    }
+    span:nth-of-type(2),
+    span:nth-of-type(3) {
+        color: var(--text-color-secondary);
+        text-transform: uppercase;
     }
 }
 

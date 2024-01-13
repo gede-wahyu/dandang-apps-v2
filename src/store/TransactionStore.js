@@ -1,7 +1,8 @@
 import { defineStore } from "pinia";
 import { fetchWrapper } from "../helper/fetch-wrapper";
 
-const baseUrl = import.meta.env.VITE_BASE_URL;
+// const baseUrl = import.meta.env.VITE_BASE_URL;
+const baseUrl = "https://my-json-server.typicode.com/gede-wahyu";
 
 export const useTransactionStore = defineStore("transactionStore", {
     state: () => ({
@@ -11,33 +12,26 @@ export const useTransactionStore = defineStore("transactionStore", {
     getters: {
         getPendingTransaction() {
             return this.transaction.filter((item) => {
-                return item["status"]["code"] === 2;
+                return item["payment_status"]["code"] === 2;
             });
         },
     },
     actions: {
-        async getTransaction() {
+        async GET__TRANSACTION() {
             this.isLoading = true;
-            const result = await fetchWrapper.get(
-                `https://my-json-server.typicode.com/gede-wahyu/dandang-apps-api-trans/riwayat-transaksi`
-            );
-
-            if (result) {
-                this.transaction = result;
-            }
+            const result = await fetchWrapper
+                .get(`${baseUrl}/dandang-apps-api-trans/riwayat-transaksi`)
+                .then((result) => (this.transaction = result))
+                .catch((error) => error);
 
             return result;
         },
 
-        async postTransaction(payload) {
-            const result = await fetchWrapper.post(
-                `${baseUrl}/api/transaction`,
-                payload
-            );
-
-            if (result.success) {
-                this.transaction.push(payload);
-            }
+        async POST__TRANSACTION(payload) {
+            const result = await fetchWrapper
+                .post(`${baseUrl}/api/transaction`, payload)
+                .then((result) => console.log(result))
+                .catch((error) => error);
 
             return result;
         },

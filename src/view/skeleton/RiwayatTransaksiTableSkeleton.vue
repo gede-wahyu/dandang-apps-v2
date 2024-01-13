@@ -1,7 +1,7 @@
 <template>
     <tbody>
         <tr v-for="n in transactions">
-            <td style="width: 12.78rem">
+            <td style="width: 13rem">
                 <Skeleton
                     width="50%"
                     height="1.3rem"
@@ -9,10 +9,10 @@
                 />
                 <Skeleton width="100%" height="1.3rem" />
             </td>
-            <td style="width: 9.75rem">
+            <td style="width: 9.9rem">
                 <Skeleton width="80%" height="1.3rem" />
             </td>
-            <td style="width: 8.38rem">
+            <td style="width: 8.5rem">
                 <Skeleton
                     width="50%"
                     height="1.3rem"
@@ -20,28 +20,33 @@
                 />
                 <Skeleton width="70%" height="1.3rem" />
             </td>
-            <td style="width: 12.88rem">
+            <td style="width: 8.5rem">
                 <Skeleton width="60%" height="1.3rem" />
             </td>
-            <td style="width: 11.8rem">
+            <td style="width: 12.01rem">
                 <span><Skeleton width="80%" height="1.3rem" /></span>
             </td>
-            <td style="width: 7.55rem">
+            <td style="width: 7.66rem">
                 <span>
                     <Skeleton width="100%" height="1.3rem" />
                 </span>
             </td>
-            <td style="width: 7.51rem">
+            <td style="width: 7.65rem">
                 <span>
                     <Skeleton width="100%" height="1.3rem" />
                 </span>
             </td>
-            <td>
+            <td style="width: 14.8rem">
                 <span>
                     <Skeleton width="60%" height="1.3rem" />
                 </span>
             </td>
-            <td><Button icon="search" /></td>
+            <td>
+                <div class="flex gap-0">
+                    <Button icon="search" />
+                    <Button icon="edit" severity="warning" />
+                </div>
+            </td>
         </tr>
     </tbody>
 </template>

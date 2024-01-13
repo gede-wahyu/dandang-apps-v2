@@ -1,4 +1,9 @@
 <template>
+    <h5 class="page-title">Riwayat Transaksi</h5>
+    <span class="page-subtitle"
+        >Daftar riwayat transaksi yang pernah dilakukan.</span
+    >
+
     <div class="d-card">
         <div class="data-header-wrapper">
             <div class="data-header">
@@ -92,7 +97,7 @@
                                     @click="changeSortState('status.code')"
                                 >
                                     <div>
-                                        <span>Status Transaksi</span>
+                                        <span>Status</span>
                                         <span class="material-symbols-outlined">
                                             {{
                                                 sortStateIcon(
@@ -231,16 +236,28 @@
                                         >{{ item.payment_status.status }}</span
                                     >
                                 </td>
-                                <td><Button icon="search" /></td>
-                            </tr>
-                            <tr v-if="!transactions.length" class="empty">
-                                <td colspan="9">
-                                    Tidak data untuk ditampilkan
+                                <td>
+                                    <div class="flex gap-0">
+                                        <Button icon="search" />
+                                        <Button
+                                            icon="edit"
+                                            severity="warning"
+                                        />
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
+                        <tr
+                            v-if="
+                                !transactions.length &&
+                                !transactionStore.isLoading
+                            "
+                            class="empty"
+                        >
+                            <td colspan="9">Tidak data untuk ditampilkan</td>
+                        </tr>
                         <RiwayatTransaksiTableSkeleton
-                            v-else
+                            v-if="transactionStore.isLoading"
                             :row-per-page="rowPerPage"
                         />
                     </table>
@@ -307,8 +324,11 @@
                     v-if="transactionStore.isLoading"
                     :row-per-page="rowPerPage"
                 />
-                <div v-if="!transactions.length" class="empty">
-                    Tidak data untuk ditampilkan
+                <div
+                    v-if="!transactions.length && !transactionStore.isLoading"
+                    class="empty"
+                >
+                    Tidak ada data untuk ditampilkan
                 </div>
             </div>
             <div class="transaction-paginator">
@@ -619,8 +639,7 @@ const column = ref({
 });
 
 onMounted(async () => {
-    await transactionStore.getTransaction();
-    transactionStore.filterTransaction(filters.value);
+    await transactionStore.GET__TRANSACTION();
     transactionStore.isLoading = false;
 });
 
