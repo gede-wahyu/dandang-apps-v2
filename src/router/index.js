@@ -36,6 +36,11 @@ const router = createRouter({
                     component: () => import("../view/RiwayatTransaksi.vue"),
                 },
                 {
+                    path: "/detail-transaksi/:reference",
+                    name: "transaction-detail",
+                    component: () => import("../view/DetailTransaksi.vue"),
+                },
+                {
                     path: "/buat-transaksi",
                     name: "transaction-add",
                     component: () => import("../view/BuatTransaksi.vue"),

@@ -10,7 +10,7 @@
 
     cursor: pointer;
     user-select: none;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: var(--primary-a0);
     color: var(--icon-color-secondary);
 
     border: 2px solid transparent;
@@ -122,6 +122,9 @@
 .d-error {
     color: var(--color-danger);
 }
+.d-success {
+    color: var(--color-success);
+}
 .d-uppercase {
     text-transform: uppercase !important;
 }
@@ -133,6 +136,7 @@
 }
 .d-tag {
     width: fit-content;
+    height: fit-content;
     padding: 4px 6px;
     border-radius: var(--border-radius);
     display: flex;
@@ -190,6 +194,7 @@
             text-align: left;
             padding: 1rem 1rem;
             border-bottom: 1px solid var(--surface-tborder);
+            color: var(--text-table);
         }
     }
 

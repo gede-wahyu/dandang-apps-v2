@@ -7,6 +7,7 @@ const baseUrl = "https://my-json-server.typicode.com/gede-wahyu";
 export const useTransactionStore = defineStore("transactionStore", {
     state: () => ({
         transaction: [],
+        details: null,
         isLoading: false,
     }),
     getters: {
@@ -27,13 +28,38 @@ export const useTransactionStore = defineStore("transactionStore", {
             return result;
         },
 
+        async GET__TRANSACTION_BY_REF(ref) {
+            this.isLoading = true;
+            // const result = await fetchWrapper
+            //     .get(
+            //         `${baseUrl}/dandang-apps-api-trans/riwayat-transaksi/${ref}`
+            //     )
+            //     .then((result) => (this.details = result))
+            //     .catch((error) => error);
+
+            await this.GET__TRANSACTION();
+            this.details = this.transaction.find(
+                (item) => item.reference.toLowerCase() === ref.toLowerCase()
+            );
+
+            // return result;
+        },
+
         async POST__TRANSACTION(payload) {
             const result = await fetchWrapper
                 .post(`${baseUrl}/api/transaction`, payload)
-                .then((result) => console.log(result))
+                .then((result) => result)
                 .catch((error) => error);
 
             return result;
+        },
+
+        async PATCH__EDIT_STATUS_TRANSACTION(payload) {
+            console.log(payload);
+        },
+
+        async PATCH__EDIT_PAYMENT(payload) {
+            console.log(payload);
         },
 
         filterTransaction(filters, paramData) {

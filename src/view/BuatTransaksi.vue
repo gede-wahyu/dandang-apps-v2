@@ -324,6 +324,41 @@
                                 @update:modelValue="saveInputToLocal()"
                             />
                         </div>
+                        <div
+                            class="input-item"
+                            v-if="authStore.isAuthorize('warehouse')"
+                        >
+                            <label for="shipping">Pengiriman</label>
+                            <InputNumber
+                                v-model="shipping"
+                                mode="currency"
+                                currency="IDR"
+                                locale="id-ID"
+                                id="shipping"
+                                placeholder="Biaya Pengiriman"
+                                @update:modelValue="saveInputToLocal()"
+                            />
+                        </div>
+                    </div>
+                    <div class="input-item checkbox">
+                        <CheckBox
+                            v-model="addNote"
+                            :binary="true"
+                            inputId="addNote"
+                            @update:modelValue="saveInputToLocal()"
+                        />
+                        <label for="addNote">Tambah Catatan</label>
+                    </div>
+                    <div v-if="addNote" class="input-item">
+                        <textarea
+                            :value="note"
+                            placeholder="Catatan"
+                            @input="
+                                note = $event.target.value;
+                                saveInputToLocal();
+                            "
+                            class="p-inputtext"
+                        ></textarea>
                     </div>
                 </div>
                 <div class="trans-section info-cart">
@@ -498,8 +533,11 @@ const payment = ref(null);
 const downpayment = ref(null);
 const due = ref(null);
 const warehouse = ref(null);
+const shipping = ref(null);
 const cart = ref([]);
 const cartModal = ref(false);
+const addNote = ref(false);
+const note = ref(null);
 
 layoutConfig.prevMenuMode = layoutConfig.menuMode;
 
@@ -524,6 +562,9 @@ onMounted(async () => {
         downpayment.value = JSON.parse(transInfo.downpayment);
         due.value = JSON.parse(transInfo.due);
         warehouse.value = JSON.parse(transInfo.warehouse);
+        shipping.value = JSON.parse(transInfo.shipping);
+        addNote.value = JSON.parse(transInfo.addNote);
+        note.value = JSON.parse(transInfo.note);
         newCust.value = JSON.parse(custInfo.newCust);
 
         if (!JSON.parse(custInfo.newCust)) {
@@ -637,6 +678,8 @@ const saveCartToLocal = () => {
 };
 
 const saveInputToLocal = () => {
+    if (!addNote.value) note.value = null;
+
     localStorage.setItem(
         "transInfo",
         JSON.stringify({
@@ -645,6 +688,9 @@ const saveInputToLocal = () => {
             downpayment: JSON.stringify(downpayment.value),
             due: JSON.stringify(due.value),
             warehouse: JSON.stringify(warehouse.value),
+            shipping: JSON.stringify(shipping.value),
+            addNote: JSON.stringify(addNote.value),
+            note: JSON.stringify(note.value),
         })
     );
     if (!newCust.value)
@@ -723,6 +769,7 @@ const onSubmitTransaction = () => {
             ],
             payment_method: payment.value,
             downpayment: payment.value === "Cicilan" ? downpayment.value : null,
+            shipping: shipping.value,
             due: new Date(due.value).getTime(),
             tax: {
                 ppn: taxAmount() ? tax.value : 0,
@@ -732,6 +779,7 @@ const onSubmitTransaction = () => {
                 disc: discount.value ? discount.value : 0,
                 amount: discountAmount(),
             },
+            note: note.value,
         });
 
         closeCart();
@@ -749,6 +797,8 @@ const resetTrans = () => {
     downpayment.value = null;
     due.value = null;
     warehouse.value = null;
+    shipping.value = null;
+    addNote.value = false;
 
     resetTransOnLocal();
 };

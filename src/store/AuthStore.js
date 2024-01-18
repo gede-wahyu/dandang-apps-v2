@@ -98,6 +98,7 @@ export const useAuthStore = defineStore("authStore", {
                     "product-list",
                     "product-add",
                     "transaction-list",
+                    "transaction-detail",
                     "transaction-add",
                     "transaction-delay",
                     "report-income",
@@ -132,6 +133,7 @@ export const useAuthStore = defineStore("authStore", {
                 this.auth.role.permission.push(
                     "product-list",
                     "transaction-list",
+                    "transaction-detail",
                     "transaction-add",
                     "transaction-delay",
 
@@ -146,6 +148,7 @@ export const useAuthStore = defineStore("authStore", {
                     "product-list",
                     "sales-product-list",
                     "transaction-list",
+                    "transaction-detail",
                     "transaction-add",
 
                     "transactionPost"
@@ -154,6 +157,7 @@ export const useAuthStore = defineStore("authStore", {
                 this.auth.role.permission.push(
                     "product-list",
                     "sales-product-list",
+                    "transaction-detail",
                     "transaction-list",
                     "transaction-add",
 

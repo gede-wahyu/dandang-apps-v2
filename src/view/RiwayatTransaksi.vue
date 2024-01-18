@@ -238,10 +238,14 @@
                                 </td>
                                 <td>
                                     <div class="flex gap-0">
-                                        <Button icon="search" />
+                                        <Button
+                                            icon="search"
+                                            @click="openTransDetail(item)"
+                                        />
                                         <Button
                                             icon="edit"
                                             severity="warning"
+                                            @click="goToDetail(item)"
                                         />
                                     </div>
                                 </td>
@@ -317,7 +321,18 @@
                         >
                     </div>
                     <div class="trans-button">
-                        <div><Button label="Detail" /></div>
+                        <div>
+                            <Button
+                                label="Detail"
+                                @click="openTransDetail(item)"
+                                style="margin-right: 0.5rem"
+                            />
+                            <Button
+                                label="Edit"
+                                severity="warning"
+                                @click="goToDetail(item)"
+                            />
+                        </div>
                     </div>
                 </div>
                 <RiwayatTransaksiListSkeleton
@@ -562,14 +577,43 @@
             </div>
         </div>
     </div>
+
+    <Dialog
+        v-model:visible="transDetailModal"
+        modal
+        dismissableMask
+        :style="{ width: '55rem' }"
+        :breakpoints="{ '1199px': '75vw', '575px': '100vw' }"
+        class="position-bottom"
+    >
+        <template #header>
+            <div class="transaction-details-header">
+                <h5>Detail Transaksi</h5>
+                <span
+                    class="span-nav-button"
+                    role="button"
+                    tabindex="0"
+                    @click="goToDetail(selectedTransaction)"
+                >
+                    <span class="material-symbols-outlined"> edit </span>
+                </span>
+            </div>
+        </template>
+        <div class="transaction-details">
+            <DetailTransaksiCard :data="selectedTransaction" />
+        </div>
+    </Dialog>
 </template>
 
 <script setup>
 import { useTransactionStore } from "../store/TransactionStore";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import RiwayatTransaksiTableSkeleton from "./skeleton/RiwayatTransaksiTableSkeleton.vue";
 import RiwayatTransaksiListSkeleton from "./skeleton/RiwayatTransaksiListSkeleton.vue";
+import DetailTransaksiCard from "./DetailTransaksiCard.vue";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const transactionStore = useTransactionStore();
 const rowPerPage = ref(10);
 const currPage = ref(0);
@@ -637,6 +681,8 @@ const column = ref({
     depo: true,
     pstatus: true,
 });
+const transDetailModal = ref(false);
+const selectedTransaction = ref(null);
 
 onMounted(async () => {
     await transactionStore.GET__TRANSACTION();
@@ -699,6 +745,17 @@ const sortStateIcon = (state) => {
     if (state === null) return "unfold_more";
     else if (state) return "keyboard_double_arrow_up";
     else if (!state) return "keyboard_double_arrow_down";
+};
+
+const openTransDetail = (data) => {
+    selectedTransaction.value = data;
+    transDetailModal.value = true;
+};
+const goToDetail = async (data) => {
+    router.push({
+        name: "transaction-detail",
+        params: { reference: data.reference },
+    });
 };
 
 const statusTag = (statusCode, type) => {
@@ -860,6 +917,28 @@ const formatDate = (value, type) => {
 .trans-button {
     display: flex;
     justify-content: end;
+}
+
+.transaction-details-header {
+    display: flex;
+    align-items: center;
+    h5 {
+        margin: 0 0.5rem 0 0;
+    }
+    & > span {
+        width: 2rem;
+        height: 2rem;
+        & > span {
+            font-size: 1.5rem !important;
+        }
+    }
+}
+
+@media screen and (min-width: 992px) {
+    .transaction-details,
+    .transaction-details-header {
+        padding: 0 1rem;
+    }
 }
 
 @media screen and (max-width: 575px) {
