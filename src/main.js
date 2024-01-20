@@ -20,6 +20,8 @@ import OverlayPanel from "primevue/overlaypanel";
 import Dropdown from "primevue/dropdown";
 import Calendar from "primevue/calendar";
 import InputSwitch from "primevue/inputswitch";
+import Knob from "primevue/knob";
+import Chart from "primevue/chart";
 
 import "./assets/styles.scss";
 
@@ -46,5 +48,7 @@ app.component("OverlayPanel", OverlayPanel);
 app.component("Dropdown", Dropdown);
 app.component("Calendar", Calendar);
 app.component("InputSwitch", InputSwitch);
+app.component("Knob", Knob);
+app.component("Chart", Chart);
 
 app.mount("#app");
