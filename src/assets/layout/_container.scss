@@ -5,6 +5,12 @@
     display: flex;
     flex-direction: column;
     transition: margin 0.2s ease;
+    align-items: center;
+}
+
+.layout-content {
+    max-width: 1440px;
+    width: 100%;
 }
 
 .layout-staticmenu-desktop-inactive,

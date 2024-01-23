@@ -11,8 +11,12 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useReportStore } from "../../store/ReportStore";
 
-onMounted(() => {
+const reportStore = useReportStore();
+
+onMounted(async () => {
+    await reportStore.GET__INCOME_TAX(2023);
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
 });

@@ -124,19 +124,33 @@
             </div>
             <ChartPendapatanPajak />
         </div>
-        <!-- <div class="d-card uk1">
-            <h5>Header UK1</h5>
+        <div class="d-card default top-saler">
+            <div>
+                <h5>Sales Terbaik</h5>
+                <span>Bulan lalu</span>
+            </div>
+            <div>
+                <SalesTerbaik />
+            </div>
         </div>
-        <div class="d-card default uk2">
-            <h5>Produk Terlaris</h5>
-            <span>Bulan lalu</span>
+        <div class="d-card default best-seller">
+            <div>
+                <h5>Produk Terlaris</h5>
+                <span>Bulan lalu</span>
+            </div>
             <div>
                 <ProdukTerlaris />
             </div>
         </div>
-        <div class="d-card uk3">
-            <h5>Header UK3</h5>
-        </div> -->
+        <div class="d-card default top-cust">
+            <div>
+                <h5>Pelanggan Setia</h5>
+                <span>Bulan lalu</span>
+            </div>
+            <div>
+                <PelangganSetia />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -147,6 +161,8 @@ import ChartLaba from "./chart/ChartLaba.vue";
 import ChartTotalTrans from "./chart/ChartTotalTrans.vue";
 import ChartPendapatanPajak from "./chart/ChartPendapatanPajak.vue";
 import ProdukTerlaris from "./chart/ProdukTerlaris.vue";
+import SalesTerbaik from "./chart/SalesTerbaik.vue";
+import PelangganSetia from "./chart/PelangganSetia.vue";
 
 const authStore = useAuthStore();
 const knob = ref(23);
@@ -187,13 +203,13 @@ const reqNewIncomeTaxData = () => {
     .total-trans {
         grid-column: 1 / 5;
     }
-    .uk1 {
+    .top-saler {
         grid-column: 1 / 5;
     }
-    .uk2 {
+    .best-seller {
         grid-column: 5 / 9;
     }
-    .uk3 {
+    .top-cust {
         grid-column: 9 / 13;
     }
 }
@@ -384,6 +400,15 @@ const reqNewIncomeTaxData = () => {
             grid-column: 1 / 13;
             grid-row: 4 / 5;
         }
+        .top-saler {
+            grid-column: 1 / 7;
+        }
+        .best-seller {
+            grid-column: 7 / 13;
+        }
+        .top-cust {
+            grid-column: 1 / 7;
+        }
     }
     .statistic {
         .inner-card-group {
@@ -432,6 +457,15 @@ const reqNewIncomeTaxData = () => {
         .income-tax {
             grid-column: 1 / 13;
             grid-row: 5;
+        }
+        .top-saler {
+            grid-column: 1 / 13;
+        }
+        .best-seller {
+            grid-column: 1 / 13;
+        }
+        .top-cust {
+            grid-column: 1 / 13;
         }
     }
 }

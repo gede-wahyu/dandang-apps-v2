@@ -7,6 +7,7 @@ const baseUrl = "https://my-json-server.typicode.com/gede-wahyu";
 export const useCustomerStore = defineStore("customerStore", {
     state: () => ({
         customers: [],
+        topCustomers: [],
         isLoading: false,
     }),
     getters: {},
@@ -19,6 +20,19 @@ export const useCustomerStore = defineStore("customerStore", {
                 .catch((error) => error);
 
             return result;
+        },
+
+        async GET__TOP_CUSTOMERS() {
+            this.isLoading = true;
+            // const result = fetchWrapper
+            //     .get(`${baseUrl}/api/top-customers`)
+            //     .then((result) => (this.topCustomers = result))
+            //     .catch((error) => error);
+
+            // return result;
+
+            await this.GET__CUSTOMERS();
+            this.topCustomers = this.customers.slice(0, 5);
         },
 
         filterData(data, filters) {

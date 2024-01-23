@@ -38,7 +38,7 @@ export const useProductStore = defineStore("productStore", {
             else if (isAdmin && !userId) return;
 
             const result = await fetchWrapper
-                .get(`${baseUrl}/api/sales-products/${userId}`)
+                .get(`${baseUrl}/api/sellers-products/${userId}`)
                 .then((result) => (this.salerProducts = result.data))
                 .catch((error) => error);
 

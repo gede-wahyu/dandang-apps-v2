@@ -24,12 +24,12 @@
                     <table class="d-table">
                         <thead>
                             <tr>
-                                <td>Nama</td>
-                                <td>Gambar</td>
-                                <td>Varian</td>
-                                <td>Stok</td>
-                                <td>Harga</td>
-                                <td></td>
+                                <th>Nama</th>
+                                <th>Gambar</th>
+                                <th>Varian</th>
+                                <th>Stok</th>
+                                <th>Harga</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>

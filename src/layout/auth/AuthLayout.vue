@@ -1,6 +1,7 @@
 <template>
     <div class="auth-layout-wrapper">
         <div class="auth-layout-top">
+            <img class="icon" src="/icon.png" alt="" />
             <span>dandang apps</span>
         </div>
         <div class="auth-layout-content">

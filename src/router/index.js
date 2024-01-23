@@ -41,6 +41,11 @@ const router = createRouter({
                     component: () => import("../view/DetailTransaksi.vue"),
                 },
                 {
+                    path: "/invoice/:reference",
+                    name: "invoice",
+                    component: () => import("../view/Invoice.vue"),
+                },
+                {
                     path: "/buat-transaksi",
                     name: "transaction-add",
                     component: () => import("../view/BuatTransaksi.vue"),

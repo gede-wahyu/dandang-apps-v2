@@ -7,6 +7,7 @@ const baseUrl = "https://my-json-server.typicode.com/gede-wahyu";
 export const useSalesStore = defineStore("salesStore", {
     state: () => ({
         sales: [],
+        topSales: [],
         isLoading: false,
     }),
     getters: {},
@@ -29,6 +30,19 @@ export const useSalesStore = defineStore("salesStore", {
                 .catch((error) => error);
 
             return result;
+        },
+
+        async GET__TOP_SALES() {
+            this.isLoading = true;
+            // const result = fetchWrapper
+            //     .get(`${baseUrl}/api/top-sales`)
+            //     .then((result) => (this.topSales = result))
+            //     .catch((error) => error);
+
+            // return result;
+
+            await this.GET__SALES();
+            this.topSales = this.sales.slice(0, 5);
         },
     },
 });

@@ -7,7 +7,8 @@
     flex-direction: column;
     justify-content: space-between;
 
-    background-color: #34d399;
+    // background-color: #34d399;
+    background: linear-gradient(to bottom right, #34d399, #46c4ff);
 
     ::-moz-selection {
         /* Code for Firefox */
@@ -23,11 +24,18 @@
 .auth-layout-top {
     display: flex;
     justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
     padding: 15px 0;
 
     span {
         text-transform: uppercase;
         color: #dfdfdf;
+    }
+
+    .icon {
+        width: 2rem;
+        object-fit: cover;
     }
 }
 
@@ -62,6 +70,10 @@
 
     .d-card {
         padding: 2rem 2rem;
+    }
+
+    button {
+        background-color: var(--tone-blue) !important;
     }
 }
 

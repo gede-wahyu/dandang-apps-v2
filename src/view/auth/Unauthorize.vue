@@ -3,7 +3,7 @@
         <div class="d-card">
             <div class="header">
                 <span class="material-symbols-outlined"> warning </span>
-                <h5>Oopss!</h5>
+                <h3>Oopss!</h3>
             </div>
             <div class="main">
                 <p>
@@ -40,12 +40,16 @@ const router = useRouter();
     }
 
     span {
+        font-size: 3rem;
         color: var(--color-danger);
     }
 }
 .main {
-    padding: 1rem 0;
+    padding: 1rem 1rem 1.5rem 1rem;
     text-align: center;
+    p {
+        color: var(--text-color-secondary);
+    }
 }
 
 .footer {

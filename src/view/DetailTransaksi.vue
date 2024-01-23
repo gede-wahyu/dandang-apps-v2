@@ -18,10 +18,21 @@
     <h5 class="header">Detail Transaksi</h5>
     <div class="subheader">
         <span>Informasi detail untuk setiap transaksi.</span>
-        <Button
-            label="Kembali"
-            @click="router.push({ name: 'transaction-list' })"
-        />
+        <div>
+            <Button
+                label="Invoice"
+                @click="
+                    router.push({
+                        name: 'invoice',
+                        params: { reference: route.params.reference },
+                    })
+                "
+            />
+            <Button
+                label="Kembali"
+                @click="router.push({ name: 'transaction-list' })"
+            />
+        </div>
     </div>
 
     <div v-if="details" class="container">
@@ -469,7 +480,7 @@ const formatDate = (value, type) => {
             justify-self: end;
             display: flex;
             align-items: center;
-            gap: 0.7rem;
+            gap: 1rem;
             margin-right: 2rem;
         }
     }
