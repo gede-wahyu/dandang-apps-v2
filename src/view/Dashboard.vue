@@ -149,7 +149,7 @@
                     @update:modelValue="reqNewIncomeTaxData()"
                 />
             </div>
-            <ChartPendapatanPajak :year="incomeTaxYear" :data="incomeTax" />
+            <ChartPendapatanPajak :year="incomeTaxYear" />
         </div>
         <div class="d-card default top-saler">
             <div>

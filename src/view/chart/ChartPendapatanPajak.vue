@@ -10,32 +10,31 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUpdated } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useReportStore } from "../../store/ReportStore";
 
 const reportStore = useReportStore();
 const props = defineProps({
-    data: {
-        type: Object,
-        default: {
-            total_amount: [],
-            tax_amount: [],
-        },
-    },
     year: null,
 });
-onMounted(() => {
-    chartData.value = setChartData();
+onMounted(async () => {
+    await reportStore.GET__INCOME_TAX(props.year);
+    chartData.value = setChartData(reportStore.incomeTax);
     chartOptions.value = setChartOptions();
 });
-onUpdated(() => {
-    chartData.value = setChartData();
-});
+watch(
+    () => props.year,
+    async () => {
+        console.log(props.year);
+        await reportStore.GET__INCOME_TAX(props.year);
+        chartData.value = setChartData(reportStore.incomeTax);
+    }
+);
 
 const chartData = ref();
 const chartOptions = ref();
 
-const setChartData = () => {
+const setChartData = (data) => {
     const documentStyle = getComputedStyle(document.documentElement);
 
     return {
@@ -60,7 +59,7 @@ const setChartData = () => {
                 hoverBackgroundColor:
                     documentStyle.getPropertyValue("--purple-600"),
                 borderColor: documentStyle.getPropertyValue("--purple-500"),
-                data: props.data["total_amount"],
+                data: data["total_amount"],
             },
             {
                 label: "Pajak",
@@ -68,7 +67,7 @@ const setChartData = () => {
                 hoverBackgroundColor:
                     documentStyle.getPropertyValue("--orange-600"),
                 borderColor: documentStyle.getPropertyValue("--orange-500"),
-                data: props.data["tax_amount"],
+                data: data["tax_amount"],
             },
         ],
     };

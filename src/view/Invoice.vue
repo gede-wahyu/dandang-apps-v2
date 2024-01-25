@@ -190,9 +190,9 @@
 
         <div class="d-card tools">
             <Button label="Cetak" @click="printInv()" />
-            <Button label="Unduh" @click="downloadInv()" />
+            <!-- <Button label="Unduh" @click="downloadInv()" />
             <Button label="WhatsApp" />
-            <Button label="Email" />
+            <Button label="Email" /> -->
         </div>
     </div>
     <div class="footer">
