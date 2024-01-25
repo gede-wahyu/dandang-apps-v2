@@ -83,13 +83,15 @@
                         <th>Qty</th>
                         <th>Harga</th>
                     </tr>
-                    <tr v-for="n in 3">
-                        <td>Contoh Produk {{ n }}</td>
-                        <td>{{ n }}</td>
+                    <tr v-for="n in details.products">
+                        <td>{{ n.name }}</td>
+                        <td>{{ n.quantity }}</td>
                         <td>
                             <div class="flex flex-column gap-0 hl">
-                                <span>{{ formatCurrency(7500) }}</span>
-                                <span>{{ formatCurrency(7500 * n) }}</span>
+                                <span>{{ formatCurrency(n.unit_price) }}</span>
+                                <span>{{
+                                    formatCurrency(n.unit_price * n.quantity)
+                                }}</span>
                             </div>
                         </td>
                     </tr>
@@ -97,25 +99,36 @@
                         <td colspan="2">
                             <div class="flex flex-column gap-0">
                                 <span>Subtotal</span>
-                                <span>Diskon (15%)</span>
+                                <span
+                                    >Diskon ({{ details.discount.disc }}%)</span
+                                >
                                 <span>Pengiriman</span>
-                                <span>PPN (11%)</span>
+                                <span>PPN ({{ details.tax.amount }}%)</span>
                             </div>
                         </td>
                         <td>
                             <div class="flex flex-column gap-0">
-                                <span>{{ formatCurrency(45000) }}</span>
+                                <span>{{
+                                    formatCurrency(details.sub_total)
+                                }}</span>
                                 <span
-                                    >- {{ formatCurrency(45000 * 0.15) }}</span
+                                    >-
+                                    {{
+                                        formatCurrency(details.discount.amount)
+                                    }}</span
                                 >
-                                <span>{{ formatCurrency(1800) }}</span>
-                                <span>{{ formatCurrency(45000 * 0.11) }}</span>
+                                <span>{{
+                                    formatCurrency(details.shipping_amount)
+                                }}</span>
+                                <span>{{
+                                    formatCurrency(details.tax.ppn)
+                                }}</span>
                             </div>
                         </td>
                     </tr>
                     <tr class="summary">
                         <td colspan="2">Total</td>
-                        <td>{{ formatCurrency(45000) }}</td>
+                        <td>{{ formatCurrency(details.total) }}</td>
                     </tr>
                 </table>
             </div>
@@ -128,39 +141,52 @@
                         <th>Harga</th>
                         <th>Total</th>
                     </tr>
-                    <tr v-for="n in 3">
-                        <td>Contoh Produk {{ n }}</td>
-                        <td>{{ n }}</td>
+                    <tr v-for="n in details.products">
+                        <td>{{ n.name }}</td>
+                        <td>{{ n.quantity }}</td>
                         <td>
-                            <span>{{ formatCurrency(7500) }}</span>
+                            <span>{{ formatCurrency(n.unit_price) }}</span>
                         </td>
                         <td>
-                            <span>{{ formatCurrency(7500 * n) }}</span>
+                            <span>{{
+                                formatCurrency(n.unit_price * n.quantity)
+                            }}</span>
                         </td>
                     </tr>
                     <tr class="summary">
                         <td colspan="3">
                             <div class="flex flex-column gap-0">
                                 <span>Subtotal</span>
-                                <span>Diskon (15%)</span>
+                                <span
+                                    >Diskon ({{ details.discount.disc }}%)</span
+                                >
                                 <span>Pengiriman</span>
-                                <span>PPN (11%)</span>
+                                <span>PPN ({{ details.tax.amount }}%)</span>
                             </div>
                         </td>
                         <td>
                             <div class="flex flex-column gap-0">
-                                <span>{{ formatCurrency(45000) }}</span>
+                                <span>{{
+                                    formatCurrency(details.sub_total)
+                                }}</span>
                                 <span
-                                    >- {{ formatCurrency(45000 * 0.15) }}</span
+                                    >-
+                                    {{
+                                        formatCurrency(details.discount.amount)
+                                    }}</span
                                 >
-                                <span>{{ formatCurrency(1800) }}</span>
-                                <span>{{ formatCurrency(45000 * 0.11) }}</span>
+                                <span>{{
+                                    formatCurrency(details.shipping_amount)
+                                }}</span>
+                                <span>{{
+                                    formatCurrency(details.tax.ppn)
+                                }}</span>
                             </div>
                         </td>
                     </tr>
                     <tr class="summary">
                         <td colspan="3">Total</td>
-                        <td>{{ formatCurrency(45000) }}</td>
+                        <td>{{ formatCurrency(details.total) }}</td>
                     </tr>
                 </table>
             </div>
@@ -172,21 +198,29 @@
             <div class="properties">
                 <div class="property">
                     <span>Kode</span>
-                    <span class="d-uppercase">#cst0001</span>
+                    <span class="d-uppercase"
+                        >#{{ details.customer.code }}</span
+                    >
                 </div>
                 <div class="property">
                     <span>Nama</span>
                     <span class="d-capitalize">{{
-                        details.customer_name
+                        details.customer.name
                     }}</span>
                 </div>
                 <div class="property">
                     <span>Alamat</span>
-                    <span class="d-capitalize">Jl. Tambak Bayan No.134</span>
+                    <span class="d-capitalize">{{
+                        details.customer.address
+                    }}</span>
                 </div>
                 <div class="property">
                     <span>No Hp</span>
-                    <span>081123456789</span>
+                    <span>{{
+                        details.customer.contact
+                            ? details.customer.contact
+                            : "-"
+                    }}</span>
                 </div>
             </div>
         </div>
@@ -197,23 +231,25 @@
             <div class="properties">
                 <div class="property">
                     <span>Kode</span>
-                    <span class="d-uppercase">#{{ details.sales }}</span>
+                    <span class="d-uppercase">#{{ details.sales.code }}</span>
                 </div>
                 <div class="property">
                     <span>Nama</span>
-                    <span class="d-capitalize">Saler 1</span>
+                    <span class="d-capitalize">{{ details.sales.name }}</span>
                 </div>
                 <div class="property">
                     <span>No Hp</span>
-                    <span class="d-capitalize">081123456789</span>
+                    <span class="d-capitalize">{{
+                        details.sales.contact
+                    }}</span>
                 </div>
                 <div class="property">
                     <span>Tipe</span>
-                    <span class="d-capitalize">TO</span>
+                    <span class="d-capitalize">{{ details.sales.type }}</span>
                 </div>
                 <div class="property">
                     <span>Depo</span>
-                    <span class="d-uppercase">#{{ details.depo }}</span>
+                    <span class="d-uppercase">#{{ details.sales.depo }}</span>
                 </div>
             </div>
         </div>
@@ -242,7 +278,9 @@
             <div class="properties">
                 <div class="property">
                     <span>Metode</span>
-                    <span>Cicilan</span>
+                    <span class="d-capitalize">{{
+                        details.payment_method
+                    }}</span>
                 </div>
                 <div class="property">
                     <span>Status</span>
@@ -256,15 +294,19 @@
                 </div>
                 <div class="property">
                     <span>Tagihan</span>
-                    <span>{{ formatCurrency(45000) }}</span>
+                    <span>{{ formatCurrency(details.total) }}</span>
                 </div>
                 <div class="property">
                     <span>Dibayar</span>
-                    <span class="d-success">{{ formatCurrency(20000) }}</span>
+                    <span class="d-success">{{
+                        formatCurrency(details.paid_amount)
+                    }}</span>
                 </div>
                 <div class="property">
                     <span>Sisa Tagihan</span>
-                    <span class="d-error">{{ formatCurrency(25000) }}</span>
+                    <span class="d-error">{{
+                        formatCurrency(details.bill)
+                    }}</span>
                 </div>
             </div>
             <div class="property">
@@ -392,7 +434,7 @@ const tstatusOpt = ref([
 ]);
 
 onMounted(async () => {
-    await transactionStore.GET__TRANSACTION_BY_REF(route.params.reference);
+    await transactionStore.GET__TRANSACTION_BY_ID(route.params.id);
     transactionStore.isLoading = false;
     tstatus.value = details.value.status;
 });

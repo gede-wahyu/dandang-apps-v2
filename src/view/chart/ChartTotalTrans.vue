@@ -11,23 +11,26 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useReportStore } from "../../store/ReportStore";
+const reportStore = useReportStore();
 
-onMounted(() => {
-    chartData.value = setChartData();
+onMounted(async () => {
+    await reportStore.GET__SALES_BY_ROLE();
+    chartData.value = setChartData(reportStore.sales["total_amount_sales"]);
     chartOptions.value = setChartOptions();
 });
 
 const chartData = ref();
 const chartOptions = ref(null);
 
-const setChartData = () => {
+const setChartData = (data) => {
     const documentStyle = getComputedStyle(document.body);
 
     return {
         labels: ["Saler Motor", "Saler Mobil", "Saler TO", "Lainnya"],
         datasets: [
             {
-                data: [340000, 450000, 700000, 575000],
+                data: data,
                 backgroundColor: [
                     documentStyle.getPropertyValue("--green-100"),
                     documentStyle.getPropertyValue("--green-300"),

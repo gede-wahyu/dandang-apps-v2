@@ -6,17 +6,17 @@
                     <span>#{{ index + 1 }}</span>
                 </div>
                 <div class="name">
-                    <span>{{ item.name }}</span>
+                    <span>{{ item.customer.name }}</span>
                 </div>
                 <div class="code">
-                    <span>{{ item.code }}</span>
+                    <span>{{ item.customer.id }}</span>
                 </div>
                 <div class="address">
-                    <span>{{ item.address }}</span>
+                    <span>{{ item.customer.address }}</span>
                 </div>
                 <div class="amount">
                     <span>Total transaksi</span> <br />
-                    <span>{{ 1.9 }} juta</span>
+                    <span>{{ nFormatter(item.total_amount, 1) }}</span>
                 </div>
             </div>
         </div>
@@ -24,16 +24,35 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
-import { useCustomerStore } from "../../store/CustomerStore";
-const customerStore = useCustomerStore();
-const customers = computed(() => {
-    return customerStore.customers;
+import { ref, onMounted } from "vue";
+import { useReportStore } from "../../store/ReportStore";
+const reportStore = useReportStore();
+const customers = ref(null);
+
+onMounted(async () => {
+    await reportStore.GET__TOP_CUSTOMER();
+    customers.value = reportStore.topCustomer;
 });
-onMounted(() => {
-    customerStore.GET__TOP_CUSTOMERS();
-    customerStore.isLoading = false;
-});
+
+const nFormatter = (num, digits) => {
+    const lookup = [
+        { value: 1, symbol: "" },
+        { value: 1e3, symbol: " Ribu" },
+        { value: 1e6, symbol: " Juta" },
+        { value: 1e9, symbol: " Miliar" },
+        { value: 1e12, symbol: " Triliun" },
+        { value: 1e15, symbol: " Kuadriliun" },
+        { value: 1e18, symbol: " Kuintiliun" },
+    ];
+    const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/;
+    const item = lookup.findLast((item) => num >= item.value);
+    return item
+        ? (num / item.value)
+              .toFixed(digits)
+              .replace(regexp, "")
+              .concat(item.symbol)
+        : "0";
+};
 </script>
 
 <style scoped lang="scss">

@@ -35,15 +35,13 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
-import { useSalesStore } from "../../store/SalesStore";
-const salesStore = useSalesStore();
-const sales = computed(() => {
-    return salesStore.topSales;
-});
-onMounted(() => {
-    salesStore.GET__TOP_SALES();
-    salesStore.isLoading = false;
+import { ref, onMounted } from "vue";
+import { useReportStore } from "../../store/ReportStore";
+const reportStore = useReportStore();
+const sales = ref(null);
+onMounted(async () => {
+    await reportStore.GET__TOP_SELLER();
+    sales.value = reportStore.topSeller;
 });
 </script>
 

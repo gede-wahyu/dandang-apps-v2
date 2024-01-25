@@ -36,12 +36,12 @@ const router = createRouter({
                     component: () => import("../view/RiwayatTransaksi.vue"),
                 },
                 {
-                    path: "/detail-transaksi/:reference",
+                    path: "/detail-transaksi/:id",
                     name: "transaction-detail",
                     component: () => import("../view/DetailTransaksi.vue"),
                 },
                 {
-                    path: "/invoice/:reference",
+                    path: "/invoice/:id",
                     name: "invoice",
                     component: () => import("../view/Invoice.vue"),
                 },

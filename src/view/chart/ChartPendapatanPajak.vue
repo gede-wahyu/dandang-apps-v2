@@ -10,15 +10,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUpdated } from "vue";
 import { useReportStore } from "../../store/ReportStore";
 
 const reportStore = useReportStore();
-
-onMounted(async () => {
-    await reportStore.GET__INCOME_TAX(2023);
+const props = defineProps({
+    data: {
+        type: Object,
+        default: {
+            total_amount: [],
+            tax_amount: [],
+        },
+    },
+    year: null,
+});
+onMounted(() => {
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
+});
+onUpdated(() => {
+    chartData.value = setChartData();
 });
 
 const chartData = ref();
@@ -49,7 +60,7 @@ const setChartData = () => {
                 hoverBackgroundColor:
                     documentStyle.getPropertyValue("--purple-600"),
                 borderColor: documentStyle.getPropertyValue("--purple-500"),
-                data: [65, 59, 80, 81, 56, 55, 40, 64, 43, 75, 53, 56],
+                data: props.data["total_amount"],
             },
             {
                 label: "Pajak",
@@ -57,7 +68,7 @@ const setChartData = () => {
                 hoverBackgroundColor:
                     documentStyle.getPropertyValue("--orange-600"),
                 borderColor: documentStyle.getPropertyValue("--orange-500"),
-                data: [28, 48, 40, 19, 86, 27, 90, 87, 81, 77, 88, 90],
+                data: props.data["tax_amount"],
             },
         ],
     };

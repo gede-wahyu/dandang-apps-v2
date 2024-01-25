@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import { fetchWrapper } from "../helper/fetch-wrapper";
 
-// const baseUrl = import.meta.env.VITE_BASE_URL;
-const baseUrl = "https://my-json-server.typicode.com/gede-wahyu";
+const baseUrl = import.meta.env.VITE_BASE_URL;
+// const baseUrl = "https://my-json-server.typicode.com/gede-wahyu";
 
 export const useTransactionStore = defineStore("transactionStore", {
     state: () => ({
@@ -18,31 +18,27 @@ export const useTransactionStore = defineStore("transactionStore", {
         },
     },
     actions: {
-        async GET__TRANSACTION() {
+        async GET__TRANSACTION(page, rpp, search) {
             this.isLoading = true;
+            let query = `?perPage=${rpp}`;
+
+            if (page) query = `?page=${page}&perPage=${rpp}`;
+
             const result = await fetchWrapper
-                .get(`${baseUrl}/dandang-apps-api-trans/riwayat-transaksi`)
+                .get(`${baseUrl}/api/transactions${query}`)
                 .then((result) => (this.transaction = result))
                 .catch((error) => error);
 
             return result;
         },
 
-        async GET__TRANSACTION_BY_REF(ref) {
-            this.isLoading = true;
-            // const result = await fetchWrapper
-            //     .get(
-            //         `${baseUrl}/dandang-apps-api-trans/riwayat-transaksi/${ref}`
-            //     )
-            //     .then((result) => (this.details = result))
-            //     .catch((error) => error);
+        async GET__TRANSACTION_BY_ID(id) {
+            const result = await fetchWrapper
+                .get(`${baseUrl}/api/transactions/${id}`)
+                .then((result) => (this.details = result.data))
+                .catch((error) => error);
 
-            await this.GET__TRANSACTION();
-            this.details = this.transaction.find(
-                (item) => item.reference.toLowerCase() === ref.toLowerCase()
-            );
-
-            // return result;
+            return result;
         },
 
         async POST__TRANSACTION(payload) {

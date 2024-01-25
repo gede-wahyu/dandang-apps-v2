@@ -1,4 +1,25 @@
 <template>
+    <div class="breadcrumb">
+        <router-link :to="{ name: 'dashboard' }">
+            <span class="material-symbols-outlined"> home </span>
+            <span class="material-symbols-outlined"> navigate_next </span>
+        </router-link>
+        <span>
+            Transaksi
+            <span class="material-symbols-outlined"> navigate_next </span>
+        </span>
+        <router-link class="breadcrumb-item" :to="{ name: 'transaction-list' }">
+            Riwayat
+            <span class="material-symbols-outlined"> navigate_next </span>
+        </router-link>
+        <span>Detail</span>
+    </div>
+
+    <h5 class="page-header">Invoice</h5>
+    <div class="page-subheader">
+        <span>Bukti dan informasi detail transaksi.</span>
+    </div>
+
     <div class="container container-invoice">
         <div v-if="details" class="d-card invoice">
             <div id="print-invoice">
@@ -40,10 +61,20 @@
                             <span>
                                 Tenggat Pembayaran:
                                 <span>{{
-                                    formatDate(details.date, "date")
+                                    formatDate(
+                                        details.due
+                                            ? details.due
+                                            : details.date,
+                                        "date"
+                                    )
                                 }}</span>
                                 <span>{{
-                                    formatDate(details.date, "time")
+                                    formatDate(
+                                        details.due
+                                            ? details.due
+                                            : details.date,
+                                        "time"
+                                    )
                                 }}</span>
                             </span>
                         </div>
@@ -54,29 +85,33 @@
                     <div class="customer">
                         <h6>Pelanggan</h6>
                         <span>{{ details.customer_name }}</span>
-                        <span>#cst0001</span>
-                        <span>Jl. Tambak Bayan No.134</span>
-                        <span>081123456789</span>
+                        <span>#{{ details.customer.code }}</span>
+                        <span>{{ details.customer.address }}</span>
+                        <span>{{
+                            details.customer.contact
+                                ? details.customer.contact
+                                : "-"
+                        }}</span>
                     </div>
                     <div class="payment">
                         <h6>Pembayaran</h6>
                         <div class="item">
                             <span>Tagihan</span>
-                            <span>{{
-                                formatCurrency(details.total_amount)
-                            }}</span>
+                            <span>{{ formatCurrency(details.total) }}</span>
                         </div>
                         <div class="item">
                             <span>Metode</span>
-                            <span>Cicilan</span>
+                            <span class="d-capitalize">{{
+                                details.payment_method
+                            }}</span>
                         </div>
                         <div class="item">
                             <span>Saler</span>
-                            <span>{{ details.sales }}</span>
+                            <span>{{ details.sales.code }}</span>
                         </div>
                         <div class="item">
                             <span>Depo</span>
-                            <span>{{ details.depo }}</span>
+                            <span>{{ details.sales.depo }}</span>
                         </div>
                     </div>
                 </div>
@@ -89,32 +124,54 @@
                                 <th>Jumlah</th>
                                 <th>Total</th>
                             </tr>
-                            <tr v-for="n in 3">
-                                <td>Contoh Produk {{ n }}</td>
-                                <td>{{ formatCurrency(7500) }}</td>
-                                <td>{{ n }}</td>
-                                <td>{{ formatCurrency(n * 7500) }}</td>
+                            <tr v-for="n in details.products">
+                                <td>{{ n.name }}</td>
+                                <td>{{ formatCurrency(n.unit_price) }}</td>
+                                <td>{{ n.quantity }}</td>
+                                <td>
+                                    {{
+                                        formatCurrency(
+                                            n.unit_price * n.quantity
+                                        )
+                                    }}
+                                </td>
                             </tr>
                             <tr class="summary">
                                 <td colspan="3">
                                     <div>
                                         <span>Subtotal</span>
-                                        <span>Diskon (15%)</span>
+                                        <span
+                                            >Diskon ({{
+                                                details.discount.disc
+                                            }}%)</span
+                                        >
                                         <span>Pengiriman</span>
-                                        <span>PPn (11%)</span>
+                                        <span
+                                            >PPn ({{
+                                                details.tax.amount
+                                            }}%)</span
+                                        >
                                     </div>
                                 </td>
                                 <td>
                                     <div>
                                         <span>{{
-                                            formatCurrency(details.total_amount)
+                                            formatCurrency(details.sub_total)
                                         }}</span>
                                         <span>
-                                            {{ formatCurrency(45000 * 0.15) }}
+                                            {{
+                                                formatCurrency(
+                                                    details.discount.amount
+                                                )
+                                            }}
                                         </span>
-                                        <span>{{ formatCurrency(1800) }}</span>
                                         <span>{{
-                                            formatCurrency(45000 * 0.11)
+                                            formatCurrency(
+                                                details.shipping_amount
+                                            )
+                                        }}</span>
+                                        <span>{{
+                                            formatCurrency(details.tax.ppn)
                                         }}</span>
                                     </div>
                                 </td>
@@ -122,7 +179,7 @@
                             <tr class="summary">
                                 <td colspan="3">Total</td>
                                 <td>
-                                    {{ formatCurrency(details.total_amount) }}
+                                    {{ formatCurrency(details.total) }}
                                 </td>
                             </tr>
                         </table>
@@ -137,6 +194,9 @@
             <Button label="WhatsApp" />
             <Button label="Email" />
         </div>
+    </div>
+    <div class="footer">
+        <span>&copy; 2024 OMAH IT. All Rights Reserved</span>
     </div>
 </template>
 
@@ -153,7 +213,7 @@ const details = computed(() => {
 });
 
 onMounted(async () => {
-    await transactionStore.GET__TRANSACTION_BY_REF(route.params.reference);
+    await transactionStore.GET__TRANSACTION_BY_ID(route.params.id);
     transactionStore.isLoading = false;
 });
 
@@ -344,6 +404,38 @@ const formatDate = (value, type) => {
         }
     }
 }
+.footer {
+    display: none;
+}
+.page-header {
+    margin-bottom: 0.5rem;
+    & + .page-subheader {
+        margin-bottom: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        row-gap: 0.5rem;
+        color: var(--text-color-secondary);
+    }
+}
+.breadcrumb {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    color: var(--text-color-secondary);
+    span,
+    a {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    a {
+        transition: color 0.2s ease;
+        color: var(--text-color-secondary);
+        &:hover {
+            color: var(--primary);
+        }
+    }
+}
 
 @media screen and (max-width: 1300px) {
     .container {
@@ -381,6 +473,15 @@ const formatDate = (value, type) => {
             box-shadow: none;
         }
     }
+    .breadcrumb {
+        display: none !important;
+    }
+    .page-header {
+        display: none !important;
+        & + .page-subheader {
+            display: none !important;
+        }
+    }
     .container-invoice {
         display: grid !important;
         grid-template-columns: repeat(12, 1fr) !important;
@@ -394,6 +495,11 @@ const formatDate = (value, type) => {
         .tools {
             display: none !important;
         }
+    }
+    .footer {
+        display: block !important;
+        position: fixed;
+        bottom: 0;
     }
 }
 </style>

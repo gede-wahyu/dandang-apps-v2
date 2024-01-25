@@ -1,8 +1,7 @@
 import { defineStore } from "pinia";
 import { fetchWrapper } from "../helper/fetch-wrapper";
 
-// const baseUrl = import.meta.env.VITE_BASE_URL;
-const baseUrl = "https://my-json-server.typicode.com/gede-wahyu";
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export const useCustomerStore = defineStore("customerStore", {
     state: () => ({
@@ -12,27 +11,21 @@ export const useCustomerStore = defineStore("customerStore", {
     }),
     getters: {},
     actions: {
-        async GET__CUSTOMERS() {
+        async GET__CUSTOMERS(page, search) {
             this.isLoading = true;
-            const result = fetchWrapper
-                .get(`${baseUrl}/dandang-api-v2/customers`)
+            let query = "?perPage=5";
+
+            if (page && search)
+                query = `?search=${search}&page=${page}&perPage=5`;
+            else if (page) query = `?page=${page}&perPage=5`;
+            else if (search) query = `?search=${search}&perPage=5`;
+
+            const result = await fetchWrapper
+                .get(`${baseUrl}/api/customers${query}`)
                 .then((result) => (this.customers = result))
                 .catch((error) => error);
 
             return result;
-        },
-
-        async GET__TOP_CUSTOMERS() {
-            this.isLoading = true;
-            // const result = fetchWrapper
-            //     .get(`${baseUrl}/api/top-customers`)
-            //     .then((result) => (this.topCustomers = result))
-            //     .catch((error) => error);
-
-            // return result;
-
-            await this.GET__CUSTOMERS();
-            this.topCustomers = this.customers.slice(0, 5);
         },
 
         filterData(data, filters) {

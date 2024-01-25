@@ -9,16 +9,19 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useReportStore } from "../../store/ReportStore";
+const reportStore = useReportStore();
 
-onMounted(() => {
-    chartData.value = setChartData();
+onMounted(async () => {
+    await reportStore.GET__WEEKLY_PROFIT();
+    chartData.value = setChartData(reportStore.weeklyProfit.weekly_data);
     chartOptions.value = setChartOptions();
 });
 
 const chartData = ref();
 const chartOptions = ref();
 
-const setChartData = () => {
+const setChartData = (data) => {
     const documentStyle = getComputedStyle(document.documentElement);
 
     return {
@@ -30,7 +33,7 @@ const setChartData = () => {
                 borderColor: documentStyle.getPropertyValue("--blue-500"),
                 yAxisID: "y",
                 tension: 0.4,
-                data: [2.4, 2.7, 2.4, 2.9],
+                data: data,
             },
         ],
     };

@@ -253,6 +253,7 @@
                         </tbody>
                         <tr
                             v-if="
+                                transactions &&
                                 !transactions.length &&
                                 !transactionStore.isLoading
                             "
@@ -262,7 +263,7 @@
                         </tr>
                         <RiwayatTransaksiTableSkeleton
                             v-if="transactionStore.isLoading"
-                            :row-per-page="rowPerPage"
+                            :row-per-page="rpp"
                         />
                     </table>
                 </div>
@@ -337,10 +338,14 @@
                 </div>
                 <RiwayatTransaksiListSkeleton
                     v-if="transactionStore.isLoading"
-                    :row-per-page="rowPerPage"
+                    :row-per-page="rpp"
                 />
                 <div
-                    v-if="!transactions.length && !transactionStore.isLoading"
+                    v-if="
+                        transactions &&
+                        !transactions.length &&
+                        !transactionStore.isLoading
+                    "
                     class="empty"
                 >
                     Tidak ada data untuk ditampilkan
@@ -348,9 +353,9 @@
             </div>
             <div class="transaction-paginator">
                 <Paginator
-                    v-model:first="currPage"
-                    :rows="rowPerPage"
-                    :total-records="rowLenghtPostFilter"
+                    v-model:first="page"
+                    :rows="rpp"
+                    :total-records="total"
                     style="width: 100%"
                     :template="{
                         '575px':
@@ -358,6 +363,7 @@
                         default:
                             'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink',
                     }"
+                    @page="onChangePage($event)"
                 />
             </div>
         </div>
@@ -607,7 +613,7 @@
 
 <script setup>
 import { useTransactionStore } from "../store/TransactionStore";
-import { ref, onMounted, onBeforeUnmount, computed } from "vue";
+import { ref, onMounted, computed } from "vue";
 import RiwayatTransaksiTableSkeleton from "./skeleton/RiwayatTransaksiTableSkeleton.vue";
 import RiwayatTransaksiListSkeleton from "./skeleton/RiwayatTransaksiListSkeleton.vue";
 import DetailTransaksiCard from "./DetailTransaksiCard.vue";
@@ -615,9 +621,9 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const transactionStore = useTransactionStore();
-const rowPerPage = ref(10);
-const currPage = ref(0);
-const rowLenghtPostFilter = ref();
+const rpp = ref(10);
+const page = ref(0);
+const total = ref();
 const filterMenu = ref(false);
 const filters = ref();
 const tsfq = ref(null);
@@ -650,16 +656,13 @@ const sortState = ref({
 });
 
 const transactions = computed(() => {
-    let data = transactionStore.filterTransaction(filters.value);
-
-    data = transactionStore.sortTransaction(data, sortState.value);
+    let data = transactionStore.transaction["data"];
 
     dt.value = data;
 
-    rowLenghtPostFilter.value = data.length;
-
-    return data.slice(currPage.value, currPage.value + rowPerPage.value);
+    return data;
 });
+
 const tsopt = ref([
     { label: "Gagal", code: 0 },
     { label: "Selesai", code: 1 },
@@ -685,9 +688,16 @@ const transDetailModal = ref(false);
 const selectedTransaction = ref(null);
 
 onMounted(async () => {
-    await transactionStore.GET__TRANSACTION();
+    await transactionStore.GET__TRANSACTION(false, rpp.value);
+    total.value = transactionStore.transaction["meta"]["total"];
     transactionStore.isLoading = false;
 });
+
+const onChangePage = async (e) => {
+    console.log(e);
+    await transactionStore.GET__TRANSACTION(e["page"] + 1, rpp.value);
+    transactionStore.isLoading = false;
+};
 
 const exportTable = () => {
     const data = dt.value;
@@ -698,6 +708,7 @@ const exportTable = () => {
     link.href = url;
     link.setAttribute("download", "data_transaksi.csv");
     link.click();
+    location.reload();
 };
 
 const convertToCSV = (data) => {
@@ -747,14 +758,15 @@ const sortStateIcon = (state) => {
     else if (!state) return "keyboard_double_arrow_down";
 };
 
-const openTransDetail = (data) => {
-    selectedTransaction.value = data;
+const openTransDetail = async (data) => {
+    await transactionStore.GET__TRANSACTION_BY_ID(data.id);
+    selectedTransaction.value = transactionStore.details;
     transDetailModal.value = true;
 };
 const goToDetail = async (data) => {
     router.push({
         name: "transaction-detail",
-        params: { reference: data.reference },
+        params: { id: data.id },
     });
 };
 

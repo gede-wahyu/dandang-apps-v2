@@ -7,45 +7,44 @@
                 </div>
                 <div class="image">
                     <img
-                        :src="`${baseUrl}/${item.image}`"
-                        :alt="item.name"
+                        :src="`${baseUrl}/${item.product.image}`"
+                        :alt="item.product.name"
                         class="img-style"
                     />
                 </div>
                 <div class="name">
-                    <span>{{ item.name }}</span>
+                    <span>{{ item.product.name }}</span>
                 </div>
                 <div class="varian">
                     <span class="d-tag d-lowercase">
-                        {{ item.size }} {{ formatUom(item.uom) }}
+                        {{ item.product.size }}
+                        {{ formatUom(item.product.uom) }}
                     </span>
                 </div>
                 <div class="price">
-                    <span>{{ formatCurrency(item.price) }}</span>
+                    <span>{{ formatCurrency(item.product.price) }}</span>
                 </div>
                 <div class="sold">
-                    <span>Terjual</span><br /><span>{{ 5.4 }} juta</span>
+                    <span>Terjual</span><br /><span>{{
+                        nFormatter(item.total_quantity, 1)
+                    }}</span>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- <pre>{{ products }}</pre> -->
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
-import { useProductStore } from "../../store/ProductStore";
+import { ref, onMounted } from "vue";
+import { useReportStore } from "../../store/ReportStore";
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-const productStore = useProductStore();
-const products = computed(() => {
-    return productStore.bestseller;
-});
+const reportStore = useReportStore();
+const products = ref(null);
 
 onMounted(async () => {
-    await productStore.GET__PRODUCTS_BESTSELLER();
-    productStore.isLoading = false;
+    await reportStore.GET__BESTSELLER();
+    products.value = reportStore.bestseller;
 });
 
 const formatCurrency = (value) => {
@@ -56,9 +55,30 @@ const formatCurrency = (value) => {
 };
 
 const formatUom = (value) => {
+    if (!value) return;
     if (value.toLowerCase() === "grams" || value.toLowerCase() === "gram")
         return "gr";
     else return value;
+};
+
+const nFormatter = (num, digits) => {
+    const lookup = [
+        { value: 1, symbol: "" },
+        { value: 1e3, symbol: " Ribu" },
+        { value: 1e6, symbol: " Juta" },
+        { value: 1e9, symbol: " Miliar" },
+        { value: 1e12, symbol: " Triliun" },
+        { value: 1e15, symbol: " Kuadriliun" },
+        { value: 1e18, symbol: " Kuintiliun" },
+    ];
+    const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/;
+    const item = lookup.findLast((item) => num >= item.value);
+    return item
+        ? (num / item.value)
+              .toFixed(digits)
+              .replace(regexp, "")
+              .concat(item.symbol)
+        : "0";
 };
 
 //

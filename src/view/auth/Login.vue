@@ -128,13 +128,16 @@ import { useRoute } from "vue-router";
 const FOR_TESTING = async (id) => {
     if (id === 1001)
         await authStore.POST__LOGIN("superadmin@example.com", "password123");
-    if (id === 1) await authStore.login("depo@example.com", "password123");
-    if (id === 2) await authStore.login("salesto1@example.com", "password123");
+    if (id === 1)
+        await authStore.POST__LOGIN("depo@example.com", "password123");
+    if (id === 2)
+        await authStore.POST__LOGIN("salesto1@example.com", "password123");
     if (id === 3)
-        await authStore.login("salesmobilis1@example.com", "password123");
+        await authStore.POST__LOGIN("salesmobilis1@example.com", "password123");
     if (id === 4)
-        await authStore.login("salesmotoris1@example.com", "password123");
-    if (id === 5) await authStore.login("drrs1@example.com", "password123");
+        await authStore.POST__LOGIN("salesmotoris1@example.com", "password123");
+    if (id === 5)
+        await authStore.POST__LOGIN("drrs1@example.com", "password123");
 };
 const LOGIN_TESTING = async (id) => {
     await FOR_TESTING(id);

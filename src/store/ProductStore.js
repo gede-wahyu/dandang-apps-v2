@@ -8,7 +8,6 @@ export const useProductStore = defineStore("productStore", {
     state: () => ({
         products: [],
         salerProducts: [],
-        bestseller: [],
         isLoading: false,
     }),
     getters: {
@@ -52,18 +51,6 @@ export const useProductStore = defineStore("productStore", {
             } else {
                 await this.GET__SALES_PRODUCTS_BY_ID();
             }
-        },
-
-        async GET__PRODUCTS_BESTSELLER() {
-            // const result = fetchWrapper
-            //     .get(`${baseUrl}/api/products-bestseller`)
-            //     .then((result) => (this.bestseller = result.data))
-            //     .catch((error) => error);
-
-            // return result;
-
-            await this.GET__PRODUCTS();
-            this.bestseller = this.products.slice(0, 5);
         },
 
         filterData(data, filters) {

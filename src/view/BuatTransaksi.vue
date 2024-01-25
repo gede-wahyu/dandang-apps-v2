@@ -181,42 +181,14 @@
                     <div class="input-grid">
                         <div v-if="!newCust" class="input-item">
                             <label for="cust">Pelanggan</label>
-                            <Dropdown
-                                v-model="cust"
-                                inputId="cust"
-                                placeholder="Pilih Pelanggan"
-                                filter
-                                :options="customers"
-                                optionLabel="name"
-                                filterPlaceholder="Cari pelanggan"
-                                @update:modelValue="saveInputToLocal()"
-                            >
-                                <template #filtericon>
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        height="24"
-                                        viewBox="0 -960 960 960"
-                                        width="24"
-                                        class="p-icon p-dropdown-filter-icon"
-                                    >
-                                        <path
-                                            d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
-                                        />
-                                    </svg>
-                                </template>
-                                <template #emptyfilter>
-                                    <span>Pelanggan tidak ditemukan</span>
-                                </template>
-                                <template #option="slotProps">
-                                    <div class="customer-options">
-                                        <span>{{ slotProps.option.name }}</span>
-                                        <span>{{ slotProps.option.code }}</span>
-                                        <span>{{
-                                            slotProps.option.contact
-                                        }}</span>
-                                    </div>
-                                </template>
-                            </Dropdown>
+                            <div class="flex gap-0">
+                                <InputText
+                                    v-model="dispCust"
+                                    placeholder="Pilih Customer"
+                                    disabled
+                                />
+                                <Button icon="search" @click="openCustModal" />
+                            </div>
                         </div>
                         <div v-if="newCust" class="input-item">
                             <label for="newCustName">Nama Pelanggan</label>
@@ -473,6 +445,22 @@
         </div>
     </div>
 
+    <Dialog
+        v-model:visible="custModal"
+        header=" "
+        :modal="true"
+        :style="{ width: '60rem' }"
+        :breakpoints="{ '992px': '50rem', '768px': '90vw', '640px': '100vw' }"
+        dismissableMask
+    >
+        <FragmentPelanggan
+            :cust="customers"
+            @onChangePage="onChangeCustPage($event)"
+            @onSelectCust="onSelectCust($event)"
+            @onSearch="onSearchCust($event)"
+        />
+    </Dialog>
+
     <div class="cart-bar" @click="openCart">
         <div class="cart-icon">
             <span class="material-symbols-outlined"> shopping_cart </span>
@@ -493,6 +481,7 @@ import { useAuthStore } from "../store/AuthStore";
 import { useCustomerStore } from "../store/CustomerStore";
 import { useToast } from "primevue/usetoast";
 import { useLayoutStore } from "../store/LayoutStore";
+import FragmentPelanggan from "./FragmentPelanggan.vue";
 const baseUrl = import.meta.env.VITE_BASE_URL;
 const { layoutConfig } = useLayoutStore();
 
@@ -523,6 +512,9 @@ const products = computed(() => {
 // for CUST-PICK
 const customers = ref(null);
 const cust = ref(null);
+const dispCust = ref(null);
+const custModal = ref(false);
+const search = ref("");
 
 // for CART
 const newCust = ref(false);
@@ -569,6 +561,7 @@ onMounted(async () => {
 
         if (!JSON.parse(custInfo.newCust)) {
             cust.value = JSON.parse(custInfo.customer);
+            dispCust.value = formatDispCust(cust.value);
         } else {
             newCustData.value["name"] = JSON.parse(custInfo.name);
             newCustData.value["address"] = JSON.parse(custInfo.address);
@@ -580,6 +573,25 @@ onMounted(async () => {
 onBeforeUnmount(() => {
     layoutConfig.menuMode = layoutConfig.prevMenuMode;
 });
+
+const onSearchCust = async (e) => {
+    search.value = e;
+    await customerStore.GET__CUSTOMERS(false, search.value);
+    customers.value = customerStore.customers;
+};
+
+const onChangeCustPage = async (e) => {
+    if (search.value) await customerStore.GET__CUSTOMERS(e, search.value);
+    else await customerStore.GET__CUSTOMERS(e);
+    customers.value = customerStore.customers;
+};
+
+const onSelectCust = (e) => {
+    cust.value = e;
+    dispCust.value = formatDispCust(e);
+    saveInputToLocal();
+    custModal.value = false;
+};
 
 const onChangeViewMode = (grid) => {
     gridView.value = grid;
@@ -596,6 +608,13 @@ const onChangeViewMode = (grid) => {
 
 if (window.innerWidth < 575) onChangeViewMode(false);
 else onChangeViewMode(true);
+
+const openCustModal = () => {
+    custModal.value = true;
+};
+const formatDispCust = (data) => {
+    return `${data.name} - ${data.code.toUpperCase()}`;
+};
 
 const addToCart = (item) => {
     if (isProductInCart(item["id"])) {
@@ -791,6 +810,7 @@ const resetTrans = () => {
     cart.value = [];
     newCust.value = false;
     cust.value = null;
+    dispCust.value = null;
     newCustData.value = {};
     discount.value = null;
     payment.value = null;

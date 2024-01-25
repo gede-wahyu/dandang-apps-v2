@@ -29,19 +29,23 @@
             <div class="info-group-body">
                 <div class="info-group-item">
                     <span>Kode</span>
-                    <span class="d-uppercase">#cst0001</span>
+                    <span class="d-uppercase">#{{ data.customer.code }}</span>
                 </div>
                 <div class="info-group-item">
                     <span>Nama</span>
-                    <span class="d-capitalize">{{ data.customer_name }}</span>
+                    <span class="d-capitalize">{{ data.customer.name }}</span>
                 </div>
                 <div class="info-group-item">
                     <span>Alamat</span>
-                    <span class="d-capitalize">Jl. Tambak Bayan No.134</span>
+                    <span class="d-capitalize">{{
+                        data.customer.address
+                    }}</span>
                 </div>
                 <div class="info-group-item">
                     <span>No Hp</span>
-                    <span>081123456789</span>
+                    <span>{{
+                        data.customer.contact ? data.customer.contact : "-"
+                    }}</span>
                 </div>
             </div>
         </div>
@@ -50,19 +54,19 @@
             <div class="info-group-body">
                 <div class="info-group-item">
                     <span>Kode</span>
-                    <span class="d-uppercase">#{{ data.sales }}</span>
+                    <span class="d-uppercase">#{{ data.sales.code }}</span>
                 </div>
                 <div class="info-group-item">
                     <span>Nama</span>
-                    <span class="d-capitalize">Sales 1</span>
+                    <span class="d-capitalize">{{ data.sales.name }}</span>
                 </div>
                 <div class="info-group-item">
                     <span>Tipe</span>
-                    <span class="d-capitalize">TO</span>
+                    <span class="d-capitalize">{{ data.sales.type }}</span>
                 </div>
                 <div class="info-group-item">
                     <span>Depo</span>
-                    <span class="d-uppercase">{{ data.depo }}</span>
+                    <span class="d-uppercase">{{ data.sales.depo }}</span>
                 </div>
             </div>
         </div>
@@ -75,7 +79,7 @@
                 </div>
                 <div class="info-group-item method">
                     <span>Metode</span>
-                    <span>Cicilan</span>
+                    <span class="d-capitalize">{{ data.payment_method }}</span>
                 </div>
                 <div class="info-group-item date">
                     <span>Tanggal</span>
@@ -101,15 +105,17 @@
             <div class="info-group-body">
                 <div class="info-group-item total">
                     <span>Tagihan</span>
-                    <span>{{ formatCurrency(45000) }}</span>
+                    <span>{{ formatCurrency(data.total) }}</span>
                 </div>
                 <div class="info-group-item paid">
                     <span>Dibayar</span>
-                    <span class="d-success">{{ formatCurrency(20000) }}</span>
+                    <span class="d-success">{{
+                        formatCurrency(data.paid_amount)
+                    }}</span>
                 </div>
                 <div class="info-group-item bill">
                     <span>Sisa Tagihan</span>
-                    <span class="d-error">{{ formatCurrency(25000) }}</span>
+                    <span class="d-error">{{ formatCurrency(data.bill) }}</span>
                 </div>
             </div>
         </div>
@@ -122,14 +128,14 @@
                     <th>Produk</th>
                     <th>Harga</th>
                 </tr>
-                <tr v-for="n in 3">
-                    <td>{{ n }}</td>
-                    <td>Contoh Produk {{ n }}</td>
+                <tr v-for="n in data.products">
+                    <td>{{ n.quantity }}</td>
+                    <td>{{ n.name }}</td>
                     <td>
                         <div class="flex flex-column gap-0">
-                            <span>{{ formatCurrency(7500) }}</span>
+                            <span>{{ formatCurrency(n.unit_price) }}</span>
                             <span class="subtotal">{{
-                                formatCurrency(7500 * n)
+                                formatCurrency(n.unit_price * n.quantity)
                             }}</span>
                         </div>
                     </td>
@@ -138,23 +144,28 @@
                     <td colspan="2">
                         <div class="flex flex-column gap-0">
                             <span>Subtotal</span>
-                            <span>Diskon (15%)</span>
+                            <span>Diskon ({{ data.discount.disc }}%)</span>
                             <span>Pengiriman</span>
-                            <span>PPN (11%)</span>
+                            <span>PPN ({{ data.tax.amount }}%)</span>
                         </div>
                     </td>
                     <td>
                         <div class="flex flex-column gap-0">
-                            <span>{{ formatCurrency(45000) }}</span>
-                            <span>- {{ formatCurrency(45000 * 0.15) }}</span>
-                            <span>{{ formatCurrency(1800) }}</span>
-                            <span>{{ formatCurrency(45000 * 0.11) }}</span>
+                            <span>{{ formatCurrency(data.sub_total) }}</span>
+                            <span
+                                >-
+                                {{ formatCurrency(data.discount.amount) }}</span
+                            >
+                            <span>{{
+                                formatCurrency(data.shipping_amount)
+                            }}</span>
+                            <span>{{ formatCurrency(data.tax.ppn) }}</span>
                         </div>
                     </td>
                 </tr>
                 <tr class="summary">
                     <td colspan="2">Total</td>
-                    <td>{{ formatCurrency(45000) }}</td>
+                    <td>{{ formatCurrency(data.total) }}</td>
                 </tr>
             </table>
         </div>

@@ -7,7 +7,7 @@
                     <span>{{ authStore.auth.user.name }}</span>
                 </h5>
                 <p>Nilai transaksi bulan lalu</p>
-                <h4>Rp 11.3 Juta</h4>
+                <h4>Rp {{ nFormatter(userSales, 1) }}</h4>
             </div>
             <div>
                 <div class="profile">
@@ -37,7 +37,10 @@
                         </span>
                     </div>
                     <div class="label">
-                        <span>2.3 Juta</span>
+                        <span v-if="statistic">
+                            {{ nFormatter(statistic.total_sales_count, 1) }}
+                        </span>
+                        <span v-else>0</span>
                         <span>Jumlah Transaksi</span>
                     </div>
                 </div>
@@ -46,7 +49,15 @@
                         <span class="material-symbols-outlined"> group </span>
                     </div>
                     <div class="label">
-                        <span>124 Ribu</span>
+                        <span v-if="statistic">
+                            {{
+                                nFormatter(
+                                    statistic.total_customers_last_month,
+                                    1
+                                )
+                            }}
+                        </span>
+                        <span v-else>0</span>
                         <span>Pelanggan</span>
                     </div>
                 </div>
@@ -57,7 +68,10 @@
                         </span>
                     </div>
                     <div class="label">
-                        <span>78.4 Juta</span>
+                        <span v-if="statistic">
+                            {{ nFormatter(statistic.total_products_sold, 1) }}
+                        </span>
+                        <span v-else>0</span>
                         <span>Produk Terjual</span>
                     </div>
                 </div>
@@ -66,7 +80,10 @@
                         <span class="material-symbols-outlined"> paid </span>
                     </div>
                     <div class="label">
-                        <span>Rp 69 Miliar</span>
+                        <span v-if="statistic">
+                            {{ nFormatter(statistic.total_last_month, 1) }}
+                        </span>
+                        <span v-else>0</span>
                         <span>Nilai Transaksi</span>
                     </div>
                 </div>
@@ -74,7 +91,10 @@
         </div>
         <div class="d-card default increase-profit">
             <div>
-                <h5>10.4 miliar</h5>
+                <h5 v-if="profit">
+                    {{ nFormatter(profit.total_profit, 1) }}
+                </h5>
+                <h5 v-else>0</h5>
                 <span>Laba</span>
             </div>
             <Knob
@@ -86,7 +106,8 @@
             />
             <div class="increase">
                 <span class="material-symbols-outlined"> expand_less </span>
-                <span>Rp 36.5 Juta</span>
+                <span v-if="profit">Rp {{ profit.total_increase }}</span>
+                <span v-else>Rp 0</span>
             </div>
         </div>
         <div class="d-card default profit">
@@ -95,19 +116,25 @@
                 <span>Bulan lalu</span>
             </div>
             <ChartLaba />
-            <span>Laba per minggu (Miliar)</span>
+            <span>Laba per minggu</span>
         </div>
         <div class="d-card default total-trans">
             <div>
                 <h5>Nilai Transaksi</h5>
                 <span>Total nilai transaksi bulan lalu</span>
                 <div>
-                    <h3>69 Miliar</h3>
+                    <h3 v-if="sales">
+                        Rp {{ nFormatter(sales.total_amount, 1) }}
+                    </h3>
+                    <h3 v-else>Rp 0</h3>
                     <div class="increase">
                         <span class="material-symbols-outlined"
                             >expand_less</span
                         >
-                        <span>17.9%</span>
+                        <span v-if="sales"
+                            >{{ sales.percentage_increase }}%</span
+                        >
+                        <span v-else>0</span>
                     </div>
                 </div>
             </div>
@@ -118,11 +145,11 @@
                 <h5>Pendapatan dan Pajak</h5>
                 <Dropdown
                     v-model="incomeTaxYear"
-                    :options="[2021, 2022, 2023]"
+                    :options="incomeTaxYearOpt"
                     @update:modelValue="reqNewIncomeTaxData()"
                 />
             </div>
-            <ChartPendapatanPajak />
+            <ChartPendapatanPajak :year="incomeTaxYear" :data="incomeTax" />
         </div>
         <div class="d-card default top-saler">
             <div>
@@ -156,7 +183,8 @@
 
 <script setup>
 import { useAuthStore } from "../store/AuthStore";
-import { ref } from "vue";
+import { useReportStore } from "../store/ReportStore";
+import { ref, onMounted } from "vue";
 import ChartLaba from "./chart/ChartLaba.vue";
 import ChartTotalTrans from "./chart/ChartTotalTrans.vue";
 import ChartPendapatanPajak from "./chart/ChartPendapatanPajak.vue";
@@ -165,11 +193,52 @@ import SalesTerbaik from "./chart/SalesTerbaik.vue";
 import PelangganSetia from "./chart/PelangganSetia.vue";
 
 const authStore = useAuthStore();
-const knob = ref(23);
+const reportStore = useReportStore();
+const knob = ref(0);
 const incomeTaxYear = ref(2023);
+const incomeTaxYearOpt = ref([2022, 2023, 2024]);
+const statistic = ref();
+const profit = ref();
+const incomeTax = ref();
+const userSales = ref();
+const sales = ref();
 
-const reqNewIncomeTaxData = () => {
-    console.log(incomeTaxYear.value);
+onMounted(async () => {
+    await reportStore.GET__STATISTIC();
+    await reportStore.GET__PROFIT();
+    await reportStore.GET__INCOME_TAX(incomeTaxYear.value);
+    await reportStore.GET__USER_SALES(authStore.auth.user.id);
+    await reportStore.GET__SALES_BY_ROLE();
+    statistic.value = reportStore.statistic;
+    profit.value = reportStore.profit;
+    knob.value = profit.value["percentage_increase"];
+    incomeTax.value = reportStore.incomeTax;
+    userSales.value = reportStore.userSales;
+    sales.value = reportStore.sales;
+});
+
+const reqNewIncomeTaxData = async () => {
+    await reportStore.GET__INCOME_TAX(incomeTaxYear.value);
+    incomeTax.value = reportStore.incomeTax;
+};
+const nFormatter = (num, digits) => {
+    const lookup = [
+        { value: 1, symbol: "" },
+        { value: 1e3, symbol: " Ribu" },
+        { value: 1e6, symbol: " Juta" },
+        { value: 1e9, symbol: " Miliar" },
+        { value: 1e12, symbol: " Triliun" },
+        { value: 1e15, symbol: " Kuadriliun" },
+        { value: 1e18, symbol: " Kuintiliun" },
+    ];
+    const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/;
+    const item = lookup.findLast((item) => num >= item.value);
+    return item
+        ? (num / item.value)
+              .toFixed(digits)
+              .replace(regexp, "")
+              .concat(item.symbol)
+        : "0";
 };
 
 //
