@@ -108,5 +108,17 @@ export const useReportStore = defineStore("reportStore", {
 
             return result;
         },
+        async GET__REPORT_INCOME(page, rpp) {
+          this.isLoading = true;
+          let query = `?perPage=${rpp}`;
+          if (page) query += `&page=${page}`;
+
+          const result = await fetchWrapper
+            .get(`${baseUrl}/api/reports-sales-tax${query}`)
+            .then((result) => (this.reportIncome = result))
+            .catch((error) => error);
+          this.isLoading = false;
+          return result;
+        },
     },
 });
