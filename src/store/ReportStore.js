@@ -5,6 +5,7 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export const useReportStore = defineStore("reportStore", {
     state: () => ({
+        isLoading: false,
         incomeTax: null,
         statistic: null,
         profit: null,
@@ -14,6 +15,7 @@ export const useReportStore = defineStore("reportStore", {
         userSales: null,
         sales: null,
         topSeller: null,
+        reportIncome: [],
     }),
     getters: {},
     actions: {
@@ -108,17 +110,32 @@ export const useReportStore = defineStore("reportStore", {
 
             return result;
         },
-        async GET__REPORT_INCOME(page, rpp) {
-          this.isLoading = true;
-          let query = `?perPage=${rpp}`;
-          if (page) query += `&page=${page}`;
 
-          const result = await fetchWrapper
-            .get(`${baseUrl}/api/reports-sales-tax${query}`)
-            .then((result) => (this.reportIncome = result))
-            .catch((error) => error);
-          this.isLoading = false;
-          return result;
+        async GET__REPORT_INCOME(page, rpp, filters) {
+            this.isLoading = true;
+            let query = `?perPage=${rpp}`;
+            if (page) query += `&page=${page}`;
+            if (filters) {
+                for (let props in filters) {
+                    if (filters[props]) {
+                        if (props === "start_date" || props === "end_date") {
+                            filters[props] = new Date(filters[props]);
+                            filters[props] = filters[props]
+                                .toISOString()
+                                .slice(0, 10);
+                        }
+                        query += `&${props}=${filters[props]}`;
+                    }
+                }
+            }
+            console.log(query);
+
+            const result = await fetchWrapper
+                .get(`${baseUrl}/api/reports-sales-tax${query}`)
+                .then((result) => (this.reportIncome = result))
+                .catch((error) => error);
+            this.isLoading = false;
+            return result;
         },
     },
 });

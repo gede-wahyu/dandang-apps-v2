@@ -12,6 +12,7 @@
     },
     "dependencies": {
         "chart.js": "^4.4.1",
+        "lodash.debounce": "^4.0.8",
         "pinia": "^2.1.7",
         "primevue": "^3.44.0",
         "vee-validate": "^4.12.2",

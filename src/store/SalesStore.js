@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import { fetchWrapper } from "../helper/fetch-wrapper";
 
-// const baseUrl = import.meta.env.VITE_BASE_URL;
-const baseUrl = "https://my-json-server.typicode.com/gede-wahyu";
+const baseUrl = import.meta.env.VITE_BASE_URL;
+// const baseUrl = "https://my-json-server.typicode.com/gede-wahyu";
 
 export const useSalesStore = defineStore("salesStore", {
     state: () => ({
@@ -11,10 +11,13 @@ export const useSalesStore = defineStore("salesStore", {
     }),
     getters: {},
     actions: {
-        async GET__SALES() {
+        async GET__SALES(page, rpp, filters) {
             this.isLoading = true;
+            let query = `?perPage=${rpp}`;
+            if (page) query += `&page=${page}`;
+
             const result = await fetchWrapper
-                .get(`${baseUrl}/dandang-api-v2/sales`)
+                .get(`${baseUrl}/api/sellers${query}`)
                 .then((result) => (this.sales = result))
                 .catch((error) => error);
 
