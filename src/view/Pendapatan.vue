@@ -25,6 +25,14 @@
                             filter_alt
                         </span>
                     </span>
+                    <span
+                        class="tool span-nav-button left-labeled"
+                        role="button"
+                        @click="exportCSV()"
+                    >
+                        <span>Export</span>
+                        <span class="material-symbols-outlined"> csv </span>
+                    </span>
                 </div>
             </div>
             <div class="income-table">
@@ -118,7 +126,40 @@
                     </table>
                 </div>
             </div>
-            <div class="income-list"></div>
+            <div class="income-list">
+                <div v-if="report" v-for="item in report" class="income-item">
+                    <div class="income-prop reference">
+                        <span>No Faktur {{ item.reference }}</span>
+                    </div>
+                    <div class="income-prop date">
+                        <span>Tanggal</span>
+                        <div>
+                            <span>{{ formatDate(item.date, "date") }}</span>
+                            <span>{{ formatDate(item.date, "time") }}</span>
+                        </div>
+                    </div>
+                    <div class="income-prop depo">
+                        <span>Depo</span>
+                        <span>{{ item.depo }}</span>
+                    </div>
+                    <div class="income-prop sales">
+                        <span>Sales</span>
+                        <span>{{ item.sales }}</span>
+                    </div>
+                    <div class="income-prop customer">
+                        <span>Customer</span>
+                        <span>{{ item.customer_name }}</span>
+                    </div>
+                    <div class="income-prop total">
+                        <span>Total</span>
+                        <span>{{ formatCurrency(item.total_amount) }}</span>
+                    </div>
+                    <div class="income-prop tax">
+                        <span>Pajak</span>
+                        <span>{{ formatCurrency(item.tax_amount) }}</span>
+                    </div>
+                </div>
+            </div>
             <div class="income-paginator">
                 <Paginator
                     v-model:first="page"
@@ -265,6 +306,19 @@ const onChangePage = async (e) => {
     );
 };
 
+const exportCSV = async () => {
+    // const csvContent = await reportStore.GET__EXPORTED_REPORT_INCOME_TAX(
+    //     filters.value
+    // );
+    // const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
+    // const url = URL.createObjectURL(blob);
+    // const link = document.createElement("a");
+    // link.href = url;
+    // link.setAttribute("download", "laporan_pendapatan_pajak.csv");
+    // link.click();
+    // location.reload();
+};
+
 const delayReqFilter = debounce(async () => {
     await reportStore.GET__REPORT_INCOME(false, rpp.value, filters.value);
     total.value = reportStore.reportIncome["meta"]["total"];
@@ -346,6 +400,75 @@ const formatDate = (value, type) => {
             flex-direction: column;
             gap: 0.5rem;
             margin-bottom: 1rem;
+        }
+    }
+}
+
+.income-list {
+    display: none;
+}
+.income-item {
+    padding: 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    &:nth-of-type(even) {
+        background-color: var(--primary-a0);
+    }
+
+    &:hover {
+        .income-prop.reference {
+            position: relative;
+            &::before {
+                content: "";
+                position: absolute;
+                left: -0.75rem;
+                top: -3px;
+                width: 4px;
+                height: 2rem;
+                border-radius: 99px;
+                background-color: var(--primary);
+            }
+        }
+    }
+}
+.income-prop:not(.reference) {
+    display: grid;
+    grid-template-columns: 11rem 1fr;
+
+    & > span:first-of-type {
+        display: flex;
+        justify-content: space-between;
+        margin-right: 0.5rem;
+
+        &::after {
+            content: ":";
+        }
+    }
+
+    & > div {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .d-card {
+        padding: 2rem 0;
+    }
+    .income-table {
+        display: none;
+    }
+    .income-list {
+        display: flex;
+        flex-direction: column;
+    }
+    .data-header {
+        flex-direction: column;
+        .tools-group {
+            display: flex;
+            justify-content: space-between;
         }
     }
 }

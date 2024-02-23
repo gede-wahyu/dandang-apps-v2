@@ -21,12 +21,13 @@ export const useTransactionStore = defineStore("transactionStore", {
         async GET__TRANSACTION(page, rpp, search) {
             this.isLoading = true;
             let query = `?perPage=${rpp}`;
-
             if (page) query = `?page=${page}&perPage=${rpp}`;
 
             const result = await fetchWrapper
                 .get(`${baseUrl}/api/transactions${query}`)
-                .then((result) => (this.transaction = result))
+                .then((result) => {
+                    this.transaction = result;
+                })
                 .catch((error) => error);
 
             return result;

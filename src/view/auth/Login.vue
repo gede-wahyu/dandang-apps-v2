@@ -144,7 +144,7 @@ const LOGIN_TESTING = async (id) => {
     toast.add({
         severity: "success",
         summary: "Login Berhasil",
-        detail: `Selamat datang ${authStore.auth.user.nama}`,
+        detail: `Selamat datang ${authStore.auth.user.name}`,
         life: 3000,
     });
     if (route.redirectedFrom) router.push({ name: route.redirectedFrom.name });

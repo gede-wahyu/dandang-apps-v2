@@ -137,5 +137,32 @@ export const useReportStore = defineStore("reportStore", {
             this.isLoading = false;
             return result;
         },
+
+        async GET__EXPORTED_REPORT_INCOME_TAX(filters) {
+            this.isLoading = true;
+            let query = `?`;
+            if (filters) {
+                for (let props in filters) {
+                    if (filters[props]) {
+                        if (props === "start_date" || props === "end_date") {
+                            filters[props] = new Date(filters[props]);
+                            filters[props] = filters[props]
+                                .toISOString()
+                                .slice(0, 10);
+                        }
+                        query += `&${props}=${filters[props]}`;
+                    }
+                }
+            }
+            query += "&export=true";
+
+            const result = await fetchWrapper
+                .get(`${baseUrl}/api/reports-sales-tax${query}`)
+                .then((result) => result)
+                .catch((error) => error);
+            this.isLoading = false;
+            console.log(result);
+            return result;
+        },
     },
 });

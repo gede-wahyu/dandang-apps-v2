@@ -29,7 +29,7 @@
             <div class="info-group-body">
                 <div class="info-group-item">
                     <span>Kode</span>
-                    <span class="d-uppercase">#{{ data.customer.code }}</span>
+                    <span class="d-uppercase">{{ data.customer.code }}</span>
                 </div>
                 <div class="info-group-item">
                     <span>Nama</span>
@@ -50,23 +50,31 @@
             </div>
         </div>
         <div class="info-group saler">
-            <h6>Saler</h6>
+            <h6>Sales</h6>
             <div class="info-group-body">
                 <div class="info-group-item">
                     <span>Kode</span>
-                    <span class="d-uppercase">#{{ data.sales.code }}</span>
+                    <span class="d-uppercase">{{
+                        data.sales ? data.sales.code : "-"
+                    }}</span>
                 </div>
                 <div class="info-group-item">
                     <span>Nama</span>
-                    <span class="d-capitalize">{{ data.sales.name }}</span>
+                    <span class="d-capitalize">{{
+                        data.sales ? data.sales.name : "-"
+                    }}</span>
                 </div>
                 <div class="info-group-item">
                     <span>Tipe</span>
-                    <span class="d-capitalize">{{ data.sales.type }}</span>
+                    <span class="d-capitalize">{{
+                        data.sales ? data.sales.type : "-"
+                    }}</span>
                 </div>
                 <div class="info-group-item">
                     <span>Depo</span>
-                    <span class="d-uppercase">{{ data.sales.depo }}</span>
+                    <span class="d-uppercase">{{
+                        data.sales ? data.sales.depo : "-"
+                    }}</span>
                 </div>
             </div>
         </div>
@@ -146,7 +154,16 @@
                             <span>Subtotal</span>
                             <span>Diskon ({{ data.discount.disc }}%)</span>
                             <span>Pengiriman</span>
-                            <span>PPN ({{ data.tax.amount }}%)</span>
+                            <span
+                                >PPN ({{
+                                    data.tax.amount
+                                        ? data.tax.amount
+                                        : countTax(
+                                              data.tax.ppn,
+                                              data.sub_total
+                                          )
+                                }}%)</span
+                            >
                         </div>
                     </td>
                     <td>
@@ -215,6 +232,10 @@ const formatDate = (value, type) => {
             hour: "2-digit",
             minute: "2-digit",
         }).format(value)}`;
+};
+
+const countTax = (tax, total) => {
+    return (tax * 100) / total;
 };
 
 //
