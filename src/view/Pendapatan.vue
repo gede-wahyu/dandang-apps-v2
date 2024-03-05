@@ -10,9 +10,10 @@
                     <span class="d-sideicon-set d-input-iconleft filter-item">
                         <span class="material-symbols-outlined"> search </span>
                         <InputText
-                            v-model="query"
+                            v-model="filters['search']"
                             placeholder="Cari laporan"
                             style="width: 100%"
+                            @update:modelValue="onFilter()"
                         />
                     </span>
                     <span
@@ -50,7 +51,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in report">
+                            <tr
+                                v-if="!reportStore.isLoading"
+                                v-for="item in report"
+                            >
                                 <td>
                                     <div class="flex flex-column">
                                         <span>{{
@@ -90,7 +94,23 @@
                                     }}</span>
                                 </td>
                             </tr>
-                            <tr v-if="report && !report.length">
+                            <tr v-if="reportStore.isLoading">
+                                <td colspan="7">
+                                    <div class="loading">
+                                        <span class="material-symbols-outlined">
+                                            settings
+                                        </span>
+                                        <span> Loading... </span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr
+                                v-if="
+                                    report &&
+                                    !report.length &&
+                                    !reportStore.isLoading
+                                "
+                            >
                                 <td colspan="7">
                                     <div
                                         style="
@@ -182,7 +202,7 @@
         class="d-sidebar from-right"
         :class="{ 'd-sidebar-active': filterMenu }"
     >
-        <div class="d-sidebar-wrapper" @click="filterMenu = false"></div>
+        <div class="d-sidebar-wrapper" @click="onCloseFilterMenu()"></div>
         <div class="d-sidebar-content filter-menu">
             <div class="header">
                 <h5>Opsi Filter</h5>
@@ -190,7 +210,7 @@
                     class="span-nav-button"
                     role="button"
                     tabindex="0"
-                    @click="filterMenu = false"
+                    @click="onCloseFilterMenu()"
                 >
                     <span class="material-symbols-outlined"> close </span>
                 </span>
@@ -204,12 +224,10 @@
                     <Calendar
                         v-model="filters.start_date"
                         placeholder="Pilih Tanggal Awal"
-                        @update:modelValue="onFilter()"
                     />
                     <Calendar
                         v-model="filters.end_date"
                         placeholder="Pilih Tanggal Akhir"
-                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
@@ -217,23 +235,17 @@
                     <InputText
                         v-model="filters.reference"
                         placeholder="No Faktur"
-                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
                     <label>Filter Depo</label>
-                    <InputText
-                        v-model="filters.depo"
-                        placeholder="Kode Depo"
-                        @update:modelValue="onFilter()"
-                    />
+                    <InputText v-model="filters.depo" placeholder="Kode Depo" />
                 </div>
                 <div class="filter-section">
                     <label>Filter Sales</label>
                     <InputText
                         v-model="filters.seller"
                         placeholder="Kode Sales"
-                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
@@ -241,10 +253,10 @@
                     <InputText
                         v-model="filters.customer"
                         placeholder="Nama Pelanggan"
-                        @update:modelValue="onFilter()"
                     />
                 </div>
-                <div class="flex justify-content-end">
+                <div class="flex justify-content-between">
+                    <Button label="Terapkan" @click="onFilter()" />
                     <Button
                         label="Reset Filter"
                         severity="danger"
@@ -252,6 +264,8 @@
                     />
                 </div>
             </div>
+
+            <pre>{{ filters }}</pre>
         </div>
     </div>
 </template>
@@ -260,7 +274,6 @@
 import { ref, onMounted, onBeforeMount, computed } from "vue";
 import { useReportStore } from "../store/ReportStore";
 import { useSalesStore } from "../store/SalesStore";
-import debounce from "lodash.debounce";
 
 const reportStore = useReportStore();
 const salesStore = useSalesStore();
@@ -270,7 +283,6 @@ const report = computed(() => {
 const sum = computed(() => {
     return reportStore.reportIncome["sum"];
 });
-const query = ref("");
 const rpp = ref(10);
 const page = ref();
 const total = ref();
@@ -288,7 +300,7 @@ onMounted(async () => {
 
 const initFilter = () => {
     filters.value = {
-        global: "",
+        search: "",
         start_date: "",
         end_date: "",
         reference: "",
@@ -307,22 +319,58 @@ const onChangePage = async (e) => {
 };
 
 const exportCSV = async () => {
-    // const csvContent = await reportStore.GET__EXPORTED_REPORT_INCOME_TAX(
-    //     filters.value
-    // );
-    // const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
-    // const url = URL.createObjectURL(blob);
-    // const link = document.createElement("a");
-    // link.href = url;
-    // link.setAttribute("download", "laporan_pendapatan_pajak.csv");
-    // link.click();
-    // location.reload();
+    console.log("mengunduh file...");
+    const res = await reportStore.GET__EXPORTED_REPORT_INCOME_TAX(
+        filters.value
+    );
+    const data = res["data"];
+    const sum = res["sum"];
+    const csvContent = convertToCSV(data, sum);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "laporan_pendapatan_pajak.csv");
+    link.click();
+    location.reload();
 };
 
-const delayReqFilter = debounce(async () => {
-    await reportStore.GET__REPORT_INCOME(false, rpp.value, filters.value);
-    total.value = reportStore.reportIncome["meta"]["total"];
-}, 700);
+const convertToCSV = (data, sum) => {
+    const headers = Object.keys(data[0]);
+    const rows = data.map((item) => headers.map((header) => item[header]));
+    const headerRow = [
+        "Tanggal",
+        "No Faktur",
+        "Depo",
+        "Sales",
+        "Pelanggan",
+        "Total",
+        "Pajak",
+    ].join(",");
+    let subtitle = [];
+    for (let prop in filters.value) {
+        if (prop === "start_date" && filters.value[prop])
+            subtitle.push(`Filter Tanggal Awal: ${filters.value[prop]}`);
+        if (prop === "end_date" && filters.value[prop])
+            subtitle.push(`Filter Tanggal Akhir: ${filters.value[prop]}`);
+        if (prop === "reference" && filters.value[prop])
+            subtitle.push(`Filter No Faktur: ${filters.value[prop]}`);
+        if (prop === "depo" && filters.value[prop])
+            subtitle.push(`Filter Depo: ${filters.value[prop]}`);
+        if (prop === "seller" && filters.value[prop])
+            subtitle.push(`Filter Sales: ${filters.value[prop]}`);
+        if (prop === "customer" && filters.value[prop])
+            subtitle.push(`Filter Pelanggan: ${filters.value[prop]}`);
+    }
+    const csvRow = [
+        ...subtitle.map((i) => i),
+        headerRow,
+        ...rows.map((row) => row.join(",")),
+        `Total Pendapatan: ${sum["sum_total_amount"]}`,
+        `Total Pajak: ${sum["sum_tax_amount"]}`,
+    ];
+    return csvRow.join("\n");
+};
 
 const onResetFilter = async () => {
     initFilter();
@@ -330,8 +378,15 @@ const onResetFilter = async () => {
     total.value = reportStore.reportIncome["meta"]["total"];
 };
 
+const onCloseFilterMenu = () => {
+    filterMenu.value = false;
+    // COBA LOG DULU FILTER BUAT DI TANAM KE LOKAL
+    console.log(reportStore.reportIncome);
+};
+
 const onFilter = async () => {
-    await delayReqFilter();
+    await reportStore.GET__REPORT_INCOME(false, rpp.value, filters.value);
+    total.value = reportStore.reportIncome["meta"]["total"];
 };
 
 const formatCurrency = (value) => {
@@ -403,7 +458,17 @@ const formatDate = (value, type) => {
         }
     }
 }
-
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 0;
+    color: var(--text-color-secondary);
+    span:first-of-type {
+        animation: spin infinite 4s;
+    }
+}
 .income-list {
     display: none;
 }
@@ -470,6 +535,14 @@ const formatDate = (value, type) => {
             display: flex;
             justify-content: space-between;
         }
+    }
+}
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
     }
 }
 </style>

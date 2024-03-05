@@ -16,6 +16,10 @@ export const useReportStore = defineStore("reportStore", {
         sales: null,
         topSeller: null,
         reportIncome: [],
+        filter: {
+            month: null,
+            year: null,
+        },
     }),
     getters: {},
     actions: {
@@ -32,7 +36,9 @@ export const useReportStore = defineStore("reportStore", {
 
         async GET__STATISTIC() {
             const result = await fetchWrapper
-                .get(`${baseUrl}/api/dashboard/summary`)
+                .get(
+                    `${baseUrl}/api/dashboard/summary?year=${this.filter.year}&month=${this.filter.month}`
+                )
                 .then((result) => {
                     this.statistic = result.data;
                 })
@@ -42,7 +48,9 @@ export const useReportStore = defineStore("reportStore", {
         },
         async GET__PROFIT() {
             const result = await fetchWrapper
-                .get(`${baseUrl}/api/dashboard/profit-last-month`)
+                .get(
+                    `${baseUrl}/api/dashboard/profit-last-month?year=${this.filter.year}&month=${this.filter.month}`
+                )
                 .then((result) => {
                     this.profit = result.data;
                 })
@@ -52,7 +60,9 @@ export const useReportStore = defineStore("reportStore", {
         },
         async GET__WEEKLY_PROFIT() {
             const result = await fetchWrapper
-                .get(`${baseUrl}/api/dashboard/profit-last-month`)
+                .get(
+                    `${baseUrl}/api/dashboard/profit-last-month?year=${this.filter.year}&month=${this.filter.month}`
+                )
                 .then((result) => {
                     this.weeklyProfit = result.data;
                 })
@@ -62,7 +72,9 @@ export const useReportStore = defineStore("reportStore", {
         },
         async GET__BESTSELLER() {
             const result = await fetchWrapper
-                .get(`${baseUrl}/api/dashboard/top-products`)
+                .get(
+                    `${baseUrl}/api/dashboard/top-products?year=${this.filter.year}&month=${this.filter.month}`
+                )
                 .then((result) => {
                     this.bestseller = result.data;
                 })
@@ -72,7 +84,9 @@ export const useReportStore = defineStore("reportStore", {
         },
         async GET__TOP_CUSTOMER() {
             const result = await fetchWrapper
-                .get(`${baseUrl}/api/dashboard/top-customers`)
+                .get(
+                    `${baseUrl}/api/dashboard/top-customers?year=${this.filter.year}&month=${this.filter.month}`
+                )
                 .then((result) => {
                     this.topCustomer = result.data;
                 })
@@ -82,7 +96,9 @@ export const useReportStore = defineStore("reportStore", {
         },
         async GET__USER_SALES(id) {
             const result = await fetchWrapper
-                .get(`${baseUrl}/api/dashboard/total-amount-seller/${id}`)
+                .get(
+                    `${baseUrl}/api/dashboard/total-amount-seller/${id}?year=${this.filter.year}&month=${this.filter.month}`
+                )
                 .then((result) => {
                     this.userSales = result.data;
                 })
@@ -92,7 +108,9 @@ export const useReportStore = defineStore("reportStore", {
         },
         async GET__SALES_BY_ROLE() {
             const result = await fetchWrapper
-                .get(`${baseUrl}/api/dashboard/total-amount`)
+                .get(
+                    `${baseUrl}/api/dashboard/total-amount?year=${this.filter.year}&month=${this.filter.month}`
+                )
                 .then((result) => {
                     this.sales = result.data;
                 })
@@ -102,7 +120,9 @@ export const useReportStore = defineStore("reportStore", {
         },
         async GET__TOP_SELLER() {
             const result = await fetchWrapper
-                .get(`${baseUrl}/api/dashboard/top-sellers`)
+                .get(
+                    `${baseUrl}/api/dashboard/top-sellers?year=${this.filter.year}&month=${this.filter.month}`
+                )
                 .then((result) => {
                     this.topSeller = result.data;
                 })
@@ -128,13 +148,13 @@ export const useReportStore = defineStore("reportStore", {
                     }
                 }
             }
-            console.log(query);
 
             const result = await fetchWrapper
                 .get(`${baseUrl}/api/reports-sales-tax${query}`)
                 .then((result) => (this.reportIncome = result))
                 .catch((error) => error);
             this.isLoading = false;
+            console.log(result);
             return result;
         },
 
@@ -154,7 +174,7 @@ export const useReportStore = defineStore("reportStore", {
                     }
                 }
             }
-            query += "&export=true";
+            query += "&exports=json";
 
             const result = await fetchWrapper
                 .get(`${baseUrl}/api/reports-sales-tax${query}`)

@@ -33,7 +33,7 @@
                         class="span-nav-button right-labeled"
                         role="button"
                         tabindex="0"
-                        @click="initFilter()"
+                        @click="onResetFilter()"
                     >
                         <span class="material-symbols-outlined">
                             filter_alt_off
@@ -49,125 +49,15 @@
                     <table class="d-table sortable">
                         <thead>
                             <tr>
-                                <th
-                                    v-if="column['nofak']"
-                                    @click="changeSortState('reference')"
-                                >
-                                    <div>
-                                        <span>No Faktur</span>
-                                        <span class="material-symbols-outlined">
-                                            {{
-                                                sortStateIcon(
-                                                    sortState["reference"]
-                                                )
-                                            }}
-                                        </span>
-                                    </div>
-                                </th>
-                                <th
-                                    v-if="column['cust']"
-                                    @click="changeSortState('customer_name')"
-                                >
-                                    <div>
-                                        <span>Pelanggan</span>
-                                        <span class="material-symbols-outlined">
-                                            {{
-                                                sortStateIcon(
-                                                    sortState["customer_name"]
-                                                )
-                                            }}
-                                        </span>
-                                    </div>
-                                </th>
-                                <th
-                                    v-if="column['date']"
-                                    @click="changeSortState('date')"
-                                >
-                                    <div>
-                                        <span>Tanggal</span>
-                                        <span class="material-symbols-outlined">
-                                            {{
-                                                sortStateIcon(sortState["date"])
-                                            }}
-                                        </span>
-                                    </div>
-                                </th>
-                                <th
-                                    v-if="column['tstatus']"
-                                    @click="changeSortState('status.code')"
-                                >
-                                    <div>
-                                        <span>Status</span>
-                                        <span class="material-symbols-outlined">
-                                            {{
-                                                sortStateIcon(
-                                                    sortState["status.code"]
-                                                )
-                                            }}
-                                        </span>
-                                    </div>
-                                </th>
-                                <th
-                                    v-if="column['amount']"
-                                    @click="changeSortState('total_amount')"
-                                >
-                                    <div>
-                                        <span>Nilai Transaksi</span>
-                                        <span class="material-symbols-outlined">
-                                            {{
-                                                sortStateIcon(
-                                                    sortState["total_amount"]
-                                                )
-                                            }}
-                                        </span>
-                                    </div>
-                                </th>
-                                <th
-                                    v-if="column['sales']"
-                                    @click="changeSortState('sales')"
-                                >
-                                    <div>
-                                        <span>Sales</span>
-                                        <span class="material-symbols-outlined">
-                                            {{
-                                                sortStateIcon(
-                                                    sortState["sales"]
-                                                )
-                                            }}
-                                        </span>
-                                    </div>
-                                </th>
-                                <th
-                                    v-if="column['depo']"
-                                    @click="changeSortState('depo')"
-                                >
-                                    <div>
-                                        <span>Depo</span>
-                                        <span class="material-symbols-outlined">
-                                            {{
-                                                sortStateIcon(sortState["depo"])
-                                            }}
-                                        </span>
-                                    </div>
-                                </th>
-                                <th
-                                    v-if="column['pstatus']"
-                                    @click="
-                                        changeSortState('payment_status.code')
-                                    "
-                                >
-                                    <div>
-                                        <span>Status Pembayaran</span>
-                                        <span class="material-symbols-outlined">
-                                            {{
-                                                sortStateIcon(
-                                                    sortState[
-                                                        "payment_status.code"
-                                                    ]
-                                                )
-                                            }}
-                                        </span>
-                                    </div>
+                                <th v-if="column['nofak']">No Faktur</th>
+                                <th v-if="column['cust']">Pelanggan</th>
+                                <th v-if="column['date']">Tanggal</th>
+                                <th v-if="column['tstatus']">Status</th>
+                                <th v-if="column['amount']">Nilai Transaksi</th>
+                                <th v-if="column['sales']">Sales</th>
+                                <th v-if="column['depo']">Depo</th>
+                                <th v-if="column['pstatus']">
+                                    Status Pembayaran
                                 </th>
                                 <th></th>
                             </tr>
@@ -259,7 +149,9 @@
                             "
                             class="empty"
                         >
-                            <td colspan="9">Tidak data untuk ditampilkan</td>
+                            <td colspan="9">
+                                Tidak ada data untuk ditampilkan
+                            </td>
                         </tr>
                         <RiwayatTransaksiTableSkeleton
                             v-if="transactionStore.isLoading"
@@ -393,23 +285,28 @@
                 <h6>Filter</h6>
                 <div class="filter-section">
                     <InputText
-                        v-model="filters['reference']['value']"
+                        v-model="filters['reference']"
                         id="filter-nofak"
                         placeholder="Filter No Faktur"
+                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
                     <InputText
-                        v-model="filters['customer_name']['value']"
+                        v-model="filters['customer_name']"
                         id="filter-cust"
                         placeholder="Filter Pelanggan"
+                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
                     <Calendar
-                        v-model="filters['date']['value']"
-                        inputId="filter-date"
-                        placeholder="Tanggal"
+                        v-model="filterDate"
+                        inputId="filter-date-start"
+                        placeholder="Filter Tanggal"
+                        selectionMode="range"
+                        :manualInput="false"
+                        @update:modelValue="handleFilterDate()"
                     />
                 </div>
                 <div class="filter-section">
@@ -418,9 +315,10 @@
                         :options="tsopt"
                         optionLabel="label"
                         placeholder="Filter Status Transaksi"
-                        input-id="filter-ps"
+                        input-id="filter-ts"
                         @update:model-value="
-                            filters['status.code']['value'] = tsfq['code']
+                            filters['status'] = tsfq['code'];
+                            onFilter();
                         "
                     >
                         <template #value="slotProps">
@@ -450,27 +348,42 @@
                 </div>
                 <div class="filter-section">
                     <InputNumber
-                        v-model="filters['total_amount']['value']"
+                        v-model="filters['min_total_amount']"
                         mode="currency"
                         locale="id-ID"
                         currency="IDR"
-                        inputId="filter-amount"
-                        placeholder="Filter Nilai Transaksi"
+                        inputId="filter-amount-min"
+                        placeholder="Filter Nilai Transaksi Min"
                         :inputStyle="{ width: '100%' }"
+                        @update:modelValue="onFilter()"
+                    />
+                </div>
+                <div class="filter-section">
+                    <InputNumber
+                        v-model="filters['max_total_amount']"
+                        mode="currency"
+                        locale="id-ID"
+                        currency="IDR"
+                        inputId="filter-amount-max"
+                        placeholder="Filter Nilai Transaksi Max"
+                        :inputStyle="{ width: '100%' }"
+                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
                     <InputText
-                        v-model="filters['sales']['value']"
+                        v-model="filters['seller']"
                         id="filter-sales"
                         placeholder="Filter Sales"
+                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
                     <InputText
-                        v-model="filters['depo']['value']"
+                        v-model="filters['depo']"
                         inputId="filter-depo"
                         placeholder="Filter Depo"
+                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
@@ -481,8 +394,8 @@
                         placeholder="Filter Status Pembayaran"
                         input-id="filter-ps"
                         @update:model-value="
-                            filters['payment_status.code']['value'] =
-                                psfq['code']
+                            filters['payment_status'] = psfq['code'];
+                            onFilter();
                         "
                     >
                         <template #value="slotProps">
@@ -618,6 +531,7 @@ import RiwayatTransaksiTableSkeleton from "./skeleton/RiwayatTransaksiTableSkele
 import RiwayatTransaksiListSkeleton from "./skeleton/RiwayatTransaksiListSkeleton.vue";
 import DetailTransaksiCard from "./DetailTransaksiCard.vue";
 import { useRouter } from "vue-router";
+import debounce from "lodash.debounce";
 
 const router = useRouter();
 const transactionStore = useTransactionStore();
@@ -626,34 +540,27 @@ const page = ref(0);
 const total = ref();
 const filterMenu = ref(false);
 const filters = ref();
+const filterDate = ref();
 const tsfq = ref(null);
 const psfq = ref(null);
 const dt = ref(null);
 const initFilter = () => {
     filters.value = {
-        reference: { value: null, matchMode: "CONTAINS" },
-        customer_name: { value: null, matchMode: "CONTAINS" },
-        date: { value: null, matchMode: "DATE" },
-        "status.code": { value: null, matchMode: "EQUALS" },
-        total_amount: { value: null, matchMode: "EQUALS" },
-        sales: { value: null, matchMode: "CONTAINS" },
-        depo: { value: null, matchMode: "CONTAINS" },
-        "payment_status.code": { value: null, matchMode: "EQUALS" },
+        reference: "",
+        customer_name: "",
+        start_date: "",
+        end_date: "",
+        status: "",
+        min_total_amount: null,
+        max_total_amount: null,
+        seller: "",
+        depo: "",
+        payment_status: "",
     };
     tsfq.value = null;
     psfq.value = null;
 };
 initFilter();
-const sortState = ref({
-    reference: null,
-    customer_name: null,
-    date: null,
-    "status.code": null,
-    total_amount: null,
-    sales: null,
-    depo: null,
-    "payment_status.code": null,
-});
 
 const transactions = computed(() => {
     let data = transactionStore.transaction["data"];
@@ -694,10 +601,38 @@ onMounted(async () => {
 });
 
 const onChangePage = async (e) => {
-    console.log(e);
     await transactionStore.GET__TRANSACTION(e["page"] + 1, rpp.value);
     transactionStore.isLoading = false;
 };
+
+const handleFilterDate = () => {
+    let start_date;
+    let end_date;
+
+    if (filterDate.value[0]) {
+        start_date = new Date(filterDate.value[0]);
+        filters.value["start_date"] = start_date.toISOString().slice(0, 10);
+    }
+    if (filterDate.value[1]) {
+        end_date = new Date(filterDate.value[1]);
+        filters.value["end_date"] = end_date.toISOString().slice(0, 10);
+    }
+
+    onFilter();
+};
+
+const onFilter = async () => {
+    await delayReqFilter();
+};
+
+const onResetFilter = async () => {
+    initFilter();
+    await transactionStore.GET__TRANSACTION(false, rpp.value, filters.value);
+};
+
+const delayReqFilter = debounce(async () => {
+    await transactionStore.GET__TRANSACTION(false, rpp.value, filters.value);
+}, 700);
 
 const exportTable = () => {
     const data = dt.value;
@@ -738,31 +673,12 @@ const convertToCSV = (data) => {
     return csvRow.join("\n");
 };
 
-const changeSortState = (field) => {
-    for (let item in sortState.value) {
-        if (item !== field) sortState.value[item] = null;
-    }
-
-    if (sortState.value[field] === null) {
-        sortState.value[field] = true;
-    } else if (sortState.value[field]) {
-        sortState.value[field] = false;
-    } else if (!sortState.value[field]) {
-        sortState.value[field] = null;
-    }
-};
-
-const sortStateIcon = (state) => {
-    if (state === null) return "unfold_more";
-    else if (state) return "keyboard_double_arrow_up";
-    else if (!state) return "keyboard_double_arrow_down";
-};
-
 const openTransDetail = async (data) => {
     await transactionStore.GET__TRANSACTION_BY_ID(data.id);
     selectedTransaction.value = transactionStore.details;
     transDetailModal.value = true;
 };
+
 const goToDetail = async (data) => {
     router.push({
         name: "transaction-detail",

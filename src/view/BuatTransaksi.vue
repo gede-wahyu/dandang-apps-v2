@@ -546,17 +546,21 @@ onMounted(async () => {
         cart.value = JSON.parse(localStorage.getItem("cart"));
     }
 
-    if (localStorage.getItem("transInfo") || localStorage.getItem("custInfo")) {
+    if (localStorage.getItem("transInfo")) {
         let transInfo = JSON.parse(localStorage.getItem("transInfo"));
-        let custInfo = JSON.parse(localStorage.getItem("custInfo"));
         discount.value = JSON.parse(transInfo.discount);
         payment.value = JSON.parse(transInfo.payment);
-        downpayment.value = JSON.parse(transInfo.downpayment);
+        downpayment.value = JSON.parse(
+            transInfo.downpayment ? transInfo.downpayment : null
+        );
         due.value = JSON.parse(transInfo.due);
         warehouse.value = JSON.parse(transInfo.warehouse);
         shipping.value = JSON.parse(transInfo.shipping);
         addNote.value = JSON.parse(transInfo.addNote);
         note.value = JSON.parse(transInfo.note);
+    }
+    if (localStorage.getItem("custInfo")) {
+        let custInfo = JSON.parse(localStorage.getItem("custInfo"));
         newCust.value = JSON.parse(custInfo.newCust);
 
         if (!JSON.parse(custInfo.newCust)) {

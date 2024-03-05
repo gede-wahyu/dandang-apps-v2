@@ -18,10 +18,18 @@ export const useTransactionStore = defineStore("transactionStore", {
         },
     },
     actions: {
-        async GET__TRANSACTION(page, rpp, search) {
+        async GET__TRANSACTION(page, rpp, filters) {
             this.isLoading = true;
             let query = `?perPage=${rpp}`;
-            if (page) query = `?page=${page}&perPage=${rpp}`;
+            if (page) query += `&page=${page}`;
+            if (filters) {
+                for (let props in filters) {
+                    if (filters[props]) {
+                        query += `&${props}=${filters[props]}`;
+                    }
+                }
+            }
+            console.log(query);
 
             const result = await fetchWrapper
                 .get(`${baseUrl}/api/transactions${query}`)
@@ -29,7 +37,7 @@ export const useTransactionStore = defineStore("transactionStore", {
                     this.transaction = result;
                 })
                 .catch((error) => error);
-
+            this.isLoading = false;
             return result;
         },
 
