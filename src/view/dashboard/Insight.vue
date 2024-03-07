@@ -80,6 +80,10 @@ const nFormatter = (num, digits) => {
     h5 span {
         text-transform: capitalize;
     }
+    h4 {
+        color: var(--primary);
+        text-wrap: nowrap;
+    }
 }
 .profile {
     display: flex;

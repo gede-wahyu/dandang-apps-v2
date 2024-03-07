@@ -531,8 +531,10 @@ import RiwayatTransaksiTableSkeleton from "./skeleton/RiwayatTransaksiTableSkele
 import RiwayatTransaksiListSkeleton from "./skeleton/RiwayatTransaksiListSkeleton.vue";
 import DetailTransaksiCard from "./DetailTransaksiCard.vue";
 import { useRouter } from "vue-router";
+import { useToast } from "primevue/usetoast";
 import debounce from "lodash.debounce";
 
+const toast = useToast();
 const router = useRouter();
 const transactionStore = useTransactionStore();
 const rpp = ref(10);
@@ -680,6 +682,15 @@ const openTransDetail = async (data) => {
 };
 
 const goToDetail = async (data) => {
+    if (!data.id) {
+        toast.add({
+            severity: "warn",
+            summary: "Permintaan Gagal",
+            detail: "Terjadi keasalahan pada data yang diminta.",
+            life: 3000,
+        });
+        return;
+    }
     router.push({
         name: "transaction-detail",
         params: { id: data.id },

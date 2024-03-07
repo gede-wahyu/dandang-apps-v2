@@ -16,6 +16,11 @@ export const useAuthStore = defineStore("authStore", {
                 return true;
             return false;
         },
+        isDepo() {
+            if ((this.auth.role ? this.auth.role["role_id"] : null) === 3)
+                return true;
+            return false;
+        },
         isSalerTO() {
             if ((this.auth.role ? this.auth.role["role_id"] : null) === 4)
                 return true;

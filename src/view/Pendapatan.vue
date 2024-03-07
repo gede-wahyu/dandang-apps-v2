@@ -13,7 +13,7 @@
                             v-model="filters['search']"
                             placeholder="Cari laporan"
                             style="width: 100%"
-                            @update:modelValue="onFilter()"
+                            @update:modelValue="onSearch()"
                         />
                     </span>
                     <span
@@ -222,12 +222,20 @@
                 <div class="filter-section">
                     <label>Filter Tanggal</label>
                     <Calendar
-                        v-model="filters.start_date"
+                        v-model="start_date"
                         placeholder="Pilih Tanggal Awal"
+                        dateFormat="dd-mm-yy"
+                        @update:modelValue="
+                            filters.start_date = formatDateOnFilter(start_date)
+                        "
                     />
                     <Calendar
-                        v-model="filters.end_date"
+                        v-model="end_date"
                         placeholder="Pilih Tanggal Akhir"
+                        dateFormat="dd-mm-yy"
+                        @update:modelValue="
+                            filters.end_date = formatDateOnFilter(end_date)
+                        "
                     />
                 </div>
                 <div class="filter-section">
@@ -264,8 +272,6 @@
                     />
                 </div>
             </div>
-
-            <pre>{{ filters }}</pre>
         </div>
     </div>
 </template>
@@ -274,6 +280,7 @@
 import { ref, onMounted, onBeforeMount, computed } from "vue";
 import { useReportStore } from "../store/ReportStore";
 import { useSalesStore } from "../store/SalesStore";
+import debounce from "lodash.debounce";
 
 const reportStore = useReportStore();
 const salesStore = useSalesStore();
@@ -288,6 +295,8 @@ const page = ref();
 const total = ref();
 const filterMenu = ref(false);
 const filters = ref();
+const start_date = ref();
+const end_date = ref();
 
 onBeforeMount(() => {
     initFilter();
@@ -302,7 +311,7 @@ const initFilter = () => {
     filters.value = {
         search: "",
         start_date: "",
-        end_date: "",
+        end_date: formatDateOnFilter(end_date.value),
         reference: "",
         depo: "",
         seller: "",
@@ -380,8 +389,10 @@ const onResetFilter = async () => {
 
 const onCloseFilterMenu = () => {
     filterMenu.value = false;
-    // COBA LOG DULU FILTER BUAT DI TANAM KE LOKAL
-    console.log(reportStore.reportIncome);
+    initFilter();
+    for (let field in reportStore.reportIncome["filters"]) {
+        filters.value[field] = reportStore.reportIncome["filters"][field];
+    }
 };
 
 const onFilter = async () => {
@@ -389,11 +400,24 @@ const onFilter = async () => {
     total.value = reportStore.reportIncome["meta"]["total"];
 };
 
+const onSearch = async () => {
+    await onDelayReqSearch();
+};
+
+const onDelayReqSearch = debounce(async () => {
+    await onFilter();
+}, 700);
+
 const formatCurrency = (value) => {
     return new Intl.NumberFormat("id-ID", {
         style: "currency",
         currency: "IDR",
     }).format(value);
+};
+
+const formatDateOnFilter = (value) => {
+    if (!value) return;
+    return `${value.getFullYear()}-${value.getMonth() + 1}-${value.getDate()}`;
 };
 
 const formatDate = (value, type) => {

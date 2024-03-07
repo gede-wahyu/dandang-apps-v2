@@ -19,13 +19,31 @@
     <div class="container">
         <Insight class="insight" />
         <Statistic class="statistic" />
-        <IncreaseProfit class="increase-profit" />
-        <Profit class="profit" />
-        <Transaction class="transaction" />
-        <IncomeTax class="income-tax" />
-        <TopSaler class="top-saler" />
-        <TopProduct class="top-product" />
-        <TopCustomer class="top-customer" />
+        <IncreaseProfit
+            v-if="authStore.isAdmin || authStore.isDepo"
+            class="increase-profit"
+        />
+        <Profit v-if="authStore.isAdmin || authStore.isDepo" class="profit" />
+        <Transaction
+            v-if="authStore.isAdmin || authStore.isDepo"
+            class="transaction"
+        />
+        <IncomeTax
+            v-if="authStore.isAdmin || authStore.isDepo"
+            class="income-tax"
+        />
+        <TopSaler
+            v-if="authStore.isAdmin || authStore.isDepo"
+            class="top-saler"
+        />
+        <TopProduct
+            v-if="authStore.isAdmin || authStore.isDepo"
+            class="top-product"
+        />
+        <TopCustomer
+            v-if="authStore.isAdmin || authStore.isDepo"
+            class="top-customer"
+        />
     </div>
 </template>
 
@@ -41,7 +59,9 @@ import TopProduct from "./TopProduct.vue";
 import TopCustomer from "./TopCustomer.vue";
 import { ref, onMounted } from "vue";
 import { useReportStore } from "../../store/ReportStore";
+import { useAuthStore } from "../../store/AuthStore";
 
+const authStore = useAuthStore();
 const reportStore = useReportStore();
 const month = ref();
 const year = ref();

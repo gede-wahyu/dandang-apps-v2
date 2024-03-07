@@ -138,12 +138,6 @@ export const useReportStore = defineStore("reportStore", {
             if (filters) {
                 for (let props in filters) {
                     if (filters[props]) {
-                        if (props === "start_date" || props === "end_date") {
-                            filters[props] = new Date(filters[props]);
-                            filters[props] = filters[props]
-                                .toISOString()
-                                .slice(0, 10);
-                        }
                         query += `&${props}=${filters[props]}`;
                     }
                 }
@@ -154,7 +148,7 @@ export const useReportStore = defineStore("reportStore", {
                 .then((result) => (this.reportIncome = result))
                 .catch((error) => error);
             this.isLoading = false;
-            console.log(result);
+
             return result;
         },
 
@@ -164,24 +158,17 @@ export const useReportStore = defineStore("reportStore", {
             if (filters) {
                 for (let props in filters) {
                     if (filters[props]) {
-                        if (props === "start_date" || props === "end_date") {
-                            filters[props] = new Date(filters[props]);
-                            filters[props] = filters[props]
-                                .toISOString()
-                                .slice(0, 10);
-                        }
                         query += `&${props}=${filters[props]}`;
                     }
                 }
             }
             query += "&exports=json";
-
             const result = await fetchWrapper
                 .get(`${baseUrl}/api/reports-sales-tax${query}`)
                 .then((result) => result)
                 .catch((error) => error);
             this.isLoading = false;
-            console.log(result);
+
             return result;
         },
     },

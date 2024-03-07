@@ -129,15 +129,15 @@ const FOR_TESTING = async (id) => {
     if (id === 1001)
         await authStore.POST__LOGIN("superadmin@example.com", "password123");
     if (id === 1)
-        await authStore.POST__LOGIN("depo@example.com", "password123");
+        await authStore.POST__LOGIN("dev-depo@example.com", "password123");
     if (id === 2)
-        await authStore.POST__LOGIN("salesto1@example.com", "password123");
+        await authStore.POST__LOGIN("dev-to@example.com", "password123");
     if (id === 3)
-        await authStore.POST__LOGIN("salesmobilis1@example.com", "password123");
+        await authStore.POST__LOGIN("dev-mobilis@example.com", "password123");
     if (id === 4)
-        await authStore.POST__LOGIN("salesmotoris1@example.com", "password123");
+        await authStore.POST__LOGIN("dev-motoris@example.com", "password123");
     if (id === 5)
-        await authStore.POST__LOGIN("drrs1@example.com", "password123");
+        await authStore.POST__LOGIN("dev-driver@example.com", "password123");
 };
 const LOGIN_TESTING = async (id) => {
     await FOR_TESTING(id);
