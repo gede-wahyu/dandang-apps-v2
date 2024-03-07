@@ -265,7 +265,7 @@
         class="d-sidebar from-right"
         :class="{ 'd-sidebar-active': filterMenu }"
     >
-        <div class="d-sidebar-wrapper" @click="filterMenu = false"></div>
+        <div class="d-sidebar-wrapper" @click="onCloseFilter()"></div>
         <div class="d-sidebar-content filter-menu">
             <div class="header">
                 <h5>Opsi Filter</h5>
@@ -273,7 +273,7 @@
                     class="span-nav-button"
                     role="button"
                     tabindex="0"
-                    @click="filterMenu = false"
+                    @click="onCloseFilter()"
                 >
                     <span class="material-symbols-outlined"> close </span>
                 </span>
@@ -288,7 +288,6 @@
                         v-model="filters['reference']"
                         id="filter-nofak"
                         placeholder="Filter No Faktur"
-                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
@@ -296,7 +295,6 @@
                         v-model="filters['customer_name']"
                         id="filter-cust"
                         placeholder="Filter Pelanggan"
-                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
@@ -316,10 +314,7 @@
                         optionLabel="label"
                         placeholder="Filter Status Transaksi"
                         input-id="filter-ts"
-                        @update:model-value="
-                            filters['status'] = tsfq['code'];
-                            onFilter();
-                        "
+                        @update:model-value="filters['status'] = tsfq['code']"
                     >
                         <template #value="slotProps">
                             <span
@@ -355,7 +350,6 @@
                         inputId="filter-amount-min"
                         placeholder="Filter Nilai Transaksi Min"
                         :inputStyle="{ width: '100%' }"
-                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
@@ -367,7 +361,6 @@
                         inputId="filter-amount-max"
                         placeholder="Filter Nilai Transaksi Max"
                         :inputStyle="{ width: '100%' }"
-                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
@@ -375,7 +368,6 @@
                         v-model="filters['seller']"
                         id="filter-sales"
                         placeholder="Filter Sales"
-                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
@@ -383,7 +375,6 @@
                         v-model="filters['depo']"
                         inputId="filter-depo"
                         placeholder="Filter Depo"
-                        @update:modelValue="onFilter()"
                     />
                 </div>
                 <div class="filter-section">
@@ -394,8 +385,7 @@
                         placeholder="Filter Status Pembayaran"
                         input-id="filter-ps"
                         @update:model-value="
-                            filters['payment_status'] = psfq['code'];
-                            onFilter();
+                            filters['payment_status'] = psfq['code']
                         "
                     >
                         <template #value="slotProps">
@@ -425,6 +415,14 @@
                             >
                         </template>
                     </Dropdown>
+                </div>
+                <div class="filter-button">
+                    <Button
+                        label="Reset"
+                        severity="danger"
+                        @click="onResetFilter()"
+                    />
+                    <Button label="Terapkan" @click="onFilter()" />
                 </div>
                 <h6>Kolom</h6>
                 <div class="filter-section">
@@ -619,22 +617,27 @@ const handleFilterDate = () => {
         end_date = new Date(filterDate.value[1]);
         filters.value["end_date"] = end_date.toISOString().slice(0, 10);
     }
-
-    onFilter();
 };
 
 const onFilter = async () => {
-    await delayReqFilter();
+    await transactionStore.GET__TRANSACTION(false, rpp.value, filters.value);
+    total.value = transactionStore.transaction["meta"]["total"];
 };
 
 const onResetFilter = async () => {
     initFilter();
-    await transactionStore.GET__TRANSACTION(false, rpp.value, filters.value);
+    onFilter();
 };
 
-const delayReqFilter = debounce(async () => {
-    await transactionStore.GET__TRANSACTION(false, rpp.value, filters.value);
-}, 700);
+const onCloseFilter = () => {
+    filterMenu.value = false;
+    initFilter();
+    for (let field in transactionStore.transaction["filter"]) {
+        filters.value[field] = transactionStore.transaction["filter"][field];
+    }
+};
+
+const delayReqFilter = debounce(async () => {}, 700);
 
 const exportTable = () => {
     const data = dt.value;
@@ -871,6 +874,11 @@ const formatDate = (value, type) => {
             font-size: 1.5rem !important;
         }
     }
+}
+
+.filter-button {
+    display: flex;
+    justify-content: space-between;
 }
 
 @media screen and (min-width: 992px) {

@@ -6,15 +6,14 @@
             optionLabel="name"
             placeholder="Filter bulan"
             style="width: 12rem"
-            @update:modelValue="reportStore.filter.month = month.num"
         />
         <Dropdown
             v-model="year"
             :options="yearOpt"
             placeholder="Filter tahun"
             style="width: 8rem"
-            @update:modelValue="reportStore.filter.year = year"
         />
+        <Button label="Filter" @click="onFilter()" />
     </div>
     <div class="container">
         <Insight class="insight" />
@@ -87,6 +86,11 @@ month.value = monthOpt.value.find(
 year.value = `${currDate.getFullYear()}`;
 reportStore.filter.month = month.value.num;
 reportStore.filter.year = year.value;
+
+const onFilter = () => {
+    reportStore.filter.month = month.value.num;
+    reportStore.filter.year = year.value;
+};
 
 //
 </script>

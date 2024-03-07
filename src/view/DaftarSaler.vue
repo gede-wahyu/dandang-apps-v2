@@ -1,3 +1,19 @@
 <template>
-    <div>daftar saler</div>
+    <h5 class="page-title">Daftar Sales</h5>
+    <span class="page-subtitle">Daftar sales.</span>
+    <div class="d-card"></div>
+
+    <UnderDevelopment
+        msg="Saat ini menu Daftar Sales sedang dalam tahap development."
+    />
 </template>
+
+<script setup>
+import UnderDevelopment from "./UnderDevelopment.vue";
+</script>
+
+<style scoped lang="scss">
+.d-card {
+    height: 35rem;
+}
+</style>

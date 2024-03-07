@@ -7,15 +7,23 @@
             </div>
             <div class="content">
                 <h3>Rp {{ nFormatter(sales.total_amount, 1) }}</h3>
-                <div class="increase">
-                    <span class="material-symbols-outlined">expand_less</span>
+                <div
+                    class="status"
+                    :class="{
+                        increase: !isLoss(sales.percentage_increase),
+                        decrease: isLoss(sales.percentage_increase),
+                    }"
+                >
                     <span
-                        >{{
-                            sales.percentage_increase
-                                ? sales.percentage_increase
-                                : 0
-                        }}%</span
+                        v-if="!isLoss(sales.percentage_increase)"
+                        class="material-symbols-outlined"
                     >
+                        expand_less
+                    </span>
+                    <span v-else class="material-symbols-outlined">
+                        expand_more
+                    </span>
+                    <span>{{ round(sales.percentage_increase) }}%</span>
                 </div>
             </div>
         </div>
@@ -60,6 +68,16 @@ watch(
         chartOptions.value = setChartOptions();
     }
 );
+
+const isLoss = (value) => {
+    if (!value) return false;
+    else if (value > 0) return false;
+    else return true;
+};
+const round = (value) => {
+    if (!value) return 0;
+    return Math.round(value);
+};
 
 const setChartData = (data) => {
     const documentStyle = getComputedStyle(document.body);

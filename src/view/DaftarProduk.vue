@@ -29,7 +29,7 @@
                                 <th>Varian</th>
                                 <th>Stok</th>
                                 <th>Harga</th>
-                                <th></th>
+                                <!-- <th></th> -->
                             </tr>
                         </thead>
                         <tbody>
@@ -60,9 +60,9 @@
                                         formatCurrency(item.price)
                                     }}</span>
                                 </td>
-                                <td>
+                                <!-- <td>
                                     <Button label="Detail" />
-                                </td>
+                                </td> -->
                             </tr>
                         </tbody>
                         <!-- table skeleton -->

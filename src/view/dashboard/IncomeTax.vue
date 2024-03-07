@@ -28,7 +28,6 @@ onMounted(async () => {
 watch(
     () => reportStore.filter.year,
     async () => {
-        console.log(reportStore.filter.year);
         await reportStore.GET__INCOME_TAX(reportStore.filter.year);
         chartData.value = setChartData(reportStore.incomeTax);
     }

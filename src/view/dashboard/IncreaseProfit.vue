@@ -2,18 +2,32 @@
     <div class="d-card">
         <div class="header">
             <h5>{{ nFormatter(profit.total_profit, 1) }}</h5>
-            <span>Kenaikan laba</span>
+            <span>Laba</span>
         </div>
         <Knob
             v-model="knob"
             valueTemplate="{value}%"
             valueColor="var(--orange-500)"
             :size="120"
+            :max="max"
+            :min="min"
             readonly
         />
-        <div class="increase">
-            <span class="material-symbols-outlined"> expand_less </span>
-            <span>Rp {{ profit.total_increase }}</span>
+        <div
+            class="status"
+            :class="{
+                increase: !isLoss(profit.total_increase),
+                decrease: isLoss(profit.total_increase),
+            }"
+        >
+            <span
+                v-if="!isLoss(profit.total_increase)"
+                class="material-symbols-outlined"
+            >
+                expand_less
+            </span>
+            <span v-else class="material-symbols-outlined"> expand_more </span>
+            <span>Rp {{ nFormatter(profit.total_increase, 1) }}</span>
         </div>
     </div>
 </template>
@@ -25,18 +39,26 @@ import { useReportStore } from "../../store/ReportStore.js";
 const reportStore = useReportStore();
 const profit = ref({});
 const knob = ref(0);
+const min = ref(0);
+const max = ref();
 
 onMounted(async () => {
     await reportStore.GET__PROFIT();
     profit.value = reportStore.profit;
-    knob.value = profit.value.percentage_increase;
+
+    knob.value = round(profit.value.percentage_increase);
+    if (knob.value > 100) max.value = knob.value;
+    else max.value = 100;
 });
 watch(
     () => reportStore.filter.year,
     async () => {
         await reportStore.GET__PROFIT();
         profit.value = reportStore.profit;
-        knob.value = profit.value.percentage_increase;
+
+        knob.value = round(profit.value.percentage_increase);
+        if (knob.value > 100) max.value = knob.value;
+        else max.value = 100;
     }
 );
 watch(
@@ -44,11 +66,24 @@ watch(
     async () => {
         await reportStore.GET__PROFIT();
         profit.value = reportStore.profit;
-        knob.value = profit.value.percentage_increase;
+
+        knob.value = round(profit.value.percentage_increase);
+        if (knob.value > 100) max.value = knob.value;
+        else max.value = 100;
     }
 );
-
+const round = (value) => {
+    if (!value) return 0;
+    return Math.round(value);
+};
+const isLoss = (value) => {
+    if (!value) return false;
+    else if (value > 0) return false;
+    else return true;
+};
 const nFormatter = (num, digits) => {
+    const isNegative = num < 0;
+    const absNum = Math.abs(num);
     const lookup = [
         { value: 1, symbol: "" },
         { value: 1e3, symbol: " Ribu" },
@@ -59,12 +94,13 @@ const nFormatter = (num, digits) => {
         { value: 1e18, symbol: " Kuintiliun" },
     ];
     const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/;
-    const item = lookup.findLast((item) => num >= item.value);
+    const item = lookup.findLast((item) => absNum >= item.value);
     return item
-        ? (num / item.value)
-              .toFixed(digits)
-              .replace(regexp, "")
-              .concat(item.symbol)
+        ? (isNegative ? "-" : "") +
+              (absNum / item.value)
+                  .toFixed(digits)
+                  .replace(regexp, "")
+                  .concat(item.symbol)
         : "0";
 };
 
@@ -86,12 +122,19 @@ const nFormatter = (num, digits) => {
         display: flex;
         justify-content: center;
     }
-    .increase {
+    .status {
         display: flex;
         align-items: center;
         font-size: 1.25rem;
-        span {
-            color: var(--color-success);
+        &.increase {
+            span {
+                color: var(--color-success);
+            }
+        }
+        &.decrease {
+            span {
+                color: var(--color-danger);
+            }
         }
     }
 }

@@ -61,7 +61,7 @@ export const useReportStore = defineStore("reportStore", {
         async GET__WEEKLY_PROFIT() {
             const result = await fetchWrapper
                 .get(
-                    `${baseUrl}/api/dashboard/profit-last-month?year=${this.filter.year}&month=${this.filter.month}`
+                    `${baseUrl}/api/dashboard/weekly-profit-last-month?year=${this.filter.year}&month=${this.filter.month}`
                 )
                 .then((result) => {
                     this.weeklyProfit = result.data;
