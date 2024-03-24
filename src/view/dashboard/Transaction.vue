@@ -49,23 +49,26 @@ const chartOptions = ref(null);
 
 onMounted(async () => {
     await reportStore.GET__SALES_BY_ROLE();
-    chartData.value = setChartData(reportStore.sales["total_amount_sales"]);
+    chartData.value = setChartData(reportStore.sales["total_amount"]);
     chartOptions.value = setChartOptions();
+    sales.value = reportStore.sales;
 });
 watch(
     () => reportStore.filter.year,
     async () => {
         await reportStore.GET__SALES_BY_ROLE();
-        chartData.value = setChartData(reportStore.sales["total_amount_sales"]);
+        chartData.value = setChartData(reportStore.sales["total_amount"]);
         chartOptions.value = setChartOptions();
+        sales.value = reportStore.sales;
     }
 );
 watch(
     () => reportStore.filter.month,
     async () => {
         await reportStore.GET__SALES_BY_ROLE();
-        chartData.value = setChartData(reportStore.sales["total_amount_sales"]);
+        chartData.value = setChartData(reportStore.sales["total_amount"]);
         chartOptions.value = setChartOptions();
+        sales.value = reportStore.sales;
     }
 );
 

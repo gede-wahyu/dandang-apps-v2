@@ -3,16 +3,16 @@ import { fetchWrapper } from "../helper/fetch-wrapper";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-export const useCustomerStore = defineStore("customerStore", {
+export const useDistStore = defineStore("distStore", {
     state: () => ({
-        customers: [],
+        dist: [],
+        selectedDist: [],
         isLoading: false,
-        selectedCust: [],
-        loadingSelectedCust: false,
+        loadingSelectedDist: false,
     }),
     getters: {},
     actions: {
-        async GET__CUSTOMERS(page, rpp, filters) {
+        async GET__DISTRIBUTION(page, rpp, filters) {
             this.isLoading = true;
             let query = `?perPage=${rpp}`;
             if (page) query += `&page=${page}`;
@@ -25,21 +25,21 @@ export const useCustomerStore = defineStore("customerStore", {
             }
 
             const result = await fetchWrapper
-                .get(`${baseUrl}/api/customers${query}`)
-                .then((result) => (this.customers = result))
+                .get(`${baseUrl}/api/sd${query}`)
+                .then((result) => (this.dist = result))
                 .catch((error) => error);
 
             this.isLoading = false;
             return result;
         },
 
-        async GET__CUST_BY_ID(id) {
-            this.loadingSelectedCust = true;
+        async GET__DISTRIBUTION_BY_ID(id) {
+            this.loadingSelectedDist = true;
             const result = await fetchWrapper
-                .get(`${baseUrl}/api/customers/${id}`)
-                .then((result) => (this.selectedCust = result))
+                .get(`${baseUrl}/api/sd/${id}`)
+                .then((result) => (this.selectedDist = result))
                 .catch((error) => error);
-            this.loadingSelectedCust = false;
+            this.loadingSelectedDist = false;
             return result;
         },
     },

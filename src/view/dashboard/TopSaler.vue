@@ -33,7 +33,7 @@
                     </div>
                     <div class="amount">
                         <span>Total transaksi</span><br />
-                        <span>{{ 2.1 }} juta</span>
+                        <span>{{ nFormatter(item.total_amount) }}</span>
                     </div>
                 </div>
                 <div v-if="!sales" class="no-data">Loading</div>
@@ -70,6 +70,25 @@ watch(
         sales.value = reportStore.topSeller;
     }
 );
+const nFormatter = (num, digits) => {
+    const lookup = [
+        { value: 1, symbol: "" },
+        { value: 1e3, symbol: " Ribu" },
+        { value: 1e6, symbol: " Juta" },
+        { value: 1e9, symbol: " Miliar" },
+        { value: 1e12, symbol: " Triliun" },
+        { value: 1e15, symbol: " Kuadriliun" },
+        { value: 1e18, symbol: " Kuintiliun" },
+    ];
+    const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/;
+    const item = lookup.findLast((item) => num >= item.value);
+    return item
+        ? (num / item.value)
+              .toFixed(digits)
+              .replace(regexp, "")
+              .concat(item.symbol)
+        : "0";
+};
 </script>
 
 <style scoped lang="scss">

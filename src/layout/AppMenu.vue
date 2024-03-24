@@ -24,11 +24,12 @@ const model = ref([
     {
         label: "produk",
         items: [
-            {
-                label: "produk sales",
-                icon: "list_alt",
-                to: { name: "sales-product-list" },
-            },
+            // {
+            //     label: "produk sales",
+            //     icon: "list_alt",
+            //     to: { name: "sales-product-list" },
+            //     block: true,
+            // },
             {
                 label: "daftar produk",
                 icon: "dataset",
@@ -38,6 +39,7 @@ const model = ref([
                 label: "tambah produk",
                 icon: "add_box",
                 to: { name: "product-add" },
+                block: true,
             },
         ],
     },
@@ -54,11 +56,12 @@ const model = ref([
                 icon: "add_notes",
                 to: { name: "transaction-add" },
             },
-            {
-                label: "transaksi tertunda",
-                icon: "other_admission",
-                to: { name: "transaction-delay" },
-            },
+            // {
+            //     label: "transaksi tertunda",
+            //     icon: "other_admission",
+            //     to: { name: "transaction-delay" },
+            //     block: true,
+            // },
         ],
     },
     {
@@ -68,17 +71,20 @@ const model = ref([
                 label: "buat distribusi",
                 icon: "box_add",
                 to: { name: "distribution-add" },
+                block: true,
             },
             {
-                label: "distribusi saler",
+                label: "distribusi sales",
                 icon: "person_play",
                 to: { name: "distribution-saler" },
+                block: true,
             },
-            {
-                label: "distribusi pelanggan",
-                icon: "for_you",
-                to: { name: "distribution-customer" },
-            },
+            // {
+            //     label: "distribusi pelanggan",
+            //     icon: "for_you",
+            //     to: { name: "distribution-customer" },
+            //     block: true,
+            // },
         ],
     },
     {
@@ -89,25 +95,28 @@ const model = ref([
                 icon: "finance_mode",
                 to: { name: "report-income" },
             },
-            {
-                label: "laba rugi",
-                icon: "currency_exchange",
-                to: { name: "report-pnl" },
-            },
+            // {
+            //     label: "laba rugi",
+            //     icon: "currency_exchange",
+            //     to: { name: "report-pnl" },
+            //     block: true,
+            // },
         ],
     },
     {
-        label: "saler",
+        label: "sales",
         items: [
             {
-                label: "daftar saler",
+                label: "daftar sales",
                 icon: "group",
                 to: { name: "saler-list" },
+                block: true,
             },
             {
-                label: "tambah saler",
+                label: "tambah sales",
                 icon: "person_add",
                 to: { name: "saler-add" },
+                block: true,
             },
         ],
     },
@@ -118,11 +127,23 @@ const model = ref([
                 label: "daftar depo",
                 icon: "store",
                 to: { name: "depo-list" },
+                block: true,
             },
             {
                 label: "tambah depo",
                 icon: "add_business",
                 to: { name: "depo-add" },
+                block: true,
+            },
+        ],
+    },
+    {
+        label: "pelanggan",
+        items: [
+            {
+                label: "daftar pelanggan",
+                icon: "productivity",
+                to: { name: "cust-list" },
             },
         ],
     },

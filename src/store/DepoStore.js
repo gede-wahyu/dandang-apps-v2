@@ -4,16 +4,16 @@ import { fetchWrapper } from "../helper/fetch-wrapper";
 const baseUrl = import.meta.env.VITE_BASE_URL;
 // const baseUrl = "https://my-json-server.typicode.com/gede-wahyu";
 
-export const useSalesStore = defineStore("salesStore", {
+export const useDepoStore = defineStore("depoStore", {
     state: () => ({
-        sales: [],
+        depo: [],
+        selectedDepo: [],
         isLoading: false,
-        selectedSales: [],
-        loadingSelectedSales: false,
+        loadingSelectedDepo: false,
     }),
     getters: {},
     actions: {
-        async GET__SALES(page, rpp, filters) {
+        async GET__DEPO(page, rpp, filters) {
             this.isLoading = true;
             let query = `?perPage=${rpp}`;
             if (page) query += `&page=${page}`;
@@ -26,30 +26,21 @@ export const useSalesStore = defineStore("salesStore", {
             }
 
             const result = await fetchWrapper
-                .get(`${baseUrl}/api/sellers${query}`)
-                .then((result) => (this.sales = result))
+                .get(`${baseUrl}/api/warehouses${query}`)
+                .then((result) => (this.depo = result))
                 .catch((error) => error);
             this.isLoading = false;
             return result;
         },
 
-        async GET__SALES_SALER_PRODUCTS() {
-            this.isLoading = true;
+        async GET__DEPO_BY_ID(id) {
+            console.log("depo id triger");
+            this.loadingSelectedDepo = true;
             const result = await fetchWrapper
-                .get(`${baseUrl}/dandang-api-v2/sales`)
-                .then((result) => (this.sales = result))
+                .get(`${baseUrl}/api/warehouses/${id}`)
+                .then((result) => (this.selectedDepo = result))
                 .catch((error) => error);
-
-            return result;
-        },
-
-        async GET__SALES_BY_ID(id) {
-            this.loadingSelectedSales = true;
-            const result = await fetchWrapper
-                .get(`${baseUrl}/api/sellers/${id}`)
-                .then((result) => (this.selectedSales = result))
-                .catch((error) => error);
-            this.loadingSelectedSales = false;
+            this.loadingSelectedDepo = false;
             return result;
         },
     },

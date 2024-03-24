@@ -516,8 +516,15 @@
                 </span>
             </div>
         </template>
-        <div class="transaction-details">
+        <div
+            v-if="selectedTransaction && !transactionStore.selectedLoading"
+            class="transaction-details"
+        >
             <DetailTransaksiCard :data="selectedTransaction" />
+        </div>
+        <div v-else class="loading">
+            <span class="material-symbols-outlined"> settings </span>
+            <span> Loading... </span>
         </div>
     </Dialog>
 </template>
@@ -679,9 +686,9 @@ const convertToCSV = (data) => {
 };
 
 const openTransDetail = async (data) => {
+    transDetailModal.value = true;
     await transactionStore.GET__TRANSACTION_BY_ID(data.id);
     selectedTransaction.value = transactionStore.details;
-    transDetailModal.value = true;
 };
 
 const goToDetail = async (data) => {
@@ -880,7 +887,25 @@ const formatDate = (value, type) => {
     display: flex;
     justify-content: space-between;
 }
-
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 3.5rem 0;
+    color: var(--text-color-secondary);
+    span:first-of-type {
+        animation: spin infinite 4s;
+    }
+}
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
 @media screen and (min-width: 992px) {
     .transaction-details,
     .transaction-details-header {

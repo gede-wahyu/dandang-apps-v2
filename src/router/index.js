@@ -108,6 +108,11 @@ const router = createRouter({
                     name: "user",
                     component: () => import("../view/user/Pengguna.vue"),
                 },
+                {
+                    path: "/daftar-pelanggan",
+                    name: "cust-list",
+                    component: () => import("../view/DaftarPelanggan.vue"),
+                },
             ],
         },
         {

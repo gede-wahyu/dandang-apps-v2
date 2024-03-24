@@ -1,15 +1,15 @@
 <template>
-    <h5 class="page-title">Daftar Sales</h5>
-    <span class="page-subtitle">Daftar sales.</span>
+    <h5 class="page-title">Daftar Pelanggan</h5>
+    <span class="page-subtitle">Daftar pelanggan.</span>
     <div class="d-card">
         <div class="data-header">
-            <h5>Daftar Sales</h5>
+            <h5>Daftar Pelanggan</h5>
             <div class="tools-group">
                 <span class="d-sideicon-set d-input-iconleft filter-item">
                     <span class="material-symbols-outlined"> search </span>
                     <InputText
                         v-model="filters['search']"
-                        placeholder="Cari sales"
+                        placeholder="Cari pelanggan"
                         style="width: 100%"
                         @update:modelValue="onSearch()"
                     />
@@ -23,22 +23,18 @@
                         <tr>
                             <th>Kode</th>
                             <th>Nama</th>
-                            <th>Tipe Sales</th>
                             <th>Alamat</th>
                             <th>No Hp</th>
-                            <th></th>
+                            <th>Kota/Provinsi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-if="!salesStore.isLoading" v-for="item in sales">
+                        <tr v-if="!custStore.isLoading" v-for="item in cust">
                             <td>
-                                <span>{{ item.code }}</span>
+                                <span class="d-uppercase">{{ item.code }}</span>
                             </td>
                             <td>
                                 <span>{{ item.name }}</span>
-                            </td>
-                            <td>
-                                <span>{{ item.type ? item.type : "-" }}</span>
                             </td>
                             <td>
                                 <span>{{
@@ -49,13 +45,23 @@
                                 <span>{{ item.phone ? item.phone : "-" }}</span>
                             </td>
                             <td>
+                                <div class="flex flex-column gap-0">
+                                    <span>{{
+                                        item.city ? item.city : "-"
+                                    }}</span>
+                                    <span>{{
+                                        item.province ? item.province : "-"
+                                    }}</span>
+                                </div>
+                            </td>
+                            <td>
                                 <Button
                                     icon="search"
-                                    @click="openDetail(item.id)"
+                                    @click="openDetail(item.id, item.code)"
                                 />
                             </td>
                         </tr>
-                        <tr v-if="salesStore.isLoading">
+                        <tr v-if="custStore.isLoading">
                             <td colspan="6">
                                 <div class="loading">
                                     <span class="material-symbols-outlined">
@@ -87,32 +93,32 @@
         </div>
     </div>
 
-    <DetailSalesCard v-model:show-detail="showDetail" :sales-id="salesId" />
+    <DetailCustCard v-model:show-detail="showDetail" :custId="custId" />
 </template>
 
 <script setup>
 import { ref, onBeforeMount, onMounted, computed } from "vue";
-import { useSalesStore } from "../store/SalesStore";
+import { useCustomerStore } from "../store/CustomerStore.js";
 import debounce from "lodash.debounce";
-import DetailSalesCard from "./DetailSalesCard.vue";
+import DetailCustCard from "./DetailCustCard.vue";
 
-const salesStore = useSalesStore();
+const custStore = useCustomerStore();
 const filters = ref();
 const page = ref();
 const rpp = ref(10);
 const total = ref();
-const sales = computed(() => {
-    return salesStore.sales["data"];
+const cust = computed(() => {
+    return custStore.customers["data"];
 });
-const salesId = ref();
+const custId = ref();
 const showDetail = ref(false);
 
 onBeforeMount(() => {
     initFilter();
 });
 onMounted(async () => {
-    await salesStore.GET__SALES(false, rpp.value, filters.value);
-    total.value = salesStore.sales["meta"]["total"];
+    await custStore.GET__CUSTOMERS(false, rpp.value, filters.value);
+    total.value = custStore.customers["meta"]["total"];
 });
 
 const initFilter = () => {
@@ -128,17 +134,18 @@ const onDelayReqSearch = debounce(async () => {
     await onFilter();
 }, 700);
 const onFilter = async () => {
-    await salesStore.GET__SALES(false, rpp.value, filters.value);
-    total.value = salesStore.sales["meta"]["total"];
+    await custStore.GET__CUSTOMERS(false, rpp.value, filters.value);
+    total.value = custStore.customers["meta"]["total"];
 };
 
 const onChangePage = async (e) => {
-    await salesStore.GET__SALES(e["page"] + 1, rpp.value, filters.value);
+    await custStore.GET__CUSTOMERS(e["page"] + 1, rpp.value, filters.value);
 };
 
-const openDetail = (_salesId) => {
-    salesId.value = _salesId;
+const openDetail = (_custId, code) => {
+    custId.value = code.split("cst")[1];
     showDetail.value = true;
+    console.log(_custId);
 };
 
 //

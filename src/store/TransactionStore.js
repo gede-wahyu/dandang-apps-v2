@@ -9,6 +9,7 @@ export const useTransactionStore = defineStore("transactionStore", {
         transaction: [],
         details: null,
         isLoading: false,
+        selectedLoading: false,
     }),
     getters: {
         getPendingTransaction() {
@@ -42,11 +43,13 @@ export const useTransactionStore = defineStore("transactionStore", {
         },
 
         async GET__TRANSACTION_BY_ID(id) {
+            this.selectedLoading = true;
             const result = await fetchWrapper
                 .get(`${baseUrl}/api/transactions/${id}`)
                 .then((result) => (this.details = result.data))
                 .catch((error) => error);
 
+            this.selectedLoading = false;
             return result;
         },
 

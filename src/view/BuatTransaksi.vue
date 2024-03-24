@@ -127,7 +127,7 @@
                 </div>
             </div>
             <div v-if="!products.length" class="empty">
-                Tidak data untuk ditampilkan
+                Tidak ada data untuk ditampilkan
             </div>
             <div v-if="!rowLenghtPostFilter <= rowPerPage" class="paginator">
                 <Paginator

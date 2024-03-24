@@ -30,7 +30,11 @@
         >
             <span class="material-symbols-outlined">{{ item.icon }}</span>
             <span>{{ item.label }}</span>
-            <span></span>
+            <span>
+                <!-- <span v-if="item.block" class="material-symbols-outlined">
+                    block
+                </span> -->
+            </span>
         </router-link>
         <Transition
             v-if="item.items && item.visible !== false"
