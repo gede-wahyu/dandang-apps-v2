@@ -26,6 +26,7 @@ export const useProductStore = defineStore("productStore", {
                 .then((result) => (this.products = result.data))
                 .catch((error) => error);
 
+            this.isLoading = false;
             return result;
         },
 

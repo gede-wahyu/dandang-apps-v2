@@ -72,7 +72,20 @@
                                 }}</span>
                             </td>
                             <td>
-                                <Button icon="search" />
+                                <Button
+                                    icon="search"
+                                    @click="openDetail(item.id)"
+                                />
+                            </td>
+                        </tr>
+                        <tr v-if="distStore.isLoading">
+                            <td colspan="6">
+                                <div class="loading">
+                                    <span class="material-symbols-outlined">
+                                        settings
+                                    </span>
+                                    <span> Loading... </span>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -98,11 +111,17 @@
             />
         </div>
     </div>
+
+    <DetailDistribusiSalesCard
+        v-model:show-detail="showDetail"
+        :dist-id="distId"
+    />
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useDistStore } from "../../store/DistributionStore.js";
+import DetailDistribusiSalesCard from "./DetailDistribusiSalesCard.vue";
 
 const filters = ref();
 const rpp = ref(10);
@@ -112,6 +131,8 @@ const distStore = useDistStore();
 const dist = computed(() => {
     return distStore.dist["data"];
 });
+const showDetail = ref(false);
+const distId = ref();
 
 onMounted(async () => {
     await distStore.GET__DISTRIBUTION(false, rpp.value, filters.value);
@@ -127,6 +148,11 @@ const initFilter = () => {
 const onChangePage = async () => {
     await distStore.GET__DISTRIBUTION(page.value, rpp.value, filters.value);
     total.value = distStore.dist["meta"]["total"];
+};
+
+const openDetail = (_distId) => {
+    distId.value = _distId;
+    showDetail.value = true;
 };
 
 const formatDate = (value, type) => {
@@ -156,4 +182,24 @@ initFilter();
 //
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 0;
+    color: var(--text-color-secondary);
+    span:first-of-type {
+        animation: spin infinite 4s;
+    }
+}
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+</style>

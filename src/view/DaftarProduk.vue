@@ -33,7 +33,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in products">
+                            <tr
+                                v-if="!productStore.isLoading"
+                                v-for="item in products"
+                            >
                                 <td class="d-capitalize">
                                     <span>{{ item.name }}</span>
                                 </td>
@@ -66,7 +69,16 @@
                             </tr>
                         </tbody>
                         <!-- table skeleton -->
-                        <tr></tr>
+                        <tr v-if="productStore.isLoading">
+                            <td colspan="6">
+                                <div class="loading">
+                                    <span class="material-symbols-outlined">
+                                        settings
+                                    </span>
+                                    <span> Loading... </span>
+                                </div>
+                            </td>
+                        </tr>
                         <!-- table skeleton -->
                     </table>
                 </div>
@@ -229,7 +241,25 @@ const formatUom = (value) => {
         align-self: center;
     }
 }
-
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 0;
+    color: var(--text-color-secondary);
+    span:first-of-type {
+        animation: spin infinite 4s;
+    }
+}
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
 @media screen and (max-width: 575px) {
     .data-header {
         flex-direction: column;

@@ -178,7 +178,16 @@
                                     placeholder="Nama Sales"
                                     disabled
                                 />
-                                <Button icon="search" @click="openSalesModal" />
+                                <Button
+                                    v-if="!salesData"
+                                    icon="search"
+                                    disabled
+                                />
+                                <Button
+                                    v-else
+                                    icon="search"
+                                    @click="openSalesModal"
+                                />
                             </div>
                         </div>
                         <div class="input-item">
@@ -279,9 +288,7 @@
                         </div>
                         <div class="summary-item">
                             <span>Total Item</span>
-                            <span>{{
-                                formatCurrency(totalAmountOfCart())
-                            }}</span>
+                            <span>{{ totalProductOfCart() }} item</span>
                         </div>
                         <div class="summary-item">
                             <span>Total Harga</span>
@@ -373,16 +380,6 @@ const salesFilter = ref({
     search: "",
 });
 const salesModal = ref(false);
-
-// for CUST-PICK
-const cust = ref(null);
-const dispCust = ref(null);
-
-// for CART
-const newCust = ref(false);
-const newCustData = ref({});
-const payment = ref(null);
-const downpayment = ref(null);
 const cart = ref([]);
 const cartModal = ref(false);
 
