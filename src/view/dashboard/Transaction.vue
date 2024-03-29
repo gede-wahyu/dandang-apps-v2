@@ -3,10 +3,10 @@
         <div class="left">
             <div class="header">
                 <h5>Nilai Transaksi</h5>
-                <span>Total nilai transaksi bulan lalu</span>
+                <span>Total nilai transaksi</span>
             </div>
             <div class="content">
-                <h3>Rp {{ nFormatter(sales.total_amount, 1) }}</h3>
+                <h3>Rp {{ nFormatter(sales.total_profit, 1) }}</h3>
                 <div
                     class="status"
                     :class="{

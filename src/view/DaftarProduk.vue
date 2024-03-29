@@ -29,7 +29,7 @@
                                 <th>Varian</th>
                                 <th>Stok</th>
                                 <th>Harga</th>
-                                <!-- <th></th> -->
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -63,9 +63,19 @@
                                         formatCurrency(item.price)
                                     }}</span>
                                 </td>
-                                <!-- <td>
-                                    <Button label="Detail" />
-                                </td> -->
+                                <td>
+                                    <div class="flex gap-1">
+                                        <Button
+                                            icon="edit"
+                                            severity="warning"
+                                            @click="onClickEdit(item)"
+                                        />
+                                        <!-- <Button
+                                            icon="delete"
+                                            severity="danger"
+                                        /> -->
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                         <!-- table skeleton -->
@@ -107,7 +117,10 @@
                         <span>{{ formatCurrency(item.price) }}</span>
                     </div>
                     <div class="item-button">
-                        <Button label="Detail" />
+                        <div class="flex gap-1">
+                            <Button icon="edit" severity="warning" />
+                            <!-- <Button icon="delete" severity="danger" /> -->
+                        </div>
                     </div>
                 </div>
                 <!-- list skeleton -->
@@ -135,8 +148,10 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useProductStore } from "../store/ProductStore";
+import { useRouter } from "vue-router";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
+const router = useRouter();
 const productStore = useProductStore();
 const rowPerPage = ref(5);
 const currPage = ref(0);
@@ -159,6 +174,10 @@ onMounted(async () => {
     await productStore.GET__PRODUCTS();
     productStore.isLoading = false;
 });
+
+const onClickEdit = (item) => {
+    router.push({ name: "product-edit", params: { id: item.id } });
+};
 
 const formatCurrency = (value) => {
     return new Intl.NumberFormat("id-ID", {
@@ -251,6 +270,13 @@ const formatUom = (value) => {
     span:first-of-type {
         animation: spin infinite 4s;
     }
+}
+.edit-button,
+.delete-button {
+    width: 2rem;
+    height: 2rem;
+    aspect-ratio: 1 / 1;
+    padding: 0;
 }
 @keyframes spin {
     0% {

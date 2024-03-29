@@ -133,10 +133,25 @@
             </div>
             <div class="submit-button">
                 <Button
+                    v-if="!props.selectedProduct"
                     type="submit"
                     icon="save"
                     label="Simpan"
-                    @click="setImageError()"
+                    @click="isImageError()"
+                />
+                <Button
+                    v-if="props.selectedProduct"
+                    label="Batal"
+                    severity="danger"
+                    @click="onCancelEdit"
+                />
+                <Button
+                    v-if="props.selectedProduct"
+                    type="submit"
+                    icon="save"
+                    label="Simpan Perubahan"
+                    severity="warning"
+                    @click="isImageError()"
                 />
             </div>
         </form>
@@ -144,10 +159,25 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useForm } from "vee-validate";
 import * as yup from "yup";
+const baseUrl = import.meta.env.VITE_BASE_URL;
+
+const router = useRouter();
+const props = defineProps({
+    selectedProduct: null,
+});
+
+const initialData = {
+    name: props.selectedProduct ? props.selectedProduct.name : null,
+    varian: props.selectedProduct ? parseInt(props.selectedProduct.size) : null,
+    uom: props.selectedProduct ? props.selectedProduct.uom : null,
+    stock: props.selectedProduct ? parseInt(props.selectedProduct.stock) : null,
+    price: props.selectedProduct ? parseInt(props.selectedProduct.price) : null,
+};
 
 const toast = useToast();
 const validationSchema = yup.object({
@@ -157,7 +187,10 @@ const validationSchema = yup.object({
     stock: yup.number().required("Stok awal wajib diisi"),
     price: yup.number().required("Harga produk wajib diisi"),
 });
-const { errors, handleSubmit, defineField } = useForm({ validationSchema });
+const { errors, handleSubmit, defineField } = useForm({
+    validationSchema,
+    initialValues: initialData,
+});
 const [name, nameAtt] = defineField("name");
 const [varian, varianAtt] = defineField("varian");
 const [uom, uomAtt] = defineField("uom");
@@ -167,6 +200,11 @@ const image = ref();
 const inputImage = ref();
 const imageUrl = ref();
 const imageError = ref();
+
+if (props.selectedProduct) {
+    image.value = { name: props.selectedProduct.image, size: 0 };
+    imageUrl.value = `${baseUrl}/${props.selectedProduct.image}`;
+}
 
 const dropUploadImage = (e) => {
     if (!isFileSizeOk(e.dataTransfer.files[0].size)) {
@@ -207,31 +245,51 @@ const deleteImage = () => {
     imageUrl.value = null;
 };
 const formatFileSize = (value) => {
-    if (!value) return;
+    if (!value) value = 0;
     else if (value > 1024 * 1024)
         return (value / (1024 * 1024)).toFixed(2) + " MB";
     if (value > 1024) return (value / 1024).toFixed(2) + " KB";
     return value + " B";
 };
-const setImageError = () => {
+const isImageError = () => {
     if (!image.value) imageError.value = "Gambar produk wajib diisi";
 };
 
 const onSubmit = handleSubmit(async (values, { resetForm }) => {
     if (!image.value) {
-        setImageError();
+        isImageError();
         return;
     }
 
-    toast.add({
-        severity: "success",
-        summary: "Sukses",
-        detail: "Data produk berhasil ditambahkan.",
-        life: 3000,
-    });
-    console.log(values);
+    if (!props.selectedProduct) {
+        // Add New
+        console.log("Success add", { ...values, image: image.value });
+        toast.add({
+            severity: "success",
+            summary: "Sukses Ditambahkan",
+            detail: "Data produk berhasil ditambahkan.",
+            life: 3000,
+        });
+    } else {
+        // Submit Edit
+        console.log("Success edit", { ...values, image: image.value });
+        toast.add({
+            severity: "success",
+            summary: "Sukses Diperbarui",
+            detail: "Data produk berhasil diperbarui.",
+            life: 3000,
+        });
+        router.push({ name: "product-list" });
+    }
+
     resetForm();
+    image.value = null;
+    imageUrl.value = null;
 });
+
+const onCancelEdit = () => {
+    router.go(-1);
+};
 
 //
 </script>
@@ -268,14 +326,17 @@ const onSubmit = handleSubmit(async (values, { resetForm }) => {
 .submit-button {
     display: flex;
     justify-content: end;
+    gap: 1rem;
     margin-top: 1.5rem;
 }
 .image-field {
     .preview {
+        padding: 1rem;
         width: 100%;
         min-height: 12.5rem;
         display: flex;
         justify-content: center;
+        gap: 1rem;
         align-items: center;
         border: 2px dashed var(--primary);
         border-radius: var(--border-radius);
@@ -290,7 +351,6 @@ const onSubmit = handleSubmit(async (values, { resetForm }) => {
         }
 
         .blob {
-            padding: 1rem;
             display: flex;
             flex-direction: column;
             justify-content: center;

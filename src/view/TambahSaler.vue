@@ -83,82 +83,97 @@
                         </small>
                     </div>
                 </div>
-                <div class="submit-button">
-                    <Button type="submit" icon="save" label="Simpan" />
+                <div class="submit-button gap-1">
+                    <Button
+                        v-if="!props.selectedSales"
+                        type="submit"
+                        icon="save"
+                        label="Simpan"
+                    />
+                    <Button
+                        v-if="props.selectedSales"
+                        severity="danger"
+                        label="Batal"
+                        @click="onCancelEdit"
+                    />
+                    <Button
+                        v-if="props.selectedSales"
+                        type="submit"
+                        severity="warning"
+                        icon="save"
+                        label="Simpan Perubahan"
+                    />
                 </div>
             </form>
         </div>
     </div>
-
-    <!-- <Dialog
-        v-model:visible="codeMaker"
-        header="Periksa Kode Sales"
-        :modal="true"
-        :style="{ width: '35rem' }"
-        :breakpoints="{ '768px': '70vw', '640px': '80vw' }"
-        dismissableMask
-    >
-        <div class="checker-form">
-            <label for="checker">Kode Sales</label>
-            <div class="checker-field">
-                <InputText
-                    v-model="codeChecker"
-                    id="checker"
-                    placeholder="Periksa Kode Sales"
-                />
-                <Button label="Periksa" @click="checkCode()" />
-            </div>
-            <small>
-                <span class="material-symbols-outlined"> question_mark </span>
-                <span>Ketersediaan kode</span>
-            </small>
-        </div>
-        <div class="checker-button">
-            <Button label="Simpan Kode" />
-        </div>
-    </Dialog> -->
 </template>
 
 <script setup>
 // import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useForm } from "vee-validate";
 import * as yup from "yup";
 import { useToast } from "primevue/usetoast";
 
+const router = useRouter();
+const props = defineProps({
+    selectedSales: null,
+});
+
+const initialData = {
+    name: props.selectedSales ? props.selectedSales.name : null,
+    type: props.selectedSales ? props.selectedSales.type : null,
+    address: props.selectedSales ? props.selectedSales.address : null,
+    email: props.selectedSales ? props.selectedSales.email : null,
+    phone: props.selectedSales ? props.selectedSales.phone : null,
+};
+
 const toast = useToast();
 const validationSchema = yup.object({
-    // code: yup.string().required("Kode sales wajib diisi"),
     name: yup.string().required("Nama wajib diisi"),
     type: yup.string().required("Tipe sales wajib diisi"),
     address: yup.string().required("Alamat wajib diisi"),
     email: yup.string().email("Format email salah"),
     phone: yup.string().required("No Hp wajib diisi"),
 });
-const { errors, handleSubmit, defineField } = useForm({ validationSchema });
-// const [code, codeAtt] = defineField("code");
+const { errors, handleSubmit, defineField } = useForm({
+    validationSchema,
+    initialValues: initialData,
+});
 const [name, nameAtt] = defineField("name");
 const [type, typeAtt] = defineField("type");
 const [address, addressAtt] = defineField("address");
 const [email, emailAtt] = defineField("email");
 const [phone, phoneAtt] = defineField("phone");
 
-// const codeMaker = ref(false);
-
 const onSubmit = handleSubmit(async (values, { resetForm }) => {
-    toast.add({
-        severity: "success",
-        summary: "Sukses",
-        detail: "Data sales berhasil ditambahkan.",
-        life: 3000,
-    });
-    console.log(values);
+    if (!props.selectedSales) {
+        // Add New
+        console.log(values);
+        toast.add({
+            severity: "success",
+            summary: "Sukses Ditambahkan",
+            detail: "Data sales berhasil ditambahkan.",
+            life: 3000,
+        });
+    } else {
+        // Submit Edit
+        console.log(values);
+        toast.add({
+            severity: "success",
+            summary: "Sukses Diperbarui",
+            detail: "Data sales berhasil diperbarui.",
+            life: 3000,
+        });
+        router.push({ name: "saler-list" });
+    }
     resetForm();
 });
 
-// const openCodeMaker = () => {
-//     codeMaker.value = true;
-// };
-// const checkCode = async () => {};
+const onCancelEdit = () => {
+    router.go(-1);
+};
 
 //
 </script>

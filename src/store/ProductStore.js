@@ -9,6 +9,7 @@ export const useProductStore = defineStore("productStore", {
         products: [],
         salerProducts: [],
         isLoading: false,
+        selectedProduct: null,
     }),
     getters: {
         getProductsForTransaction() {
@@ -24,6 +25,17 @@ export const useProductStore = defineStore("productStore", {
             const result = await fetchWrapper
                 .get(`${baseUrl}/api/products`)
                 .then((result) => (this.products = result.data))
+                .catch((error) => error);
+
+            this.isLoading = false;
+            return result;
+        },
+
+        async GET__PRODUCTS_BY_ID(id) {
+            this.isLoading = true;
+            const result = await fetchWrapper
+                .get(`${baseUrl}/api/products/${id}`)
+                .then((result) => (this.selectedProduct = result.data))
                 .catch((error) => error);
 
             this.isLoading = false;

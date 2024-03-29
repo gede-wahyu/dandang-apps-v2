@@ -49,10 +49,18 @@
                                 <span>{{ item.phone ? item.phone : "-" }}</span>
                             </td>
                             <td>
-                                <Button
-                                    icon="search"
-                                    @click="openDetail(item.id)"
-                                />
+                                <div class="flex gap-1">
+                                    <Button
+                                        icon="search"
+                                        @click="openDetail(item.id)"
+                                    />
+                                    <Button
+                                        icon="edit"
+                                        severity="warning"
+                                        @click="onClickEdit(item)"
+                                    />
+                                    <!-- <Button icon="delete" severity="danger" /> -->
+                                </div>
                             </td>
                         </tr>
                         <tr v-if="salesStore.isLoading">
@@ -93,9 +101,11 @@
 <script setup>
 import { ref, onBeforeMount, onMounted, computed } from "vue";
 import { useSalesStore } from "../store/SalesStore";
+import { useRouter } from "vue-router";
 import debounce from "lodash.debounce";
 import DetailSalesCard from "./DetailSalesCard.vue";
 
+const router = useRouter();
 const salesStore = useSalesStore();
 const filters = ref();
 const page = ref();
@@ -139,6 +149,10 @@ const onChangePage = async (e) => {
 const openDetail = (_salesId) => {
     salesId.value = _salesId;
     showDetail.value = true;
+};
+
+const onClickEdit = (item) => {
+    router.push({ name: "saler-edit", params: { id: item.id } });
 };
 
 //

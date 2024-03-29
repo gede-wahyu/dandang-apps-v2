@@ -47,7 +47,7 @@ export const useSalesStore = defineStore("salesStore", {
             this.loadingSelectedSales = true;
             const result = await fetchWrapper
                 .get(`${baseUrl}/api/sellers/${id}`)
-                .then((result) => (this.selectedSales = result))
+                .then((result) => (this.selectedSales = result.data))
                 .catch((error) => error);
             this.loadingSelectedSales = false;
             return result;

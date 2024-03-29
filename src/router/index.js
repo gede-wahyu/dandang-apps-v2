@@ -31,6 +31,11 @@ const router = createRouter({
                     component: () => import("../view/TambahProduk.vue"),
                 },
                 {
+                    path: "/ubah-produk/:id",
+                    name: "product-edit",
+                    component: () => import("../view/EditProduk.vue"),
+                },
+                {
                     path: "/riwayat-transaksi",
                     name: "transaction-list",
                     component: () => import("../view/RiwayatTransaksi.vue"),
@@ -84,14 +89,19 @@ const router = createRouter({
                         import("../view/distribution/DistribusiPelanggan.vue"),
                 },
                 {
-                    path: "/daftar-saler",
+                    path: "/daftar-sales",
                     name: "saler-list",
                     component: () => import("../view/DaftarSaler.vue"),
                 },
                 {
-                    path: "/tambah-saler",
+                    path: "/tambah-sales",
                     name: "saler-add",
                     component: () => import("../view/TambahSaler.vue"),
+                },
+                {
+                    path: "/ubah-sales/:id",
+                    name: "saler-edit",
+                    component: () => import("../view/EditSales.vue"),
                 },
                 {
                     path: "/daftar-depo",

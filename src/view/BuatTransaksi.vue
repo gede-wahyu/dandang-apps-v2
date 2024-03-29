@@ -187,7 +187,12 @@
                                     placeholder="Pilih Customer"
                                     disabled
                                 />
-                                <Button icon="search" @click="openCustModal" />
+                                <Button
+                                    v-if="customers"
+                                    icon="search"
+                                    @click="openCustModal"
+                                />
+                                <Button v-else icon="search" disabled />
                             </div>
                         </div>
                         <div v-if="newCust" class="input-item">
@@ -539,7 +544,7 @@ onBeforeMount(() => {
 onMounted(async () => {
     await productStore.GET__PRODUCTS_TRANSACTION();
     productStore.isLoading = false;
-    await customerStore.GET__CUSTOMERS();
+    await customerStore.GET__CUSTOMERS(false, 5, false);
     customers.value = customerStore.customers;
 
     if (localStorage.getItem("cart")) {
@@ -580,7 +585,7 @@ onBeforeUnmount(() => {
 
 const onSearchCust = async (e) => {
     search.value = e;
-    await customerStore.GET__CUSTOMERS(false, search.value);
+    await customerStore.GET__CUSTOMERS(false, 5, { search: search.value });
     customers.value = customerStore.customers;
 };
 

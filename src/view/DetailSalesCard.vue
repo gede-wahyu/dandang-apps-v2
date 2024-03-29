@@ -52,7 +52,7 @@ watch(
         dialog.value = props.showDetail;
         if (props.showDetail) {
             await salesStore.GET__SALES_BY_ID(props.salesId);
-            sales.value = salesStore.selectedSales["data"];
+            sales.value = salesStore.selectedSales;
         }
     }
 );
