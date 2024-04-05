@@ -37,7 +37,7 @@ export const useCustomerStore = defineStore("customerStore", {
             this.loadingSelectedCust = true;
             const result = await fetchWrapper
                 .get(`${baseUrl}/api/customers/${id}`)
-                .then((result) => (this.selectedCust = result))
+                .then((result) => (this.selectedCust = result.data))
                 .catch((error) => error);
             this.loadingSelectedCust = false;
             return result;

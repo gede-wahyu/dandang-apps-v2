@@ -145,6 +145,11 @@ const model = ref([
                 icon: "productivity",
                 to: { name: "cust-list" },
             },
+            {
+                label: "tambah pelanggan",
+                icon: "group_add",
+                to: { name: "cust-add" },
+            },
         ],
     },
 ]);

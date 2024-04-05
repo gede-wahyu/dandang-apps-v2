@@ -118,7 +118,11 @@
                     </div>
                     <div class="item-button">
                         <div class="flex gap-1">
-                            <Button icon="edit" severity="warning" />
+                            <Button
+                                icon="edit"
+                                severity="warning"
+                                @click="onClickEdit(item)"
+                            />
                             <!-- <Button icon="delete" severity="danger" /> -->
                         </div>
                     </div>

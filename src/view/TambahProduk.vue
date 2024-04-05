@@ -1,6 +1,15 @@
 <template>
-    <h5 class="page-title">Tambah Produk</h5>
-    <span class="page-subtitle">Tambah jenis produk baru.</span>
+    <h5 v-if="!props.selectedProduct" class="page-title">Tambah Produk</h5>
+    <span v-if="!props.selectedProduct" class="page-subtitle"
+        >Tambah jenis produk baru.</span
+    >
+
+    <h5 v-if="props.selectedProduct" class="page-title">Ubah Produk</h5>
+    <span v-if="props.selectedProduct" class="page-subtitle"
+        >Ubah produk
+        <span class="d-capitalize">{{ props.selectedProduct.name }}</span></span
+    >
+
     <div class="d-card">
         <form @submit="onSubmit">
             <div class="form">

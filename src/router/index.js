@@ -114,6 +114,11 @@ const router = createRouter({
                     component: () => import("../view/TambahDepo.vue"),
                 },
                 {
+                    path: "/ubah-depo/:id",
+                    name: "depo-edit",
+                    component: () => import("../view/EditDepo.vue"),
+                },
+                {
                     path: "/pengguna",
                     name: "user",
                     component: () => import("../view/user/Pengguna.vue"),
@@ -122,6 +127,16 @@ const router = createRouter({
                     path: "/daftar-pelanggan",
                     name: "cust-list",
                     component: () => import("../view/DaftarPelanggan.vue"),
+                },
+                {
+                    path: "/tambah-pelanggan",
+                    name: "cust-add",
+                    component: () => import("../view/TambahPelanggan.vue"),
+                },
+                {
+                    path: "/ubah-pelanggan/:id",
+                    name: "cust-edit",
+                    component: () => import("../view/EditPelanggan.vue"),
                 },
             ],
         },

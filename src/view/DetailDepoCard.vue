@@ -48,7 +48,7 @@ watch(
         dialog.value = props.showDetail;
         if (props.showDetail) {
             await depoStore.GET__DEPO_BY_ID(props.depoId);
-            depo.value = depoStore.selectedDepo["data"];
+            depo.value = depoStore.selectedDepo;
         }
     }
 );

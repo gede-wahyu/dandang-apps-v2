@@ -47,10 +47,17 @@
                                 }}</span>
                             </td>
                             <td>
-                                <Button
-                                    icon="search"
-                                    @click="openDetail(item.id)"
-                                />
+                                <div class="flex gap-1">
+                                    <Button
+                                        icon="search"
+                                        @click="openDetail(item.id)"
+                                    />
+                                    <Button
+                                        icon="edit"
+                                        severity="warning"
+                                        @click="onClickEdit(item)"
+                                    />
+                                </div>
                             </td>
                         </tr>
                         <tr v-if="depoStore.isLoading">
@@ -89,11 +96,13 @@
 </template>
 
 <script setup>
+import { useRouter } from "vue-router";
 import { ref, onBeforeMount, onMounted, computed } from "vue";
 import { useDepoStore } from "../store/DepoStore";
 import debounce from "lodash.debounce";
 import DetailDepoCard from "./DetailDepoCard.vue";
 
+const router = useRouter();
 const depoStore = useDepoStore();
 const filters = ref();
 const page = ref();
@@ -137,6 +146,10 @@ const onChangePage = async (e) => {
 const openDetail = (_depoId) => {
     depoId.value = _depoId;
     showDetail.value = true;
+};
+
+const onClickEdit = (item) => {
+    router.push({ name: "depo-edit", params: { id: item.id } });
 };
 
 //

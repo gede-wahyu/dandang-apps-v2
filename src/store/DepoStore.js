@@ -34,11 +34,10 @@ export const useDepoStore = defineStore("depoStore", {
         },
 
         async GET__DEPO_BY_ID(id) {
-            console.log("depo id triger");
             this.loadingSelectedDepo = true;
             const result = await fetchWrapper
                 .get(`${baseUrl}/api/warehouses/${id}`)
-                .then((result) => (this.selectedDepo = result))
+                .then((result) => (this.selectedDepo = result.data))
                 .catch((error) => error);
             this.loadingSelectedDepo = false;
             return result;

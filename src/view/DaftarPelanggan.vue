@@ -55,10 +55,17 @@
                                 </div>
                             </td>
                             <td>
-                                <Button
-                                    icon="search"
-                                    @click="openDetail(item.id, item.code)"
-                                />
+                                <div class="flex gap-1">
+                                    <Button
+                                        icon="search"
+                                        @click="openDetail(item.id, item.code)"
+                                    />
+                                    <Button
+                                        icon="edit"
+                                        severity="warning"
+                                        @click="onClickEdit(item)"
+                                    />
+                                </div>
                             </td>
                         </tr>
                         <tr v-if="custStore.isLoading">
@@ -97,11 +104,13 @@
 </template>
 
 <script setup>
+import { useRouter } from "vue-router";
 import { ref, onBeforeMount, onMounted, computed } from "vue";
 import { useCustomerStore } from "../store/CustomerStore.js";
 import debounce from "lodash.debounce";
 import DetailCustCard from "./DetailCustCard.vue";
 
+const router = useRouter();
 const custStore = useCustomerStore();
 const filters = ref();
 const page = ref();
@@ -145,7 +154,10 @@ const onChangePage = async (e) => {
 const openDetail = (_custId, code) => {
     custId.value = code.split("cst")[1];
     showDetail.value = true;
-    console.log(_custId);
+};
+
+const onClickEdit = (item) => {
+    router.push({ name: "cust-edit", params: { id: item.id } });
 };
 
 //

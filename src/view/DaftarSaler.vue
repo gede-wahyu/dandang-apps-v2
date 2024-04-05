@@ -178,4 +178,14 @@ const onClickEdit = (item) => {
         transform: rotate(360deg);
     }
 }
+@media screen and (max-width: 575px) {
+    .data-header {
+        flex-direction: column;
+        .tools-group {
+            input {
+                width: 100%;
+            }
+        }
+    }
+}
 </style>

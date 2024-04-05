@@ -56,7 +56,7 @@ watch(
         dialog.value = props.showDetail;
         if (props.showDetail) {
             await custStore.GET__CUST_BY_ID(props.custId);
-            cust.value = custStore.selectedCust["data"];
+            cust.value = custStore.selectedCust;
         }
     }
 );

@@ -1,6 +1,14 @@
 <template>
-    <h5 class="page-title">Tambah Depo</h5>
-    <span class="page-subtitle">Tambah depo baru.</span>
+    <h5 v-if="!props.selectedDepo" class="page-title">Tambah Depo</h5>
+    <span v-if="!props.selectedDepo" class="page-subtitle"
+        >Tambah depo baru.</span
+    >
+
+    <h5 v-if="props.selectedDepo" class="page-title">Ubah Depo</h5>
+    <span v-if="props.selectedDepo" class="page-subtitle"
+        >Ubah depo dengan kode {{ props.selectedDepo.code }}</span
+    >
+
     <div class="grid">
         <div class="d-card">
             <form @submit="onSubmit">
@@ -38,7 +46,7 @@
                             v-bind="cityAtt"
                             :options="cityOpt"
                             inputId="city"
-                            placeholder="Tipe sales"
+                            placeholder="Pilih Kota"
                         >
                             <template #empty>
                                 <span>Pilih provinsi terlebih dahulu.</span>
@@ -49,8 +57,26 @@
                         </small>
                     </div>
                 </div>
-                <div class="submit-button">
-                    <Button type="submit" icon="save" label="Simpan" />
+                <div class="submit-button gap-1">
+                    <Button
+                        v-if="!props.selectedDepo"
+                        type="submit"
+                        icon="save"
+                        label="Simpan"
+                    />
+                    <Button
+                        v-if="props.selectedDepo"
+                        severity="danger"
+                        label="Batal"
+                        @click="onCancelEdit"
+                    />
+                    <Button
+                        v-if="props.selectedDepo"
+                        type="submit"
+                        severity="warning"
+                        icon="save"
+                        label="Simpan Perubahan"
+                    />
                 </div>
             </form>
         </div>
@@ -58,11 +84,23 @@
 </template>
 
 <script setup>
+import { useRouter } from "vue-router";
 import { ref, onMounted } from "vue";
 import { useLocationStore } from "../store/LocationStore";
 import { useForm } from "vee-validate";
 import * as yup from "yup";
 import { useToast } from "primevue/usetoast";
+
+const router = useRouter();
+const props = defineProps({
+    selectedDepo: null,
+});
+
+const initialData = {
+    address: props.selectedDepo ? props.selectedDepo.address : null,
+    province: props.selectedDepo ? props.selectedDepo.province : null,
+    city: props.selectedDepo ? props.selectedDepo.city : null,
+};
 
 const toast = useToast();
 const locationStore = useLocationStore();
@@ -71,7 +109,10 @@ const validationSchema = yup.object({
     province: yup.string().required("Provinsi wajib diisi"),
     city: yup.string().required("Kota wajib diisi"),
 });
-const { errors, handleSubmit, defineField } = useForm({ validationSchema });
+const { errors, handleSubmit, defineField } = useForm({
+    validationSchema,
+    initialValues: initialData,
+});
 const [province, provinceAtt] = defineField("province");
 const [city, cityAtt] = defineField("city");
 const [address, addressAtt] = defineField("address");
@@ -91,15 +132,31 @@ const getCityOpt = async () => {
 };
 
 const onSubmit = handleSubmit(async (values, { resetForm }) => {
-    toast.add({
-        severity: "success",
-        summary: "Sukses",
-        detail: "Data sales berhasil ditambahkan.",
-        life: 3000,
-    });
-    console.log(values);
+    if (!props.selectedDepo) {
+        // Add New
+        console.log(values);
+        toast.add({
+            severity: "success",
+            summary: "Sukses Ditambahkan",
+            detail: "Data sales berhasil ditambahkan.",
+            life: 3000,
+        });
+    } else {
+        // Submit Edit
+        console.log(values);
+        toast.add({
+            severity: "success",
+            summary: "Sukses Diperbarui",
+            detail: "Data sales berhasil diperbarui.",
+            life: 3000,
+        });
+    }
     resetForm();
 });
+
+const onCancelEdit = () => {
+    router.go(-1);
+};
 
 //
 </script>
