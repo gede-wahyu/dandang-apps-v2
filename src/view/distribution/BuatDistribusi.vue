@@ -347,11 +347,13 @@
 import { ref, computed, onMounted } from "vue";
 import { useProductStore } from "../../store/ProductStore";
 import { useSalesStore } from "../../store/SalesStore";
+import { useAuthStore } from "../../store/AuthStore";
 import { useToast } from "primevue/usetoast";
 import FragmentSales from "../FragmentSales.vue";
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 // for PRODUCT-PICK
+const authStore = useAuthStore();
 const productStore = useProductStore();
 const salesStore = useSalesStore();
 const toast = useToast();
@@ -520,6 +522,13 @@ const onSubmitTransaction = () => {
             summary: "Distribusi Berhasil",
             detail: "OK",
             life: 3000,
+        });
+        console.log({
+            depo_id: authStore.auth.user["id"],
+            sales_id: sales.value["id"],
+            products: cart.value.map((item) => {
+                return { id: item["id"], amount: item["amount"] };
+            }),
         });
 
         closeCart();

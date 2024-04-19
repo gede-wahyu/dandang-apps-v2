@@ -129,6 +129,18 @@
                                 <td>
                                     <div class="flex gap-0">
                                         <Button
+                                            icon="print"
+                                            severity="info"
+                                            @click="
+                                                router.push({
+                                                    name: 'invoice',
+                                                    params: {
+                                                        id: item.id,
+                                                    },
+                                                })
+                                            "
+                                        />
+                                        <Button
                                             icon="search"
                                             @click="openTransDetail(item)"
                                         />
@@ -506,14 +518,6 @@
         <template #header>
             <div class="transaction-details-header">
                 <h5>Detail Transaksi</h5>
-                <span
-                    class="span-nav-button"
-                    role="button"
-                    tabindex="0"
-                    @click="goToDetail(selectedTransaction)"
-                >
-                    <span class="material-symbols-outlined"> edit </span>
-                </span>
             </div>
         </template>
         <div
@@ -526,6 +530,32 @@
             <span class="material-symbols-outlined"> settings </span>
             <span> Loading... </span>
         </div>
+        <template #footer>
+            <div
+                v-if="selectedTransaction && !transactionStore.selectedLoading"
+                class="transaction-details-footer"
+            >
+                <Button
+                    label="Cetak"
+                    icon="print"
+                    severity="info"
+                    @click="
+                        router.push({
+                            name: 'invoice',
+                            params: {
+                                id: selectedTransaction.id,
+                            },
+                        })
+                    "
+                />
+                <Button
+                    label="Ubah"
+                    icon="edit"
+                    severity="warning"
+                    @click="goToDetail(selectedTransaction)"
+                />
+            </div>
+        </template>
     </Dialog>
 </template>
 
@@ -881,6 +911,9 @@ const formatDate = (value, type) => {
             font-size: 1.5rem !important;
         }
     }
+}
+.transaction-details-footer {
+    padding-top: 1.5rem;
 }
 
 .filter-button {

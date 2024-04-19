@@ -24,7 +24,7 @@
                 @click="
                     router.push({
                         name: 'invoice',
-                        params: { reference: route.params.reference },
+                        params: { id: route.params.id },
                     })
                 "
             />

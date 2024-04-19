@@ -355,7 +355,7 @@ const convertToCSV = (data, sum) => {
         "Pelanggan",
         "Total",
         "Pajak",
-    ].join(",");
+    ].join(";");
     let subtitle = [];
     for (let prop in filters.value) {
         if (prop === "start_date" && filters.value[prop])
@@ -374,7 +374,7 @@ const convertToCSV = (data, sum) => {
     const csvRow = [
         ...subtitle.map((i) => i),
         headerRow,
-        ...rows.map((row) => row.join(",")),
+        ...rows.map((row) => row.join(";")),
         `Total Pendapatan: ${sum["sum_total_amount"]}`,
         `Total Pajak: ${sum["sum_tax_amount"]}`,
     ];

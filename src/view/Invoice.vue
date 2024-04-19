@@ -15,15 +15,32 @@
         <span>Detail</span>
     </div>
 
-    <h5 class="page-header">Invoice</h5>
-    <div class="page-subheader">
-        <span>Bukti dan informasi detail transaksi.</span>
+    <div class="page-header">
+        <div>
+            <h5 class="page-title">Invoice</h5>
+            <div class="page-subtitle">
+                <span>Bukti dan informasi detail transaksi.</span>
+            </div>
+        </div>
+        <div class="tools">
+            <Dropdown
+                v-model="printModel"
+                :options="['Invoice', 'Faktur']"
+                placeholder="Pilih model"
+                style="width: 15rem"
+            />
+            <Button label="Cetak" icon="print" @click="printReceipt()" />
+        </div>
     </div>
 
-    <div class="container container-invoice">
-        <div v-if="details" class="d-card invoice">
-            <div id="print-invoice">
-                <div class="header">
+    <div class="inv-container">
+        <div
+            v-if="details"
+            class="d-card invoice"
+            :class="{ receiptDispActive: printModel === 'Faktur' }"
+        >
+            <div>
+                <div class="inv-header">
                     <div class="header-left">
                         <h4>
                             <img
@@ -42,6 +59,7 @@
                             <a href="tel:+6281313999834">+62 813-1399-9834</a>
                         </div>
                     </div>
+                    <div v-if="printModel === 'Faktur'" class="separator"></div>
                     <div class="header-right">
                         <h5>
                             <span>Invoice</span>
@@ -49,34 +67,28 @@
                             <span>{{ details.reference }}</span>
                         </h5>
                         <div class="subheader">
-                            <span>
-                                Tanggal Transaksi:
-                                <span>{{
-                                    formatDate(details.date, "date")
-                                }}</span>
-                                <span>{{
-                                    formatDate(details.date, "time")
-                                }}</span>
-                            </span>
-                            <span>
-                                Tenggat Pembayaran:
-                                <span>{{
-                                    formatDate(
-                                        details.due
-                                            ? details.due
-                                            : details.date,
-                                        "date"
-                                    )
-                                }}</span>
-                                <span>{{
-                                    formatDate(
-                                        details.due
-                                            ? details.due
-                                            : details.date,
-                                        "time"
-                                    )
-                                }}</span>
-                            </span>
+                            <div>
+                                <span>Tanggal Transaksi</span>
+                                <span
+                                    >{{ formatDate(details.date, "date") }}
+                                    {{ formatDate(details.date, "time") }}</span
+                                >
+                            </div>
+                            <div>
+                                <span>Tanggal Pembayaran</span>
+                                <span
+                                    >{{ formatDate(details.due, "date") }}
+                                    {{ formatDate(details.due, "time") }}</span
+                                >
+                            </div>
+                            <div v-if="printModel === 'Faktur'">
+                                <span>Pelanggan</span>
+                                <span>{{ details.customer.name }}</span>
+                            </div>
+                            <div v-if="printModel === 'Faktur'">
+                                <span>Sales</span>
+                                <span>{{ details.sales.code }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -84,9 +96,17 @@
                 <div class="body-top">
                     <div class="customer">
                         <h6>Pelanggan</h6>
-                        <span>{{ details.customer_name }}</span>
-                        <span>#{{ details.customer.code }}</span>
-                        <span>{{ details.customer.address }}</span>
+                        <span>{{
+                            details.customer.name ? details.customer.name : "-"
+                        }}</span>
+                        <span>{{
+                            details.customer.code ? details.customer.code : "-"
+                        }}</span>
+                        <span>{{
+                            details.customer.address
+                                ? details.customer.address
+                                : "-"
+                        }}</span>
                         <span>{{
                             details.customer.contact
                                 ? details.customer.contact
@@ -115,9 +135,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="body-bottom">
+                <div class="body-btm">
                     <div class="table-wrapper">
-                        <table class="d-table">
+                        <table v-if="printModel !== 'Faktur'" class="d-table">
                             <tr>
                                 <th>Produk</th>
                                 <th>Harga</th>
@@ -183,19 +203,93 @@
                                 </td>
                             </tr>
                         </table>
+                        <table v-if="printModel === 'Faktur'" class="d-table">
+                            <tr>
+                                <th>Qty</th>
+                                <th>Produk</th>
+                                <th>Total</th>
+                            </tr>
+                            <tr v-for="n in details.products">
+                                <td>{{ n.quantity }}</td>
+                                <td>{{ n.name }}</td>
+                                <td>
+                                    <div class="flex flex-column">
+                                        <span>{{
+                                            formatCurrency(n.unit_price, true)
+                                        }}</span>
+                                        <span
+                                            style="color: var(--text-color)"
+                                            >{{
+                                                formatCurrency(
+                                                    n.unit_price * n.quantity,
+                                                    true
+                                                )
+                                            }}</span
+                                        >
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="summary">
+                                <td colspan="2">
+                                    <div>
+                                        <span>Subtotal</span>
+                                        <span
+                                            >Diskon ({{
+                                                details.discount.disc
+                                            }}%)</span
+                                        >
+                                        <span>Pengiriman</span>
+                                        <span
+                                            >PPn ({{
+                                                details.tax.amount
+                                            }}%)</span
+                                        >
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <span>{{
+                                            formatCurrency(
+                                                details.sub_total,
+                                                true
+                                            )
+                                        }}</span>
+                                        <span>
+                                            {{
+                                                formatCurrency(
+                                                    details.discount.amount,
+                                                    true
+                                                )
+                                            }}
+                                        </span>
+                                        <span>{{
+                                            formatCurrency(
+                                                details.shipping_amount,
+                                                true
+                                            )
+                                        }}</span>
+                                        <span>{{
+                                            formatCurrency(
+                                                details.tax.ppn,
+                                                true
+                                            )
+                                        }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="summary">
+                                <td colspan="2">Total</td>
+                                <td>
+                                    {{ formatCurrency(details.total, true) }}
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="d-card tools">
-            <Button label="Cetak" @click="printInv()" />
-            <!-- <Button label="Unduh" @click="downloadInv()" />
-            <Button label="WhatsApp" />
-            <Button label="Email" /> -->
-        </div>
     </div>
-    <div class="footer">
+    <div class="inv-copyright">
         <span>&copy; 2024 OMAH IT. All Rights Reserved</span>
     </div>
 </template>
@@ -211,20 +305,19 @@ const transactionStore = useTransactionStore();
 const details = computed(() => {
     return transactionStore.details;
 });
+const printModel = ref("Invoice");
 
 onMounted(async () => {
     await transactionStore.GET__TRANSACTION_BY_ID(route.params.id);
     transactionStore.isLoading = false;
 });
 
-const printInv = () => {
+const printReceipt = () => {
     window.print({
-        silent: true,
+        // silent: true,
         sizeMode: "portrait",
     });
 };
-
-const downloadInv = () => {};
 
 const formatCurrency = (value, notCurr) => {
     if (notCurr) return Intl.NumberFormat("id-ID").format(value);
@@ -254,42 +347,76 @@ const formatDate = (value, type) => {
 </script>
 
 <style scoped lang="scss">
-.container {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 1.5rem;
-    .invoice {
-        grid-column: 1 / 10;
-    }
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
     .tools {
-        grid-column: 10 / 13;
-        height: fit-content;
         display: flex;
-        flex-direction: column;
         gap: 1rem;
-        button {
-            width: 100%;
-            height: fit-content;
-            padding: 1rem;
+    }
+}
+
+.inv-container {
+    display: flex;
+    justify-content: center;
+}
+
+.invoice {
+    max-width: 70rem;
+    padding: 4rem 3rem;
+}
+
+.inv-header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+
+    .header-left,
+    .header-right {
+        .subheader {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            &,
+            & a {
+                color: var(--text-color-secondary);
+            }
         }
-        button:not(:first-of-type) {
-            background-color: var(--primary-a1);
-            color: var(--icon-color-secondary);
-            &:hover {
-                background-color: var(--primary-a2);
+    }
+    .header-left {
+        h4 {
+            display: flex;
+            .logo {
+                width: 2rem;
+                height: 2rem;
+                aspect-ratio: 1 / 1;
+                object-fit: contain;
+                margin-right: 0.5rem;
+                display: flex;
+            }
+        }
+    }
+    .header-right {
+        .subheader {
+            div {
+                display: flex;
+                gap: 0.5rem;
+                span:first-of-type {
+                    display: flex;
+                    justify-content: space-between;
+                    &::after {
+                        content: (":");
+                    }
+                }
             }
         }
     }
 }
 
-.logo {
-    width: 2rem;
-    height: 2rem;
-    aspect-ratio: 1 / 1;
-    object-fit: contain;
-    margin-right: 0.5rem;
-    display: flex;
-}
 .separator {
     width: 100%;
     height: 1px;
@@ -297,130 +424,97 @@ const formatDate = (value, type) => {
     margin: 1.5rem 0;
     border-radius: 2px;
 }
-.invoice {
-    padding: 0;
-    #print-invoice {
-        padding: 4rem 3rem;
-    }
-    h4 {
-        display: flex;
-        align-items: center;
-    }
-    .header {
-        display: flex;
-        justify-content: space-between;
-        gap: 1.5rem;
-    }
-    .subheader {
+
+.body-top {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    .customer,
+    .payment {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        color: var(--text-color-secondary);
-        a {
-            width: fit-content;
+        & :not(h6) {
             color: var(--text-color-secondary);
         }
-
-        span {
-            text-transform: capitalize;
-        }
     }
-    .header-right {
-        .subheader {
-            & > span {
-                span:first-of-type {
-                    margin-right: 0.5rem;
+    .payment {
+        .item {
+            display: flex;
+            gap: 0.5rem;
+            span:first-of-type {
+                &::after {
+                    content: ":";
                 }
             }
         }
     }
 }
-.body-top {
-    display: flex;
-    justify-content: space-between;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-    .customer {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        h6 {
-            margin-bottom: 0.5rem;
-        }
-        span {
-            text-transform: capitalize;
-            color: var(--text-color-secondary);
-            &:nth-of-type(2) {
-                text-transform: uppercase;
-            }
-        }
-    }
-    .payment {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        h6 {
-            margin-bottom: 0.5rem;
-        }
-        span {
+
+.body-btm {
+    .d-table {
+        td:not(.summary:last-of-type td) {
             color: var(--text-color-secondary);
         }
-        .item {
-            display: flex;
-            gap: 0.5rem;
-            & > span:first-of-type::after {
-                content: ": ";
-            }
-        }
-    }
-}
-.d-table {
-    th,
-    td {
-        vertical-align: top;
-    }
-    th {
-        border-top: 1px solid var(--surface-tborder);
-    }
-    td {
-        color: var(--text-color-secondary);
-    }
-    .summary {
-        td {
-            border: none;
-            &:first-of-type {
-                text-align: end;
-            }
-            div {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-        }
-        &:last-of-type {
+        .summary {
             td {
-                color: var(--text-color);
+                border: none;
+                &:first-of-type {
+                    text-align: end;
+                }
+                div {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
             }
         }
     }
 }
-.footer {
+
+.invoice.receiptDispActive {
+    max-width: 30rem;
+    padding: 3rem 2rem;
+    .inv-header {
+        justify-content: center;
+        gap: 0;
+        .header-left,
+        .header-right {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .header-right {
+            .subheader {
+                width: 100%;
+                div {
+                    width: 100%;
+                    span:first-of-type {
+                        width: 13rem;
+                    }
+                }
+            }
+        }
+    }
+    .body-top {
+        display: none;
+    }
+}
+
+.inv-copyright {
     display: none;
 }
-.page-header {
-    margin-bottom: 0.5rem;
-    & + .page-subheader {
-        margin-bottom: 1rem;
-        display: flex;
-        flex-wrap: wrap;
-        row-gap: 0.5rem;
-        color: var(--text-color-secondary);
-    }
-}
+
 .breadcrumb {
     display: flex;
     gap: 0.75rem;
     align-items: center;
+    margin-bottom: 1.5rem;
     color: var(--text-color-secondary);
     span,
     a {
@@ -434,25 +528,6 @@ const formatDate = (value, type) => {
         &:hover {
             color: var(--primary);
         }
-    }
-}
-
-@media screen and (max-width: 1300px) {
-    .container {
-        .invoice {
-            grid-column: 1 / 13;
-        }
-        .tools {
-            grid-column: 1 / 13;
-        }
-    }
-    .body-top {
-        flex-direction: column;
-    }
-}
-@media screen and (max-width: 767px) {
-    .header {
-        flex-direction: column;
     }
 }
 </style>
@@ -482,20 +557,10 @@ const formatDate = (value, type) => {
             display: none !important;
         }
     }
-    .container-invoice {
-        display: grid !important;
-        grid-template-columns: repeat(12, 1fr) !important;
-        .invoice {
-            grid-column: 1 / 13 !important;
-            color: #000 !important;
-            tr.summary:last-of-type td {
-                color: #000 !important;
-            }
-        }
-        .tools {
-            display: none !important;
-        }
+    .tools {
+        display: none !important;
     }
+
     .footer {
         display: block !important;
         position: fixed;
